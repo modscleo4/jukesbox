@@ -1,0 +1,21 @@
+{
+  "name": "jukesbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.2.0",
+    "youtube-mp3-downloader": "^0.6.7",
+    "youtube-search": "^1.1.4"
+  },
+  "devDependencies": {
+    "ytdl-core": "^2.1.5"
+  }
+}
