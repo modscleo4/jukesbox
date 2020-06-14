@@ -12,10 +12,8 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "discord.js": "^12.2.0",
-    "youtube-mp3-downloader": "^0.6.7",
-    "youtube-search": "^1.1.4"
-  },
-  "devDependencies": {
+    "googleapis": "^52.1.0",
+    "youtube-search": "^1.1.4",
     "ytdl-core": "^2.1.5"
   }
 }
