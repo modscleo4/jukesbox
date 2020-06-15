@@ -6,8 +6,12 @@ const search = require('youtube-search');
 const {ytapikey} = require('../config.js');
 const {isValidHttpURL, getPlaylistItems} = require('../lib/utils');
 
-function play(guild, song) {
+async function play(guild, song) {
     const serverQueue = queue.get(guild.id);
+    if (serverQueue.toDelete) {
+        await serverQueue.toDelete.delete();
+        serverQueue.toDelete = null;
+    }
 
     if (!song) {
         queue.delete(guild.id);
@@ -15,63 +19,75 @@ function play(guild, song) {
     }
 
     const dispatcher = serverQueue.connection.play(ytdl(song.url, {
-        filter: "audioonly",
+        filter: 'audioonly',
         highWaterMark: 1 << 25
-    })).on("finish", () => {
+    })).on('finish', async () => {
         serverQueue.songs.shift();
-        play(guild, serverQueue.songs[0]);
+        await play(guild, serverQueue.songs[0]);
     }).on('error', e => {
         console.error(e);
     });
 
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
+    serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
 }
 
 module.exports = {
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
     'join': async message => {
         const voiceChannel = message.member.voice.channel;
 
         if (!voiceChannel) {
-            message.channel.send(`Tá solo né filha da puta.`);
+            await message.channel.send(`Tá solo né filha da puta.`);
             return;
         }
 
         const permissions = voiceChannel.permissionsFor(message.client.user);
         if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-            message.channel.send('ME AJUDA!');
-            return;
+            return message.channel.send('ME AJUDA!');
         }
 
         await voiceChannel.join();
-        message.channel.send(`Salve salve yodinha: ${voiceChannel.name}`);
+        await message.channel.send(`Salve salve yodinha: ${voiceChannel.name}`);
     },
 
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
     'leave': async (message) => {
         const voiceChannel = message.member.voice.channel;
 
         if (!voiceChannel) {
-            message.channel.send(`Tá solo né filha da puta.`);
-            return;
+            return await message.channel.send(`Tá solo né filha da puta.`);
         }
 
         await voiceChannel.leave();
-        message.channel.send('Sai Minerva filha da puta.');
+        await message.channel.send('Sai Minerva filha da puta.');
     },
 
+    /**
+     *
+     * @param {Message} message
+     * @param {String[]} args
+     * @return {Promise<*>}
+     */
     'play': async (message, args) => {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = queue.get(message.guild.id);
 
         if (!voiceChannel) {
-            message.channel.send(`Tá solo né filha da puta.`);
-            return;
+            return await message.channel.send(`Tá solo né filha da puta.`);
         }
 
         const permissions = voiceChannel.permissionsFor(message.client.user);
         if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-            message.channel.send('ME AJUDA!');
-            return;
+            return await message.channel.send('ME AJUDA!');
         }
 
         const songs = [];
@@ -99,7 +115,7 @@ module.exports = {
 
                 songs.push(song);
             });
-        } else {
+        } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
             const songInfo = await ytdl.getInfo(url);
             const song = {
                 title: songInfo.title,
@@ -107,6 +123,8 @@ module.exports = {
             };
 
             songs.push(song);
+        } else {
+            return await message.channel.send('Eu não consigo clicar velho.');
         }
 
         if (!serverQueue) {
@@ -116,14 +134,15 @@ module.exports = {
                 connection: null,
                 songs: [...songs],
                 volume: 5,
-                playing: true
+                playing: true,
+                toDelete: null,
             };
 
             queue.set(message.guild.id, queueContruct);
 
             try {
                 queueContruct.connection = await voiceChannel.join();
-                play(message.guild, queueContruct.songs[0]);
+                await play(message.guild, queueContruct.songs[0]);
             } catch (err) {
                 console.log(err);
                 queue.delete(message.guild.id);
@@ -139,7 +158,12 @@ module.exports = {
         }
     },
 
-    'pause': message => {
+    /**
+     *
+     * @param {Message} message
+     * @return {*}
+     */
+    'pause': async message => {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = queue.get(message.guild.id);
 
@@ -152,53 +176,73 @@ module.exports = {
         }
 
         serverQueue.connection.dispatcher.pause(true);
-        message.channel.send(`Vai gankar quem caralho.`);
+        serverQueue.playing = false;
+        await message.channel.send(`Vai gankar quem caralho.`);
     },
 
-    'resume': message => {
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
+    'resume': async message => {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = queue.get(message.guild.id);
 
         if (!voiceChannel) {
-            return message.channel.send('Tá solo né filha da puta.');
+            return await message.channel.send('Tá solo né filha da puta.');
         }
 
         if (!serverQueue) {
-            return message.channel.send("ME AJUDA.");
+            return await message.channel.send("ME AJUDA.");
         }
 
         serverQueue.connection.dispatcher.resume();
-        message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
+        serverQueue.playing = true;
+        await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
     },
 
-    'stop': message => {
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
+    'stop': async message => {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = queue.get(message.guild.id);
 
         if (!voiceChannel) {
-            return message.channel.send('ME AJUDA.');
+            return await message.channel.send('ME AJUDA.');
         }
 
         serverQueue.songs = [];
         serverQueue.connection.dispatcher.end();
-        message.channel.send(`Caralho filha da puta morre logo.`);
+        serverQueue.playing = false;
+        await message.channel.send(`Caralho filha da puta morre logo.`);
     },
 
-    'skip': (message, args) => {
+    /**
+     *
+     * @param {Message} message
+     * @param {String[]} args
+     * @return {Promise<*>}
+     */
+    'skip': async (message, args) => {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = queue.get(message.guild.id);
 
         if (!voiceChannel) {
-            return message.channel.send('Tá solo né filha da puta.');
+            return await message.channel.send('Tá solo né filha da puta.');
         }
 
         if (!serverQueue) {
-            return message.channel.send("ME AJUDA.");
+            return await message.channel.send("ME AJUDA.");
         }
 
         let skips = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
         if (skips > serverQueue.songs.length) {
             skips = serverQueue.songs.length;
+            serverQueue.playing = false;
         }
 
         for (let i = 0; i < skips - 1; i++) {
@@ -207,16 +251,21 @@ module.exports = {
 
         serverQueue.connection.dispatcher.end();
 
-        message.channel.send('Pode passar jovi.');
+        await message.channel.send('Pode passar jovi.');
     },
 
-    'queue': message => {
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
+    'queue': async message => {
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            return message.channel.send("Tá limpo vei.");
+            return await message.channel.send("Tá limpo vei.");
         }
 
-        message.channel.send(`Fila tá assim lek:\n\n${serverQueue.songs.reduce((a, s, i) => a + `${i + 1}: **${s.title}**\n`, '')}`);
+        await message.channel.send(`Fila tá assim lek:\n\n${serverQueue.songs.reduce((a, s, i) => a + `${i + 1}: **${s.title}**\n`, '')}`);
     },
 };

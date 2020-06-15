@@ -8,9 +8,15 @@ const musicCommands = require('./plugins/music');
 const commands = {...musicCommands};
 
 bot.on('ready', () => {
-    bot.user.setActivity('Jukera carai', {
-        type: 'CUSTOM_STATUS',
-        url: 'https://twitch.tv/jukes',
+    bot.user.setPresence({
+        activity: {
+            name: 'Jukera carai',
+            type: 'WATCHING',
+        },
+
+        status: 'online',
+    }).then(() => {
+        console.log(`Stream do Jukera on.`);
     });
 });
 
