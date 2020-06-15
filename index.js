@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {prefix, token} = require('./config.json');
+const {prefix, token} = require('./config.js');
 const {isAsync} = require('./lib/utils');
 
 const bot = new Discord.Client();

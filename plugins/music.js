@@ -3,7 +3,7 @@ const queue = new Map();
 const ytdl = require('ytdl-core');
 
 const search = require('youtube-search');
-const {ytapikey} = require('../config.json');
+const {ytapikey} = require('../config.js');
 const {isValidHttpURL, getPlaylistItems} = require('../lib/utils');
 
 function play(guild, song) {
@@ -78,7 +78,7 @@ module.exports = {
         let url = isValidHttpURL(args[0]) ? args[0] : (await search(args.join(' '), {
             maxResults: 1,
             key: ytapikey
-        })).results[0].link || null;
+        })).results.find(r => r.kind === 'youtube#video').link || null;
         if (!url) {
             return message.channel.send('Achei nada lesk.');
         }
