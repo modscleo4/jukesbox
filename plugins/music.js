@@ -34,7 +34,7 @@ async function play(message, song) {
     });
 
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
+    serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${song.title}**`);
 }
 
 module.exports = {
@@ -195,7 +195,7 @@ module.exports = {
                 return await message.channel.send("Tá limpo vei.");
             }
 
-            await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${serverQueue.songs[0].title}**`);
+            await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${serverQueue.songs[0].title}**`);
         },
     },
 
@@ -264,6 +264,10 @@ module.exports = {
             const serverQueue = queue.get(message.guild.id);
 
             if (!voiceChannel) {
+                return await message.channel.send('Tá solo né filha da puta.');
+            }
+
+            if (!serverQueue) {
                 return await message.channel.send('ME AJUDA.');
             }
 
@@ -326,7 +330,23 @@ module.exports = {
                 return await message.channel.send("Tá limpo vei.");
             }
 
-            await message.channel.send(`Fila tá assim lek:\n\n${serverQueue.songs.reduce((a, s, i) => a + `${i + 1}: **${s.title}**\n`, '')}`);
+            const msgs = ['Fila tá assim lek:\n\n'];
+
+            let i = 0;
+
+            serverQueue.songs.forEach((s, ii) => {
+                if ((msgs[i] + `${ii + 1}: **${s.title}**\n`).length >= 2000) {
+                    i++;
+                }
+
+                if (!msgs[i]) {
+                    msgs[i] = '';
+                }
+
+                msgs[i] += `${ii + 1}: **${s.title}**\n`;
+            });
+
+            msgs.forEach(msg => message.channel.send(msg));
         },
     },
 };
