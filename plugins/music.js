@@ -18,33 +18,26 @@ async function play(message, song) {
         return;
     }
 
-    let ytsong;
     try {
-        ytsong = ytdl(song.url, {
+        const dispatcher = serverQueue.connection.play(ytdl(song.url, {
             filter: 'audioonly',
             highWaterMark: 1 << 25,
             quality: 'highestaudio',
+        })).on('finish', async () => {
+            serverQueue.songs.shift();
+            await play(message, serverQueue.songs[0]);
         });
+
+        dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+        serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
     } catch (e) {
         console.error(e);
+
         await message.channel.send('Eu não consigo clicar velho.');
         if (serverQueue) {
             serverQueue.connection.dispatcher.end();
         }
-
-        return;
     }
-
-    const dispatcher = serverQueue.connection.play(ytsong)
-        .on('finish', async () => {
-            serverQueue.songs.shift();
-            await play(message, serverQueue.songs[0]);
-        }).on('error', e => {
-            console.error(e);
-        });
-
-    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
 }
 
 module.exports = {
