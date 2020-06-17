@@ -6,27 +6,39 @@ const search = require('youtube-search');
 const {ytapikey} = require('../config.js');
 const {isValidHttpURL, getPlaylistItems} = require('../lib/utils');
 
-async function play(guild, song) {
-    const serverQueue = queue.get(guild.id);
+async function play(message, song) {
+    const serverQueue = queue.get(message.guild.id);
     if (serverQueue.toDelete) {
         await serverQueue.toDelete.delete();
         serverQueue.toDelete = null;
     }
 
     if (!song) {
-        queue.delete(guild.id);
+        queue.delete(message.guild.id);
         return;
     }
 
-    const dispatcher = serverQueue.connection.play(ytdl(song.url, {
-        filter: 'audioonly',
-        highWaterMark: 1 << 25
-    })).on('finish', async () => {
-        serverQueue.songs.shift();
-        await play(guild, serverQueue.songs[0]);
-    }).on('error', e => {
+    let ytsong;
+    try {
+        ytsong = ytdl(song.url, {
+            filter: 'audioonly',
+            highWaterMark: 1 << 25,
+            quality: 'highestaudio',
+        });
+    } catch (e) {
         console.error(e);
-    });
+        await message.channel.send('Eu não consigo clicar velho.');
+        serverQueue.songs.shift();
+        await play(message, serverQueue.songs[0]);
+    }
+
+    const dispatcher = serverQueue.connection.play(ytsong)
+        .on('finish', async () => {
+            serverQueue.songs.shift();
+            await play(message, serverQueue.songs[0]);
+        }).on('error', e => {
+            console.error(e);
+        });
 
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa q tá tocando caraio!: **${song.title}**`);
@@ -126,13 +138,17 @@ module.exports = {
                     songs.push(song);
                 });
             } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-                const songInfo = await ytdl.getInfo(url);
-                const song = {
-                    title: songInfo.title,
-                    url: songInfo.video_url,
-                };
+                try {
+                    const songInfo = await ytdl.getInfo(url);
+                    const song = {
+                        title: songInfo.title,
+                        url: songInfo.video_url,
+                    };
 
-                songs.push(song);
+                    songs.push(song);
+                } catch (e) {
+                    return await message.channel.send('Eu não consigo clicar velho.');
+                }
             } else {
                 return await message.channel.send('Eu não consigo clicar velho.');
             }
@@ -152,19 +168,19 @@ module.exports = {
 
                 try {
                     queueContruct.connection = await voiceChannel.join();
-                    await play(message.guild, queueContruct.songs[0]);
+                    await play(message, queueContruct.songs[0]);
                 } catch (err) {
                     console.log(err);
                     queue.delete(message.guild.id);
-                    return message.channel.send('Eu não consigo clicar velho.');
+                    return await message.channel.send('Eu não consigo clicar velho.');
                 }
             } else {
                 serverQueue.songs = serverQueue.songs.concat(songs);
                 if (songs.length === 1) {
-                    return message.channel.send(`**${songs[0].title}** tá na fila, posição ${serverQueue.songs.length}.`);
+                    return await message.channel.send(`**${songs[0].title}** tá na fila, posição ${serverQueue.songs.length}.`);
                 }
 
-                return message.channel.send(`${songs.length} músicas na fila.`);
+                return await message.channel.send(`${songs.length} músicas na fila.`);
             }
         },
     },
