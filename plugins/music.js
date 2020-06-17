@@ -28,8 +28,11 @@ async function play(message, song) {
     } catch (e) {
         console.error(e);
         await message.channel.send('Eu não consigo clicar velho.');
-        serverQueue.songs.shift();
-        await play(message, serverQueue.songs[0]);
+        if (serverQueue) {
+            serverQueue.connection.dispatcher.end();
+        }
+
+        return;
     }
 
     const dispatcher = serverQueue.connection.play(ytsong)
