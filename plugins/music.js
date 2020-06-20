@@ -23,7 +23,10 @@ async function play(message, song) {
         highWaterMark: 1 << 25,
         quality: 'highestaudio',
     })).on('finish', async () => {
-        serverQueue.songs.shift();
+        if (!serverQueue.loop) {
+            serverQueue.songs.shift();
+        }
+
         await play(message, serverQueue.songs[0]);
     }).on('error', e => {
         console.error(e);
@@ -155,6 +158,7 @@ module.exports = {
                     volume: 5,
                     playing: true,
                     toDelete: null,
+                    loop: false,
                 };
 
                 queue.set(message.guild.id, queueContruct);
@@ -312,6 +316,31 @@ module.exports = {
             serverQueue.connection.dispatcher.end();
 
             await message.channel.send('Pode passar jovi.');
+        },
+    },
+
+    loop: {
+        description: 'Liga ou desliga o modo Repetição.',
+
+        /**
+         *
+         * @param {Message} message
+         * @return {Promise<*>}
+         */
+        fn: async message => {
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!serverQueue) {
+                return await message.channel.send("Tá limpo vei.");
+            }
+
+            serverQueue.loop = !serverQueue.loop;
+
+            if (serverQueue.loop) {
+                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vez seguida.`);
+            } else {
+                await message.channel.send(`Tu cancelo o auto ataque vei.`);
+            }
         },
     },
 
