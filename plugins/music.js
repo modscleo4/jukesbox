@@ -2,9 +2,8 @@ const queue = new Map();
 
 const ytdl = require('ytdl-core');
 
-const search = require('youtube-search');
 const {ytapikey} = require('../config.js');
-const {isValidHttpURL, getPlaylistItems} = require('../lib/utils');
+const {isValidHttpURL, searchVideo, getPlaylistItems} = require('../lib/utils');
 
 async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
@@ -108,18 +107,25 @@ module.exports = {
                 return await message.channel.send('ME AJUDA!');
             }
 
+            if (!args[0]) {
+                return await message.channel.send('Sem meu link eu não consigo.');
+            }
+
             const songs = [];
-            let url = isValidHttpURL(args[0]) ? args[0] : (await search(args.join(' '), {
-                maxResults: 1,
-                key: ytapikey
-            })).results.find(r => r.kind === 'youtube#video').link || null;
+            let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
+                key: ytapikey,
+            })).find(r => r.id.kind === 'youtube#video') || {url: null}).url || null;
+
             if (!url) {
                 return message.channel.send('Achei nada lesk.');
             }
 
             if (url.match(/([&?])list=/gmu)) {
                 const plid = /[&?]list=(?<PlaylistID>[^&#]+)/gmu.exec(url).groups.PlaylistID;
-                const plsongs = await getPlaylistItems(plid, ytapikey);
+                const plsongs = await getPlaylistItems(plid, {
+                    key: ytapikey,
+                });
+
                 if (!plsongs) {
                     return message.channel.send('Eu não consigo clicar velho.');
                 }
@@ -188,11 +194,9 @@ module.exports = {
         /**
          *
          * @param {Message} message
-         * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async message => {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
@@ -309,7 +313,8 @@ module.exports = {
                 serverQueue.playing = false;
             }
 
-            for (let i = 0; i < skips - 1; i++) {
+            serverQueue.songs.splice(0, skips - 1);
+            if (serverQueue.loop) {
                 serverQueue.songs.shift();
             }
 
@@ -337,9 +342,9 @@ module.exports = {
             serverQueue.loop = !serverQueue.loop;
 
             if (serverQueue.loop) {
-                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vez seguida.`);
+                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vezes seguidas.`);
             } else {
-                await message.channel.send(`Tu cancelo o auto ataque vei.`);
+                await message.channel.send(`Tu cancelou o auto ataque vei.`);
             }
         },
     },
@@ -360,7 +365,6 @@ module.exports = {
             }
 
             const msgs = ['Fila tá assim lek:\n\n'];
-
             let i = 0;
 
             serverQueue.songs.forEach((s, ii) => {

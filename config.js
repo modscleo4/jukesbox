@@ -1,12 +1,5 @@
+const {requireOrNull} = require('./lib/utils');
 const config = requireOrNull('./config.json');
-
-function requireOrNull(module) {
-    try {
-        return require(module);
-    } catch (_) {
-        return {};
-    }
-}
 
 module.exports = {
     prefix: config.prefix || process.env.PREFIX,
