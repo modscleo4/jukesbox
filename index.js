@@ -27,11 +27,16 @@ client.on('message', async message => {
             return await message.channel.send('Tendi não lek.');
         }
 
-        if (isAsync(commands[command].fn)) {
-            await commands[command].fn(message, args, client);
-        } else {
-            // noinspection ES6MissingAwait
-            commands[command].fn(message, args, client);
+        try {
+            if (isAsync(commands[command].fn)) {
+                await commands[command].fn(message, args, client);
+            } else {
+                // noinspection ES6MissingAwait
+                commands[command].fn(message, args, client);
+            }
+        } catch (e) {
+            console.error(e);
+            await message.channel.send('Deu ruim aqui lek.');
         }
     }
 });

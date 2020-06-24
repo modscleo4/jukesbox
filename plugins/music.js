@@ -7,6 +7,7 @@ const {isValidHttpURL, searchVideo, getPlaylistItems} = require('../lib/utils');
 
 async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
+
     if (serverQueue.toDelete) {
         await serverQueue.toDelete.delete();
         serverQueue.toDelete = null;
@@ -111,18 +112,24 @@ module.exports = {
                 return await message.channel.send('Sem meu link eu não consigo.');
             }
 
+            let kind = 'youtube#video';
+            if (args[0] === '/playlist') {
+                args.shift();
+                kind = 'youtube#playlist';
+            }
+
             const songs = [];
             let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
-            })).find(r => r.id.kind === 'youtube#video') || {url: null}).url || null;
+            })).find(r => r.id.kind === kind) || {url: null}).url || null;
 
             if (!url) {
                 return message.channel.send('Achei nada lesk.');
             }
 
             if (url.match(/([&?])list=/gmu)) {
-                const plid = /[&?]list=(?<PlaylistID>[^&#]+)/gmu.exec(url).groups.PlaylistID;
-                const plsongs = await getPlaylistItems(plid, {
+                const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
+                const plsongs = await getPlaylistItems(playlistId, {
                     key: ytapikey,
                 });
 
