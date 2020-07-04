@@ -132,7 +132,7 @@ module.exports = {
             const songs = [];
             let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
-                regionCode: isoCountries.whereCountry(message.guild.region),
+                regionCode: isoCountries.whereCountry(message.guild.region) || 'us',
             })).find(r => r.id.kind === kind) || {url: null}).url || null;
 
             if (!url) {
