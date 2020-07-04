@@ -1,5 +1,6 @@
 const queue = new Map();
 
+const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 
 const {ytapikey} = require('../config.js');
@@ -8,7 +9,7 @@ const {isValidHttpURL, searchVideo, getPlaylistItems} = require('../lib/utils');
 async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
 
-    if (serverQueue.toDelete) {
+    if (serverQueue.toDelete && !serverQueue.toDelete.deleted) {
         await serverQueue.toDelete.delete();
         serverQueue.toDelete = null;
     }
@@ -87,7 +88,7 @@ module.exports = {
     },
 
     play: {
-        description: 'Adiciona uma música/playlist na fila.',
+        description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
 
         /**
          *
@@ -108,19 +109,30 @@ module.exports = {
                 return await message.channel.send('ME AJUDA!');
             }
 
-            if (!args[0]) {
-                return await message.channel.send('Sem meu link eu não consigo.');
+            let kind = 'youtube#video';
+            switch (args[0]) {
+                case '/playlist':
+                    args.shift();
+                    kind = 'youtube#playlist';
+                    break;
+
+                case '/video':
+                    args.shift();
+                    kind = 'youtube#video';
+                    break;
+
+                default:
+                    break;
             }
 
-            let kind = 'youtube#video';
-            if (args[0] === '/playlist') {
-                args.shift();
-                kind = 'youtube#playlist';
+            if (!args[0]) {
+                return await message.channel.send('Sem meu link eu não consigo.');
             }
 
             const songs = [];
             let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
+                regionCode: isoCountries.whereCountry(message.guild.region),
             })).find(r => r.id.kind === kind) || {url: null}).url || null;
 
             if (!url) {
@@ -207,7 +219,7 @@ module.exports = {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
-                return await message.channel.send("Tá limpo vei.");
+                return await message.channel.send('Tá limpo vei.');
             }
 
             await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${serverQueue.songs[0].title}**`);
@@ -220,18 +232,18 @@ module.exports = {
         /**
          *
          * @param {Message} message
-         * @return {*}
+         * @return {Promise<*>}
          */
         fn: async message => {
             const voiceChannel = message.member.voice.channel;
             const serverQueue = queue.get(message.guild.id);
 
             if (!voiceChannel) {
-                return message.channel.send('Tá solo né filha da puta.');
+                return await message.channel.send('Tá solo né filha da puta.');
             }
 
             if (!serverQueue) {
-                return message.channel.send("ME AJUDA.");
+                return await message.channel.send('ME AJUDA.');
             }
 
             serverQueue.connection.dispatcher.pause(true);
@@ -257,7 +269,7 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send("ME AJUDA.");
+                return await message.channel.send('ME AJUDA.');
             }
 
             serverQueue.connection.dispatcher.resume();
@@ -311,7 +323,7 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send("ME AJUDA.");
+                return await message.channel.send('ME AJUDA.');
             }
 
             let skips = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
@@ -343,7 +355,7 @@ module.exports = {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
-                return await message.channel.send("Tá limpo vei.");
+                return await message.channel.send('Tá limpo vei.');
             }
 
             serverQueue.loop = !serverQueue.loop;
@@ -353,6 +365,37 @@ module.exports = {
             } else {
                 await message.channel.send(`Tu cancelou o auto ataque vei.`);
             }
+        },
+    },
+
+    remove: {
+        description: 'Remove uma música da fila.',
+
+        /**
+         *
+         * @param {Message} message
+         * @param {String[]} args
+         * @return {Promise<*>}
+         */
+        fn: async (message, args) => {
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!serverQueue) {
+                return await message.channel.send('Tá limpo vei.');
+            }
+
+            let toRemove = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
+            if (toRemove >= serverQueue.songs.length) {
+                toRemove = serverQueue.songs.length - 1;
+            }
+
+            if (toRemove === 0) {
+                return await module.exports.skip.fn(message, ['1']);
+            }
+
+            serverQueue.songs.splice(toRemove, 1);
+
+            await message.channel.send('Cospe esse filha da puta porra.');
         },
     },
 
@@ -368,7 +411,7 @@ module.exports = {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
-                return await message.channel.send("Tá limpo vei.");
+                return await message.channel.send('Tá limpo vei.');
             }
 
             const msgs = ['Fila tá assim lek:\n\n'];
@@ -376,11 +419,7 @@ module.exports = {
 
             serverQueue.songs.forEach((s, ii) => {
                 if ((msgs[i] + `${ii + 1}: **${s.title}**\n`).length >= 2000) {
-                    i++;
-                }
-
-                if (!msgs[i]) {
-                    msgs[i] = '';
+                    msgs[++i] = '';
                 }
 
                 msgs[i] += `${ii + 1}: **${s.title}**\n`;

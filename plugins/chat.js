@@ -14,8 +14,11 @@ module.exports = {
                 n = 100;
             }
 
-            await message.channel.bulkDelete(await message.channel.messages.fetch({limit: n}));
-            await message.channel.send(`Apaguei ${n} mensagens.`).then(m => m.delete({timeout: 1000}));
+            await message.delete().then(async () => {
+                await message.channel.bulkDelete(n);
+            }).then(async () => {
+                await message.channel.send(`Apaguei ${n} mensagens.`).then(m => m.delete({timeout: 1000}));
+            });
         }
     }
 }
