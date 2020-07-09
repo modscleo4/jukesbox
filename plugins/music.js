@@ -77,9 +77,16 @@ module.exports = {
          */
         fn: async message => {
             const voiceChannel = message.member.voice.channel;
+            const serverQueue = queue.get(message.guild.id);
 
             if (!voiceChannel) {
                 return await message.channel.send(`Tá solo né filha da puta.`);
+            }
+
+            if (serverQueue) {
+                serverQueue.songs = [];
+                serverQueue.connection.dispatcher.end();
+                serverQueue.playing = false;
             }
 
             await voiceChannel.leave();
@@ -132,7 +139,7 @@ module.exports = {
             const songs = [];
             let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
-                regionCode: isoCountries.whereCountry(message.guild.region) || 'us',
+                regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
             })).find(r => r.id.kind === kind) || {url: null}).url || null;
 
             if (!url) {
