@@ -29,15 +29,15 @@ async function play(message, song) {
         }
 
         await play(message, serverQueue.songs[0]);
-    }).on('error', e => {
+    }).on('error', async e => {
         console.error(e);
 
-        message.channel.send('Eu não consigo clicar velho.');
+        await message.channel.send('Eu não consigo clicar velho.');
         serverQueue.songs.shift();
-        play(message, serverQueue.songs[0]);
+        await play(message, serverQueue.songs[0]);
     });
 
-    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+    dispatcher.setVolume(serverQueue.volume / 100);
     serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${song.title}**`);
 }
 
@@ -187,10 +187,10 @@ module.exports = {
                     voiceChannel: message.member.voice.channel,
                     connection: null,
                     songs: [...songs],
-                    volume: 5,
+                    volume: 100,
                     playing: true,
-                    toDelete: null,
                     loop: false,
+                    toDelete: null,
                 };
 
                 queue.set(message.guild.id, queueContruct);
@@ -401,6 +401,34 @@ module.exports = {
             }
 
             serverQueue.songs.splice(toRemove, 1);
+
+            await message.channel.send('Cospe esse filha da puta porra.');
+        },
+    },
+
+    volume: {
+        description: 'Altera o volume (0-100).',
+
+        /**
+         *
+         * @param {Message} message
+         * @param {String[]} args
+         * @return {Promise<*>}
+         */
+        fn: async (message, args) => {
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!serverQueue) {
+                return await message.channel.send('Tá limpo vei.');
+            }
+
+            let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
+            if (volume > 100) {
+                volume = 100;
+            }
+
+            serverQueue.volume = volume;
+            serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
 
             await message.channel.send('Cospe esse filha da puta porra.');
         },
