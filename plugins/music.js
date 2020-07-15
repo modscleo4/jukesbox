@@ -105,7 +105,6 @@ module.exports = {
          */
         fn: async (message, args) => {
             const voiceChannel = message.member.voice.channel;
-            const serverQueue = queue.get(message.guild.id);
 
             if (!voiceChannel) {
                 return await message.channel.send(`Tá solo né filha da puta.`);
@@ -247,11 +246,11 @@ module.exports = {
             }
 
             const songs = [];
-            const url = isValidHttpURL(args[0]) ? args[0] : (await searchVideo(args.join(' '), {
+            const url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
                 regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
                 type: kind,
-            }) || {url: null}).url || null;
+            }))[0] || {url: null}).url || null;
 
             if (!url) {
                 return message.channel.send('Achei nada lesk.');
