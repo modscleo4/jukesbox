@@ -94,6 +94,116 @@ module.exports = {
         },
     },
 
+    search: {
+        description: 'Procura por uma música/playlist. `/playlist` para procurar por playlists.',
+
+        /**
+         *
+         * @param {Message} message
+         * @param {String[]} args
+         * @return {Promise<*>}
+         */
+        fn: async (message, args) => {
+            const voiceChannel = message.member.voice.channel;
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!voiceChannel) {
+                return await message.channel.send(`Tá solo né filha da puta.`);
+            }
+
+            const permissions = voiceChannel.permissionsFor(message.client.user);
+            if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
+                return await message.channel.send('ME AJUDA!');
+            }
+
+            let kind = 'video';
+            switch (args[0]) {
+                case '/playlist':
+                    args.shift();
+                    kind = 'playlist';
+                    break;
+
+                case '/video':
+                    args.shift();
+                    kind = 'video';
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (!args[0]) {
+                return await message.channel.send('Sem meu link eu não consigo.');
+            }
+
+            const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+
+            const results = await searchVideo(args.join(' '), {
+                key: ytapikey,
+                regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
+                type: kind,
+            });
+
+            const msg = await message.channel.send(`Achei isso aqui lek:\n\n${results.reduce((a, r, i) => a += `${i + 1}: ${r.snippet.title} (${r.url})\n`, '')}`);
+            await msg.suppressEmbeds(true);
+            reactions.forEach(r => msg.react(r));
+
+            await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
+                max: 1,
+                time: 60000,
+                errors: ['time']
+            }).then(collected => {
+                const reaction = collected.first();
+
+                switch (reaction.emoji.name) {
+                    case '1️⃣':
+                        module.exports.play.fn(message, [results[0].url]);
+                        break;
+
+                    case '2️⃣':
+                        module.exports.play.fn(message, [results[1].url]);
+                        break;
+
+                    case '3️⃣':
+                        module.exports.play.fn(message, [results[2].url]);
+                        break;
+
+                    case '4️⃣':
+                        module.exports.play.fn(message, [results[3].url]);
+                        break;
+
+                    case '5️⃣':
+                        module.exports.play.fn(message, [results[4].url]);
+                        break;
+
+                    case '6️⃣':
+                        module.exports.play.fn(message, [results[5].url]);
+                        break;
+
+                    case '7️⃣':
+                        module.exports.play.fn(message, [results[6].url]);
+                        break;
+
+                    case '8️⃣':
+                        module.exports.play.fn(message, [results[7].url]);
+                        break;
+
+                    case '9️⃣':
+                        module.exports.play.fn(message, [results[8].url]);
+                        break;
+
+                    case '🔟':
+                        module.exports.play.fn(message, [results[9].url]);
+                        break;
+                }
+
+                msg.delete();
+            }).catch(() => {
+
+            });
+        },
+    },
+
     play: {
         description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
 
@@ -116,16 +226,16 @@ module.exports = {
                 return await message.channel.send('ME AJUDA!');
             }
 
-            let kind = 'youtube#video';
+            let kind = 'video';
             switch (args[0]) {
                 case '/playlist':
                     args.shift();
-                    kind = 'youtube#playlist';
+                    kind = 'playlist';
                     break;
 
                 case '/video':
                     args.shift();
-                    kind = 'youtube#video';
+                    kind = 'video';
                     break;
 
                 default:
@@ -137,10 +247,11 @@ module.exports = {
             }
 
             const songs = [];
-            let url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
+            const url = isValidHttpURL(args[0]) ? args[0] : (await searchVideo(args.join(' '), {
                 key: ytapikey,
                 regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
-            })).find(r => r.id.kind === kind) || {url: null}).url || null;
+                type: kind,
+            }) || {url: null}).url || null;
 
             if (!url) {
                 return message.channel.send('Achei nada lesk.');
@@ -430,7 +541,7 @@ module.exports = {
             serverQueue.volume = volume;
             serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
 
-            await message.channel.send('Cospe esse filha da puta porra.');
+            await message.channel.send('Aumenta essa porra aí.');
         },
     },
 
