@@ -145,61 +145,26 @@ module.exports = {
 
             const msg = await message.channel.send(`Achei isso aqui lek:\n\n${results.reduce((a, r, i) => a += `${i + 1}: ${r.snippet.title} (${r.url})\n`, '')}`);
             await msg.suppressEmbeds(true);
-            reactions.forEach(r => msg.react(r));
+            await Promise.all(reactions.map(r => msg.react(r))).catch(() => {
+
+            });
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
                 max: 1,
                 time: 60000,
-                errors: ['time']
-            }).then(collected => {
+                errors: ['time'],
+            }).then(async collected => {
                 const reaction = collected.first();
+                await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
 
-                switch (reaction.emoji.name) {
-                    case '1️⃣':
-                        module.exports.play.fn(message, [results[0].url]);
-                        break;
-
-                    case '2️⃣':
-                        module.exports.play.fn(message, [results[1].url]);
-                        break;
-
-                    case '3️⃣':
-                        module.exports.play.fn(message, [results[2].url]);
-                        break;
-
-                    case '4️⃣':
-                        module.exports.play.fn(message, [results[3].url]);
-                        break;
-
-                    case '5️⃣':
-                        module.exports.play.fn(message, [results[4].url]);
-                        break;
-
-                    case '6️⃣':
-                        module.exports.play.fn(message, [results[5].url]);
-                        break;
-
-                    case '7️⃣':
-                        module.exports.play.fn(message, [results[6].url]);
-                        break;
-
-                    case '8️⃣':
-                        module.exports.play.fn(message, [results[7].url]);
-                        break;
-
-                    case '9️⃣':
-                        module.exports.play.fn(message, [results[8].url]);
-                        break;
-
-                    case '🔟':
-                        module.exports.play.fn(message, [results[9].url]);
-                        break;
-                }
-
-                msg.delete();
+                await msg.delete();
             }).catch(() => {
 
             });
+
+            if (!msg.deleted) {
+                await msg.delete();
+            }
         },
     },
 
@@ -307,6 +272,12 @@ module.exports = {
 
                 try {
                     queueContruct.connection = await voiceChannel.join();
+                    queueContruct.connection.on('disconnect', async e => {
+                        console.log(e);
+                        queue.delete(message.guild.id);
+                        return await message.channel.send('Eu não consigo clicar velho.');
+                    });
+
                     await play(message, queueContruct.songs[0]);
                 } catch (err) {
                     console.log(err);
