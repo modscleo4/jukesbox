@@ -25,10 +25,15 @@ async function play(message, song) {
         quality: 'highestaudio',
     })).on('finish', async () => {
         if (!serverQueue.loop) {
-            serverQueue.songs.shift();
+            serverQueue.songs.splice(serverQueue.songs.indexOf(song), 1);
         }
 
-        await play(message, serverQueue.songs[0]);
+        let next = serverQueue.songs[0];
+        if (serverQueue.shuffle) {
+            next = serverQueue.songs[Math.floor(Math.random() * serverQueue.songs.length)];
+        }
+
+        await play(message, next);
     }).on('error', async e => {
         console.error(e);
 
@@ -143,7 +148,7 @@ module.exports = {
                 type: kind,
             });
 
-            const msg = await message.channel.send(`Achei isso aqui lek:\n\n${results.reduce((a, r, i) => a += `${i + 1}: ${r.snippet.title} (${r.url})\n`, '')}`);
+            const msg = await message.channel.send(results.reduce((a, r, i) => a + `${i + 1}: ${r.snippet.title} (${r.url})\n`, 'Achei isso aqui lek:\n\n'));
             await msg.suppressEmbeds(true);
             await Promise.all(reactions.map(r => msg.react(r))).catch(() => {
 
@@ -157,7 +162,7 @@ module.exports = {
                 const reaction = collected.first();
                 await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
 
-                await msg.delete();
+                //await msg.delete();
             }).catch(() => {
 
             });
@@ -265,6 +270,7 @@ module.exports = {
                     volume: 100,
                     playing: true,
                     loop: false,
+                    shufle: false,
                     toDelete: null,
                 };
 
@@ -456,6 +462,31 @@ module.exports = {
         },
     },
 
+    shuffle: {
+        description: 'Liga/desliga o modo aleatório.',
+
+        /**
+         *
+         * @param {Message} message
+         * @return {Promise<*>}
+         */
+        fn: async message => {
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!serverQueue) {
+                return await message.channel.send('Tá limpo vei.');
+            }
+
+            serverQueue.shuffle = !serverQueue.shuffle;
+
+            if (serverQueue.shuffle) {
+                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vezes seguidas.`);
+            } else {
+                await message.channel.send(`Tu cancelou o auto ataque vei.`);
+            }
+        },
+    },
+
     remove: {
         description: 'Remove uma música da fila.',
 
@@ -531,6 +562,10 @@ module.exports = {
             }
 
             const msgs = ['Fila tá assim lek:\n\n'];
+            if (serverQueue.shuffle) {
+                msgs[0] += '**Modo aleatório ligado**\n\n';
+            }
+
             let i = 0;
 
             serverQueue.songs.forEach((s, ii) => {
