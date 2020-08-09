@@ -9,6 +9,10 @@ const {isValidHttpURL, searchVideo, getPlaylistItems} = require('../lib/utils');
 async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
 
+    if (!serverQueue) {
+        return;
+    }
+
     if (serverQueue.toDelete && !serverQueue.toDelete.deleted) {
         await serverQueue.toDelete.delete();
         serverQueue.toDelete = null;
@@ -140,19 +144,16 @@ module.exports = {
                 return await message.channel.send('Sem meu link eu não consigo.');
             }
 
-            const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-
             const results = await searchVideo(args.join(' '), {
                 key: ytapikey,
                 regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
                 type: kind,
             });
 
-            const msg = await message.channel.send(results.reduce((a, r, i) => a + `${i + 1}: ${r.snippet.title} (${r.url})\n`, 'Achei isso aqui lek:\n\n'));
-            await msg.suppressEmbeds(true);
-            await Promise.all(reactions.map(r => msg.react(r))).catch(() => {
+            const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
-            });
+            const msg = await message.channel.send(results.reduce((a, r, i) => a + `${i + 1}: ${r.snippet.title} (${r.url})\n`, 'Achei isso aqui lek:\n\n'));
+            await msg.suppressEmbeds(true).then(() => reactions.map(async r => await msg.react(r)));
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
                 max: 1,
@@ -161,8 +162,6 @@ module.exports = {
             }).then(async collected => {
                 const reaction = collected.first();
                 await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
-
-                //await msg.delete();
             }).catch(() => {
 
             });
@@ -278,15 +277,13 @@ module.exports = {
 
                 try {
                     queueContruct.connection = await voiceChannel.join();
-                    queueContruct.connection.on('disconnect', async e => {
-                        console.log(e);
+                    queueContruct.connection.on('disconnect', async () => {
                         queue.delete(message.guild.id);
-                        return await message.channel.send('Eu não consigo clicar velho.');
                     });
 
                     await play(message, queueContruct.songs[0]);
                 } catch (err) {
-                    console.log(err);
+                    console.error(err);
                     queue.delete(message.guild.id);
                     return await message.channel.send('Eu não consigo clicar velho.');
                 }
@@ -463,7 +460,7 @@ module.exports = {
     },
 
     shuffle: {
-        description: 'Liga/desliga o modo aleatório.',
+        description: 'Liga/desliga o modo Aleatório.',
 
         /**
          *
@@ -480,9 +477,9 @@ module.exports = {
             serverQueue.shuffle = !serverQueue.shuffle;
 
             if (serverQueue.shuffle) {
-                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vezes seguidas.`);
+                await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... opa.`);
             } else {
-                await message.channel.send(`Tu cancelou o auto ataque vei.`);
+                await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
             }
         },
     },
@@ -534,7 +531,7 @@ module.exports = {
                 return await message.channel.send('Tá limpo vei.');
             }
 
-            let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
+            let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
             if (volume > 100) {
                 volume = 100;
             }
