@@ -12,7 +12,7 @@ module.exports = {
             const commands = require('./');
 
             let msg = 'Eu entendo isso aqui vei:\n\n';
-            for (let c in commands) {
+            for (const c in commands) {
                 msg += `\`${c}\`: ${commands[c].description}\n`;
             }
 
