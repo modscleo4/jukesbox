@@ -172,7 +172,7 @@ module.exports = {
                 errors: ['time'],
             }).then(async collected => {
                 const reaction = collected.first();
-                await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
+                await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url], client);
             }).catch(() => {
 
             });
