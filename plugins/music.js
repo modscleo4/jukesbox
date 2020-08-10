@@ -1,12 +1,13 @@
 const queue = new Map();
 
+const Discord = require('discord.js');
 const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 
 const {ytapikey} = require('../config.js');
-const {isValidHttpURL, searchVideo, getPlaylistItems} = require('../lib/utils');
+const {isValidHttpURL, searchVideo, videoInfo, getPlaylistItems} = require('../lib/utils');
 
-async function play(message, song) {
+async function play(message, song, client) {
     const serverQueue = queue.get(message.guild.id);
 
     if (!serverQueue) {
@@ -29,25 +30,25 @@ async function play(message, song) {
         quality: 'highestaudio',
     })).on('finish', async () => {
         if (!serverQueue.loop) {
-            serverQueue.songs.splice(serverQueue.songs.indexOf(song), 1);
+            serverQueue.songs.splice(serverQueue.position, 1);
         }
 
-        let next = serverQueue.songs[0];
+        serverQueue.position = 0;
         if (serverQueue.shuffle) {
-            next = serverQueue.songs[Math.floor(Math.random() * serverQueue.songs.length)];
+            serverQueue.position = Math.floor(Math.random() * serverQueue.songs.length);
         }
 
-        await play(message, next);
+        await play(message, serverQueue.songs[serverQueue.position], client);
     }).on('error', async e => {
         console.error(e);
 
         await message.channel.send('Eu não consigo clicar velho.');
         serverQueue.songs.shift();
-        await play(message, serverQueue.songs[0]);
+        await play(message, serverQueue.songs[0], client);
     });
 
     dispatcher.setVolume(serverQueue.volume / 100);
-    serverQueue.toDelete = await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${song.title}**`);
+    serverQueue.toDelete = await module.exports.np.fn(message, [''], client);
 }
 
 module.exports = {
@@ -110,9 +111,10 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
+         * @param {Discord.Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args) => {
+        fn: async (message, args, client) => {
             const voiceChannel = message.member.voice.channel;
 
             if (!voiceChannel) {
@@ -152,8 +154,17 @@ module.exports = {
 
             const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
-            const msg = await message.channel.send(results.reduce((a, r, i) => a + `${i + 1}: ${r.snippet.title} (${r.url})\n`, 'Achei isso aqui lek:\n\n'));
-            await msg.suppressEmbeds(true).then(() => reactions.map(async r => await msg.react(r)));
+            const msg = await message.channel.send(new Discord.MessageEmbed()
+                .setTitle('Achei isso aqui lek')
+                .setAuthor(client.user.username, client.user.avatarURL())
+                .setTimestamp()
+                .addFields(results.map((r, i) => {
+                    return {
+                        name: `${i + 1}: ${r.snippet.title}`,
+                        value: r.url,
+                    }
+                })));
+            reactions.map(async r => await msg.react(r));
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
                 max: 1,
@@ -179,9 +190,10 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
+         * @param {Discord.Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args) => {
+        fn: async (message, args, client) => {
             const voiceChannel = message.member.voice.channel;
             const serverQueue = queue.get(message.guild.id);
 
@@ -225,7 +237,7 @@ module.exports = {
                 return message.channel.send('Achei nada lesk.');
             }
 
-            if (url.match(/([&?])list=/gmu)) {
+            if (url.match(/([&?])list=[^&#]+/gmu)) {
                 const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
                 const plsongs = await getPlaylistItems(playlistId, {
                     key: ytapikey,
@@ -235,25 +247,34 @@ module.exports = {
                     return message.channel.send('Eu não consigo clicar velho.');
                 }
 
-                plsongs.forEach(plsong => {
-                    // noinspection JSUnfilteredForInLoop
+                const songsInfo = await videoInfo(plsongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey});
+                songsInfo.forEach(songInfo => {
                     const song = {
-                        title: plsong.snippet.title,
-                        url: `https://youtube.com/watch?v=${plsong.snippet.resourceId.videoId}`,
+                        title: songInfo.snippet.title,
+                        url: songInfo.url,
+                        channelTitle: songInfo.snippet.channelTitle,
+                        thumbnail: songInfo.snippet.thumbnails.high.url,
+                        duration: songInfo.duration,
                     };
 
                     songs.push(song);
                 });
             } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
                 try {
-                    const songInfo = await ytdl.getInfo(url);
+                    const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(url).groups.VideoId;
+                    const songInfo = (await videoInfo(videoId, {key: ytapikey}))[0];
+
                     const song = {
-                        title: songInfo.title,
-                        url: songInfo.video_url,
+                        title: songInfo.snippet.title,
+                        url: songInfo.url,
+                        channelTitle: songInfo.snippet.channelTitle,
+                        thumbnail: songInfo.snippet.thumbnails.high.url,
+                        duration: songInfo.duration,
                     };
 
                     songs.push(song);
                 } catch (e) {
+                    console.error(e);
                     return await message.channel.send('Eu não consigo clicar velho.');
                 }
             } else {
@@ -271,6 +292,7 @@ module.exports = {
                     loop: false,
                     shufle: false,
                     toDelete: null,
+                    position: 0,
                 };
 
                 queue.set(message.guild.id, queueContruct);
@@ -281,7 +303,7 @@ module.exports = {
                         queue.delete(message.guild.id);
                     });
 
-                    await play(message, queueContruct.songs[0]);
+                    await play(message, queueContruct.songs[0], client);
                 } catch (err) {
                     console.error(err);
                     queue.delete(message.guild.id);
@@ -304,16 +326,30 @@ module.exports = {
         /**
          *
          * @param {Message} message
+         * @param {String[]} args
+         * @param {Discord.Client} client
          * @return {Promise<*>}
          */
-        fn: async message => {
+        fn: async (message, args, client) => {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
                 return await message.channel.send('Tá limpo vei.');
             }
 
-            await serverQueue.textChannel.send(`Que porra de música é essa que tá tocando caraio!: **${serverQueue.songs[0].title}**`);
+            const song = serverQueue.songs[serverQueue.position];
+
+            return await message.channel.send(new Discord.MessageEmbed()
+                .setTitle('Que porra de música é essa que tá tocando caraio!')
+                .setAuthor(client.user.username, client.user.avatarURL())
+                .setTimestamp()
+                .setThumbnail(song.thumbnail)
+                .setDescription(song.title)
+                .addFields([
+                    {name: 'Canal', value: song.channelTitle},
+                    {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
+                    {name: 'Duração', value: song.duration, inline: true},
+                ]));
         },
     },
 
@@ -477,7 +513,7 @@ module.exports = {
             serverQueue.shuffle = !serverQueue.shuffle;
 
             if (serverQueue.shuffle) {
-                await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... opa.`);
+                await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... Opa.`);
             } else {
                 await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
             }
@@ -549,31 +585,79 @@ module.exports = {
         /**
          *
          * @param {Message} message
+         * @param {String[]} args
+         * @param {Discord.Client} client
          * @return {Promise<*>}
          */
-        fn: async message => {
+        fn: async (message, args, client) => {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
                 return await message.channel.send('Tá limpo vei.');
             }
 
-            const msgs = ['Fila tá assim lek:\n\n'];
-            if (serverQueue.shuffle) {
-                msgs[0] += '**Modo aleatório ligado**\n\n';
-            }
+            const songs = serverQueue.songs.map((s, i) => {
+                return {name: `${i + 1}: ${s.title}`, value: s.channelTitle}
+            })
 
-            let i = 0;
+            const maxPerPage = 10;
+            const pages = Math.ceil(songs.length / maxPerPage);
+            let page = 1;
 
-            serverQueue.songs.forEach((s, ii) => {
-                if ((msgs[i] + `${ii + 1}: **${s.title}**\n`).length >= 2000) {
-                    msgs[++i] = '';
+            const msg = await message.channel.send(new Discord.MessageEmbed()
+                .setTitle('Fila tá assim lek')
+                .setAuthor(client.user.username, client.user.avatarURL())
+                .setTimestamp()
+                .setDescription(`${serverQueue.songs.length} músicas na fila`)
+                .addFields(songs)
+                .spliceFields(0, (page - 1) * maxPerPage)
+                .spliceFields(maxPerPage, songs.length - page * maxPerPage)
+                .setFooter(`Página ${page} de ${pages}`));
+
+            async function awaitReactions(msg) {
+                const reactions = [];
+                if (pages > 1) {
+                    if (page > 1) {
+                        reactions.push('⬅️');
+                    }
+
+                    if (page < pages) {
+                        reactions.push('➡️');
+                    }
                 }
 
-                msgs[i] += `${ii + 1}: **${s.title}**\n`;
-            });
+                reactions.map(r => msg.react(r));
 
-            msgs.forEach(msg => message.channel.send(msg));
+                await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
+                    max: 1,
+                    time: 60000,
+                    errors: ['time'],
+                }).then(async collected => {
+                    const reaction = collected.first();
+                    page += reaction.emoji.name === '⬅️' ? -1 : 1;
+
+                    await msg.reactions.removeAll();
+                    await msg.edit(new Discord.MessageEmbed()
+                        .setTitle('Fila tá assim lek')
+                        .setAuthor(client.user.username, client.user.avatarURL())
+                        .setTimestamp()
+                        .setDescription(`${serverQueue.songs.length} músicas na fila`)
+                        .addFields(songs)
+                        .spliceFields(0, (page - 1) * maxPerPage)
+                        .spliceFields(maxPerPage, songs.length - page * maxPerPage)
+                        .setFooter(`Página ${page} de ${pages}`));
+
+                    await awaitReactions(msg);
+                }).catch(() => {
+
+                });
+            }
+
+            await awaitReactions(msg);
+
+            if (!msg.deleted) {
+                await msg.delete();
+            }
         },
     },
 };
