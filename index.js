@@ -24,7 +24,7 @@ client.on('message', async message => {
         const command = args.shift().toLowerCase();
 
         if (!(command in commands)) {
-            return await message.channel.send('Tendi não lek.');
+            return;
         }
 
         const fn = commands[command].fn;

@@ -1,7 +1,7 @@
 {
   "name": "jukesbox",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord Music bot, but with Black N*ggers.",
   "main": "index.js",
   "scripts": {
     "test": "mocha test"
