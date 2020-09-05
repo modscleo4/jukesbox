@@ -58,9 +58,11 @@ module.exports = {
         /**
          *
          * @param {Message} message
+         * @param {String[]} args
+         * @param {Discord.Client} client
          * @return {Promise<*>}
          */
-        fn: async message => {
+        fn: async (message, args, client) => {
             const voiceChannel = message.member.voice.channel;
 
             if (!voiceChannel) {
@@ -73,7 +75,15 @@ module.exports = {
             }
 
             await voiceChannel.join();
-            await message.channel.send(`Salve salve yodinha: ${voiceChannel.name}`);
+            return await message.channel.send(new Discord.MessageEmbed()
+                .setTitle('Salve salve Yodinha!')
+                .setAuthor(client.user.username, client.user.avatarURL())
+                .setTimestamp()
+                .setDescription('Conectado a um canal de voz')
+                .addFields([
+                    {name: 'Canal de voz', value: voiceChannel.name, inline: true},
+                    {name: 'Canal de texto', value: message.channel.name, inline: true}
+                ]));
         },
     },
 
