@@ -385,7 +385,7 @@ module.exports = {
 
             serverQueue.connection.dispatcher.pause(true);
             serverQueue.playing = false;
-            await message.channel.send(`Vai gankar quem caralho.`);
+            return await message.channel.send(`Vai gankar quem caralho.`);
         },
     },
 
@@ -411,7 +411,7 @@ module.exports = {
 
             serverQueue.connection.dispatcher.resume();
             serverQueue.playing = true;
-            await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
+            return await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
         },
     },
 
@@ -438,7 +438,7 @@ module.exports = {
             serverQueue.songs = [];
             serverQueue.connection.dispatcher.end();
             serverQueue.playing = false;
-            await message.channel.send(`Caralho filha da puta morre logo.`);
+            return await message.channel.send(`Caralho filha da puta morre logo.`);
         },
     },
 
@@ -476,7 +476,7 @@ module.exports = {
 
             serverQueue.connection.dispatcher.end();
 
-            await message.channel.send('Pode passar jovi.');
+            return await message.channel.send('Pode passar jovi.');
         },
     },
 
@@ -498,9 +498,9 @@ module.exports = {
             serverQueue.loop = !serverQueue.loop;
 
             if (serverQueue.loop) {
-                await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vezes seguidas.`);
+                return await message.channel.send(`Ah Yoda vai toma no cu caraio 2 vezes seguidas.`);
             } else {
-                await message.channel.send(`Tu cancelou o auto ataque vei.`);
+                return await message.channel.send(`Tu cancelou o auto ataque vei.`);
             }
         },
     },
@@ -523,9 +523,9 @@ module.exports = {
             serverQueue.shuffle = !serverQueue.shuffle;
 
             if (serverQueue.shuffle) {
-                await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... Opa.`);
+                return await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... Opa.`);
             } else {
-                await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
+                return await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
             }
         },
     },
@@ -557,7 +557,7 @@ module.exports = {
 
             serverQueue.songs.splice(toRemove, 1);
 
-            await message.channel.send('Cospe esse filha da puta porra.');
+            return await message.channel.send('Cospe esse filha da puta porra.');
         },
     },
 
@@ -585,7 +585,7 @@ module.exports = {
             serverQueue.volume = volume;
             serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
 
-            await message.channel.send('Aumenta essa porra aí.');
+            return await message.channel.send('Aumenta essa porra aí.');
         },
     },
 
@@ -608,7 +608,7 @@ module.exports = {
 
             const songs = serverQueue.songs.map((s, i) => {
                 return {name: `${i + 1}: ${s.title}`, value: s.channelTitle}
-            })
+            });
 
             const maxPerPage = 10;
             const pages = Math.ceil(songs.length / maxPerPage);
@@ -618,7 +618,7 @@ module.exports = {
                 .setTitle('Fila tá assim lek')
                 .setAuthor(client.user.username, client.user.avatarURL())
                 .setTimestamp()
-                .setDescription(`${serverQueue.songs.length} músicas na fila`)
+                .setDescription(`${serverQueue.songs.length} música${serverQueue.songs.length > 1 ? 's' : ''} na fila`)
                 .addFields(songs)
                 .spliceFields(0, (page - 1) * maxPerPage)
                 .spliceFields(maxPerPage, songs.length - page * maxPerPage)
@@ -651,7 +651,7 @@ module.exports = {
                         .setTitle('Fila tá assim lek')
                         .setAuthor(client.user.username, client.user.avatarURL())
                         .setTimestamp()
-                        .setDescription(`${serverQueue.songs.length} músicas na fila`)
+                        .setDescription(`${serverQueue.songs.length} música${serverQueue.songs.length > 1 ? 's' : ''} na fila`)
                         .addFields(songs)
                         .spliceFields(0, (page - 1) * maxPerPage)
                         .spliceFields(maxPerPage, songs.length - page * maxPerPage)
