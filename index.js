@@ -18,6 +18,14 @@ client.on('ready', () => {
     });
 });
 
+client.on('voiceStateUpdate', async (oldState, newState) => {
+    if (!newState.channel && oldState.channel) {
+        if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
+            await oldState.channel.leave();
+        }
+    }
+});
+
 client.on('message', async message => {
     if (message.content.startsWith(prefix) && !message.author.bot) {
         const args = message.content.slice(prefix.length).split(' ');

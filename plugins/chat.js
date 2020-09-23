@@ -9,6 +9,10 @@ module.exports = {
          * @param {Client} client
          */
         fn: async (message, args, client) => {
+            if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                return await message.channel.send('ME AJUDA.');
+            }
+
             const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
 
             await message.delete().then(async () => {
