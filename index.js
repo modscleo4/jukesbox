@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {prefix, token} = require('./config.js');
+const {prefix, token, adminID} = require('./config.js');
 const {isAsync} = require('./lib/utils');
 const commands = require('./plugins');
 
@@ -35,6 +35,10 @@ client.on('message', async message => {
             return;
         }
 
+        if (commands[command].only && !commands[command].only.includes(message.author.id)) {
+            return;
+        }
+
         const fn = commands[command].fn;
 
         try {
@@ -50,4 +54,5 @@ client.on('message', async message => {
     }
 });
 
-client.login(token).then(() => {});
+client.login(token).then(() => {
+});

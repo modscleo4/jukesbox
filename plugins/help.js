@@ -16,6 +16,10 @@ module.exports = {
             const commands = require('./');
             const cmds = [];
             for (const c in commands) {
+                if (commands[c].only && !commands[c].only.includes(message.author.id)) {
+                    continue;
+                }
+
                 cmds[cmds.length] = {name: `${prefix}${c}`, value: commands[c].description};
             }
 
@@ -55,6 +59,8 @@ module.exports = {
                     page += reaction.emoji.name === '⬅️' ? -1 : 1;
 
                     await msg.reactions.removeAll();
+
+                    await new Promise(r => setTimeout(r, 100));
                     await msg.edit(new Discord.MessageEmbed()
                         .setTitle('Eu entendo isso aqui vei')
                         .setAuthor(client.user.username, client.user.avatarURL())

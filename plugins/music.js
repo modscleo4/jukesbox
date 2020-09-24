@@ -1,11 +1,12 @@
 const queue = new Map();
 
-const Discord = require('discord.js');
+const {Client, MessageEmbed} = require('discord.js');
 const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
+const scdl = require('soundcloud-downloader');
 
-const {ytapikey} = require('../config.js');
-const {isValidHttpURL, searchVideo, videoInfo, getPlaylistItems} = require('../lib/utils');
+const {ytapikey, scclientID} = require('../config.js');
+const {isValidHttpURL, isAsync, parseMS, searchVideo, videoInfo, getPlaylistItems} = require('../lib/utils');
 
 async function play(message, song, client) {
     const serverQueue = queue.get(message.guild.id);
@@ -24,11 +25,8 @@ async function play(message, song, client) {
         return;
     }
 
-    const dispatcher = serverQueue.connection.play(ytdl(song.url, {
-        filter: 'audioonly',
-        highWaterMark: 1 << 25,
-        quality: 'highestaudio',
-    })).on('finish', async () => {
+    const stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
+    const dispatcher = serverQueue.connection.play(stream).on('finish', async () => {
         if (!serverQueue.loop) {
             serverQueue.songs.splice(serverQueue.position, 1);
         }
@@ -59,7 +57,7 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Discord.Client} client
+         * @param {Client} client
          * @return {Promise<*>}
          */
         fn: async (message, args, client) => {
@@ -75,7 +73,7 @@ module.exports = {
             }
 
             await voiceChannel.join();
-            return await message.channel.send(new Discord.MessageEmbed()
+            return await message.channel.send(new MessageEmbed()
                 .setTitle('Salve salve Yodinha!')
                 .setAuthor(client.user.username, client.user.avatarURL())
                 .setTimestamp()
@@ -121,7 +119,7 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Discord.Client} client
+         * @param {Client} client
          * @return {Promise<*>}
          */
         fn: async (message, args, client) => {
@@ -164,7 +162,7 @@ module.exports = {
 
             const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
-            const msg = await message.channel.send(new Discord.MessageEmbed()
+            const msg = await message.channel.send(new MessageEmbed()
                 .setTitle('Achei isso aqui lek')
                 .setAuthor(client.user.username, client.user.avatarURL())
                 .setTimestamp()
@@ -200,7 +198,7 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Discord.Client} client
+         * @param {Client} client
          * @return {Promise<*>}
          */
         fn: async (message, args, client) => {
@@ -265,6 +263,12 @@ module.exports = {
                         channelTitle: songInfo.snippet.channelTitle,
                         thumbnail: songInfo.snippet.thumbnails.high.url,
                         duration: songInfo.duration,
+                        fn: ytdl,
+                        options: {
+                            filter: 'audioonly',
+                            highWaterMark: 1 << 25,
+                            quality: 'highestaudio',
+                        },
                     };
 
                     songs.push(song);
@@ -280,6 +284,12 @@ module.exports = {
                         channelTitle: songInfo.snippet.channelTitle,
                         thumbnail: songInfo.snippet.thumbnails.high.url,
                         duration: songInfo.duration,
+                        fn: ytdl,
+                        options: {
+                            filter: 'audioonly',
+                            highWaterMark: 1 << 25,
+                            quality: 'highestaudio',
+                        },
                     };
 
                     songs.push(song);
@@ -287,6 +297,21 @@ module.exports = {
                     console.error(e);
                     return await message.channel.send('Eu não consigo clicar velho.');
                 }
+            } else if (url.match(/soundcloud.com\//gmu)) {
+                const songInfo = await scdl.getInfo(url);
+                const parsedMS = parseMS(songInfo.duration);
+
+                const song = {
+                    title: songInfo.title,
+                    url: songInfo.permalink_url,
+                    channelTitle: songInfo.user.username,
+                    thumbnail: songInfo.artwork_url,
+                    duration: `${parsedMS.hours}h ${parsedMS.minutes}m ${parsedMS.seconds}s`,
+                    fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
+                    options: scclientID,
+                };
+
+                songs.push(song);
             } else {
                 return await message.channel.send('Eu não consigo clicar velho.');
             }
@@ -337,7 +362,7 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Discord.Client} client
+         * @param {Client} client
          * @return {Promise<*>}
          */
         fn: async (message, args, client) => {
@@ -349,7 +374,7 @@ module.exports = {
 
             const song = serverQueue.songs[serverQueue.position];
 
-            return await message.channel.send(new Discord.MessageEmbed()
+            return await message.channel.send(new MessageEmbed()
                 .setTitle('Que porra de música é essa que tá tocando caraio!')
                 .setAuthor(client.user.username, client.user.avatarURL())
                 .setTimestamp()
@@ -596,7 +621,7 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Discord.Client} client
+         * @param {Client} client
          * @return {Promise<*>}
          */
         fn: async (message, args, client) => {
@@ -614,7 +639,7 @@ module.exports = {
             const pages = Math.ceil(songs.length / maxPerPage);
             let page = 1;
 
-            const msg = await message.channel.send(new Discord.MessageEmbed()
+            const msg = await message.channel.send(new MessageEmbed()
                 .setTitle('Fila tá assim lek')
                 .setAuthor(client.user.username, client.user.avatarURL())
                 .setTimestamp()
@@ -647,7 +672,9 @@ module.exports = {
                     page += reaction.emoji.name === '⬅️' ? -1 : 1;
 
                     await msg.reactions.removeAll();
-                    await msg.edit(new Discord.MessageEmbed()
+
+                    await new Promise(r => setTimeout(r, 100));
+                    await msg.edit(new MessageEmbed()
                         .setTitle('Fila tá assim lek')
                         .setAuthor(client.user.username, client.user.avatarURL())
                         .setTimestamp()

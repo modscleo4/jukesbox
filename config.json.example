@@ -1,5 +1,7 @@
 {
   "prefix": ".",
   "token": "",
-  "ytapikey": ""
+  "ytapikey": "",
+  "scclientID": "",
+  "adminID": ""
 }
