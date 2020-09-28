@@ -4,6 +4,15 @@ const {isAsync} = require('./lib/utils');
 const commands = require('./plugins');
 
 const client = new Discord.Client();
+client.commands = [];
+
+/**
+ *
+ * @param {{description: String, only?: String[], fn: Function}[]} commands
+ */
+client.loadCommands = function (commands) {
+    this.commands = commands;
+}
 
 client.on('ready', () => {
     client.user.setPresence({
@@ -29,23 +38,23 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 client.on('message', async message => {
     if (message.content.startsWith(prefix) && !message.author.bot) {
         const args = message.content.slice(prefix.length).split(' ');
-        const command = args.shift().toLowerCase();
+        const cmd = args.shift().toLowerCase();
 
-        if (!(command in commands)) {
+        if (!(cmd in client.commands)) {
             return;
         }
 
-        if (commands[command].only && !commands[command].only.includes(message.author.id)) {
+        const command = client.commands[cmd];
+
+        if (command.only && !command.only.includes(message.author.id)) {
             return;
         }
-
-        const fn = commands[command].fn;
 
         try {
-            if (isAsync(fn)) {
-                await fn(message, args, client);
+            if (isAsync(command.fn)) {
+                await command.fn(message, args);
             } else {
-                fn(message, args, client);
+                command.fn(message, args);
             }
         } catch (e) {
             console.error(e);
@@ -55,4 +64,5 @@ client.on('message', async message => {
 });
 
 client.login(token).then(() => {
+    client.loadCommands(commands);
 });

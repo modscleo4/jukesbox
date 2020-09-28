@@ -3,5 +3,7 @@
   "token": "",
   "ytapikey": "",
   "scclientID": "",
+  "spclientID": "",
+  "spsecret": "",
   "adminID": ""
 }

@@ -6,9 +6,8 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Client} client
          */
-        fn: async (message, args, client) => {
+        fn: async (message, args) => {
             if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
                 return await message.channel.send('ME AJUDA.');
             }

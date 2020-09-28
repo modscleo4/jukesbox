@@ -1,14 +1,27 @@
 const queue = new Map();
 
-const {Client, MessageEmbed} = require('discord.js');
+const {MessageEmbed} = require('discord.js');
 const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader');
+const SpotifyWebAPI = require('spotify-web-api-node');
 
-const {ytapikey, scclientID} = require('../config.js');
-const {isValidHttpURL, isAsync, parseMS, searchVideo, videoInfo, getPlaylistItems} = require('../lib/utils');
+const {ytapikey, scclientID, spclientID, spsecret} = require('../config.js');
+const {isValidHttpURL, isAsync, parseMS, pageEmbed, searchVideo, videoInfo, getPlaylistItems, getSpotifyPlaylistItems} = require('../lib/utils');
 
-async function play(message, song, client) {
+const spotifyAPI = new SpotifyWebAPI({
+    clientId: spclientID,
+    clientSecret: spsecret,
+    redirectUri: 'http://jukesbox.herokuapp.com',
+});
+
+/**
+ *
+ * @param {Message} message
+ * @param {any} song
+ * @return {Promise<void>}
+ */
+async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
 
     if (!serverQueue) {
@@ -25,6 +38,18 @@ async function play(message, song, client) {
         return;
     }
 
+    if (song.findOnYT) {
+        const msg = await message.channel.send('Procurando no YouTube...');
+        serverQueue.songs[serverQueue.position] = song = await findOnYT(message, song.title);
+        await msg.delete();
+
+        if (!song) {
+            serverQueue.toDelete = await message.channel.send('Achei nada lek.');
+            serverQueue.songs.shift();
+            await play(message, serverQueue.songs[0]);
+        }
+    }
+
     const stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
     const dispatcher = serverQueue.connection.play(stream).on('finish', async () => {
         if (!serverQueue.loop) {
@@ -36,17 +61,56 @@ async function play(message, song, client) {
             serverQueue.position = Math.floor(Math.random() * serverQueue.songs.length);
         }
 
-        await play(message, serverQueue.songs[serverQueue.position], client);
+        await play(message, serverQueue.songs[serverQueue.position]);
     }).on('error', async e => {
         console.error(e);
 
         await message.channel.send('Eu não consigo clicar velho.');
         serverQueue.songs.shift();
-        await play(message, serverQueue.songs[0], client);
+        await play(message, serverQueue.songs[0]);
     });
 
     dispatcher.setVolume(serverQueue.volume / 100);
-    serverQueue.toDelete = await module.exports.np.fn(message, [''], client);
+    serverQueue.toDelete = await module.exports.np.fn(message);
+}
+
+async function findOnYT(message, q) {
+    const url = ((await searchVideo(q, {
+        key: ytapikey,
+        regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
+        type: 'video',
+    }).catch(e => {
+        console.error(e);
+        return null;
+    }))[0] || {url: null}).url;
+
+    if (!url) {
+        return null;
+    }
+
+    const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(url).groups.VideoId;
+    const songInfo = (await videoInfo(videoId, {key: ytapikey}).catch(e => {
+        console.error(e);
+        return null;
+    }))[0];
+
+    if (!songInfo) {
+        return null;
+    }
+
+    return {
+        title: songInfo.snippet.title,
+        url: songInfo.url,
+        channelTitle: songInfo.snippet.channelTitle,
+        thumbnail: songInfo.snippet.thumbnails.high.url,
+        duration: songInfo.duration,
+        fn: ytdl,
+        options: {
+            filter: 'audioonly',
+            highWaterMark: 1 << 25,
+            quality: 'highestaudio',
+        },
+    };
 }
 
 module.exports = {
@@ -56,11 +120,9 @@ module.exports = {
         /**
          *
          * @param {Message} message
-         * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async message => {
             const voiceChannel = message.member.voice.channel;
 
             if (!voiceChannel) {
@@ -75,7 +137,7 @@ module.exports = {
             await voiceChannel.join();
             return await message.channel.send(new MessageEmbed()
                 .setTitle('Salve salve Yodinha!')
-                .setAuthor(client.user.username, client.user.avatarURL())
+                .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
                 .setDescription('Conectado a um canal de voz')
                 .addFields([
@@ -119,10 +181,9 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async (message, args) => {
             const voiceChannel = message.member.voice.channel;
 
             if (!voiceChannel) {
@@ -164,7 +225,7 @@ module.exports = {
 
             const msg = await message.channel.send(new MessageEmbed()
                 .setTitle('Achei isso aqui lek')
-                .setAuthor(client.user.username, client.user.avatarURL())
+                .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
                 .addFields(results.map((r, i) => {
                     return {
@@ -180,7 +241,7 @@ module.exports = {
                 errors: ['time'],
             }).then(async collected => {
                 const reaction = collected.first();
-                await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url], client);
+                await module.exports.play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
             }).catch(() => {
 
             });
@@ -198,10 +259,9 @@ module.exports = {
          *
          * @param {Message} message
          * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async (message, args) => {
             const voiceChannel = message.member.voice.channel;
             const serverQueue = queue.get(message.guild.id);
 
@@ -245,38 +305,56 @@ module.exports = {
                 return message.channel.send('Achei nada lesk.');
             }
 
-            if (url.match(/([&?])list=[^&#]+/gmu)) {
-                const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
-                const plsongs = await getPlaylistItems(playlistId, {
-                    key: ytapikey,
-                });
+            if (url.match(/youtube.com|youtu.be/gmu)) {
+                if (url.match(/([&?])list=[^&#]+/gmu)) {
+                    const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
+                    const plsongs = await getPlaylistItems(playlistId, {
+                        key: ytapikey,
+                    }).catch(e => {
+                        console.error(e);
+                        return null;
+                    });
 
-                if (!plsongs) {
-                    return message.channel.send('Eu não consigo clicar velho.');
-                }
+                    if (!plsongs) {
+                        return await message.channel.send('Eu não consigo clicar velho.');
+                    }
 
-                const songsInfo = await videoInfo(plsongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey});
-                songsInfo.forEach(songInfo => {
-                    const song = {
-                        title: songInfo.snippet.title,
-                        url: songInfo.url,
-                        channelTitle: songInfo.snippet.channelTitle,
-                        thumbnail: songInfo.snippet.thumbnails.high.url,
-                        duration: songInfo.duration,
-                        fn: ytdl,
-                        options: {
-                            filter: 'audioonly',
-                            highWaterMark: 1 << 25,
-                            quality: 'highestaudio',
-                        },
-                    };
+                    const songsInfo = await videoInfo(plsongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey}).catch(e => {
+                        console.error(e);
+                        return null;
+                    });
 
-                    songs.push(song);
-                });
-            } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-                try {
+                    if (!songsInfo) {
+                        return await message.channel.send('Eu não consigo clicar velho.');
+                    }
+
+                    songsInfo.forEach(songInfo => {
+                        const song = {
+                            title: songInfo.snippet.title,
+                            url: songInfo.url,
+                            channelTitle: songInfo.snippet.channelTitle,
+                            thumbnail: songInfo.snippet.thumbnails.high.url,
+                            duration: songInfo.duration,
+                            fn: ytdl,
+                            options: {
+                                filter: 'audioonly',
+                                highWaterMark: 1 << 25,
+                                quality: 'highestaudio',
+                            },
+                        };
+
+                        songs.push(song);
+                    });
+                } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
                     const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(url).groups.VideoId;
-                    const songInfo = (await videoInfo(videoId, {key: ytapikey}))[0];
+                    const songInfo = (await videoInfo(videoId, {key: ytapikey}).catch(e => {
+                        console.error(e);
+                        return null;
+                    }))[0];
+
+                    if (!songInfo) {
+                        return await message.channel.send('Eu não consigo clicar velho.');
+                    }
 
                     const song = {
                         title: songInfo.snippet.title,
@@ -293,12 +371,17 @@ module.exports = {
                     };
 
                     songs.push(song);
-                } catch (e) {
-                    console.error(e);
-                    return await message.channel.send('Eu não consigo clicar velho.');
                 }
             } else if (url.match(/soundcloud.com\//gmu)) {
-                const songInfo = await scdl.getInfo(url);
+                const songInfo = await scdl.getInfo(url).catch(e => {
+                    console.error(e);
+                    return null;
+                });
+
+                if (!songInfo) {
+                    return await message.channel.send('Eu não consigo clicar velho.');
+                }
+
                 const parsedMS = parseMS(songInfo.duration);
 
                 const song = {
@@ -312,6 +395,29 @@ module.exports = {
                 };
 
                 songs.push(song);
+            } else if (url.match(/spotify.com\/playlist\/[^?#]+/gmu)) {
+                const playlistId = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups.PlaylistId;
+                (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
+                    console.error(e);
+                    return null;
+                })).forEach(plSong => {
+                    const song = {
+                        title: plSong.name,
+                        url: null,
+                        channelTitle: plSong.artists,
+                        thumbnail: null,
+                        duration: null,
+                        findOnYT: true,
+                        fn: ytdl,
+                        options: {
+                            filter: 'audioonly',
+                            highWaterMark: 1 << 25,
+                            quality: 'highestaudio',
+                        },
+                    };
+
+                    songs.push(song);
+                });
             } else {
                 return await message.channel.send('Eu não consigo clicar velho.');
             }
@@ -338,7 +444,7 @@ module.exports = {
                         queue.delete(message.guild.id);
                     });
 
-                    await play(message, queueContruct.songs[0], client);
+                    await play(message, queueContruct.songs[0], message.client);
                 } catch (err) {
                     console.error(err);
                     queue.delete(message.guild.id);
@@ -361,11 +467,9 @@ module.exports = {
         /**
          *
          * @param {Message} message
-         * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async message => {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
@@ -376,7 +480,7 @@ module.exports = {
 
             return await message.channel.send(new MessageEmbed()
                 .setTitle('Que porra de música é essa que tá tocando caraio!')
-                .setAuthor(client.user.username, client.user.avatarURL())
+                .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
                 .setThumbnail(song.thumbnail)
                 .setDescription(song.title)
@@ -620,11 +724,9 @@ module.exports = {
         /**
          *
          * @param {Message} message
-         * @param {String[]} args
-         * @param {Client} client
          * @return {Promise<*>}
          */
-        fn: async (message, args, client) => {
+        fn: async message => {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
@@ -635,66 +737,7 @@ module.exports = {
                 return {name: `${i + 1}: ${s.title}`, value: s.channelTitle}
             });
 
-            const maxPerPage = 10;
-            const pages = Math.ceil(songs.length / maxPerPage);
-            let page = 1;
-
-            const msg = await message.channel.send(new MessageEmbed()
-                .setTitle('Fila tá assim lek')
-                .setAuthor(client.user.username, client.user.avatarURL())
-                .setTimestamp()
-                .setDescription(`${serverQueue.songs.length} música${serverQueue.songs.length > 1 ? 's' : ''} na fila`)
-                .addFields(songs)
-                .spliceFields(0, (page - 1) * maxPerPage)
-                .spliceFields(maxPerPage, songs.length - page * maxPerPage)
-                .setFooter(`Página ${page} de ${pages}`));
-
-            async function awaitReactions(msg) {
-                const reactions = [];
-                if (pages > 1) {
-                    if (page > 1) {
-                        reactions.push('⬅️');
-                    }
-
-                    if (page < pages) {
-                        reactions.push('➡️');
-                    }
-                }
-
-                reactions.map(r => msg.react(r));
-
-                await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
-                    max: 1,
-                    time: 60000,
-                    errors: ['time'],
-                }).then(async collected => {
-                    const reaction = collected.first();
-                    page += reaction.emoji.name === '⬅️' ? -1 : 1;
-
-                    await msg.reactions.removeAll();
-
-                    await new Promise(r => setTimeout(r, 100));
-                    await msg.edit(new MessageEmbed()
-                        .setTitle('Fila tá assim lek')
-                        .setAuthor(client.user.username, client.user.avatarURL())
-                        .setTimestamp()
-                        .setDescription(`${serverQueue.songs.length} música${serverQueue.songs.length > 1 ? 's' : ''} na fila`)
-                        .addFields(songs)
-                        .spliceFields(0, (page - 1) * maxPerPage)
-                        .spliceFields(maxPerPage, songs.length - page * maxPerPage)
-                        .setFooter(`Página ${page} de ${pages}`));
-
-                    await awaitReactions(msg);
-                }).catch(() => {
-
-                });
-            }
-
-            await awaitReactions(msg);
-
-            if (!msg.deleted) {
-                await msg.delete();
-            }
+            return await pageEmbed(message, 'Fila tá assim lek', songs);
         },
     },
 };
