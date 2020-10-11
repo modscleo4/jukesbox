@@ -227,12 +227,10 @@ module.exports = {
                 .setTitle('Achei isso aqui lek')
                 .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
-                .addFields(results.map((r, i) => {
-                    return {
-                        name: `${i + 1}: ${r.snippet.title}`,
-                        value: r.url,
-                    }
-                })));
+                .addFields(results.map((r, i) => ({
+                    name: `${i + 1}: ${r.snippet.title}`,
+                    value: r.url,
+                }))));
             reactions.map(async r => await msg.react(r));
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {

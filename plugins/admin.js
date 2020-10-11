@@ -23,6 +23,15 @@ module.exports = {
 
                     return await pageEmbed(message, 'Servidores', servers);
                 },
+
+                voicechannels: async () => {
+                    const voicechannels = message.client.voice.connections.map((g, i) => ({
+                        name: g.channel.name,
+                        value: `Servidor: ${g.channel.guild.name}`,
+                    }));
+
+                    return await pageEmbed(message, 'Canais de voz', voicechannels);
+                },
             };
 
             if (args[0] && args[0] in subcommands) {

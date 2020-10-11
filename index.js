@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
 const {prefix, token, adminID} = require('./config.js');
-const {isAsync} = require('./lib/utils');
 const commands = require('./plugins');
 
 const client = new Discord.Client();
@@ -37,7 +36,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 client.on('message', async message => {
     if (message.content.startsWith(prefix) && !message.author.bot) {
-        const args = message.content.slice(prefix.length).split(' ');
+        const args = message.content.slice(prefix.length).match(/(".*?"|[^" \s]+)(?=\s* |\s*$)/gmi) || [];
         const cmd = args.shift().toLowerCase();
 
         if (!(cmd in client.commands)) {
@@ -50,16 +49,11 @@ client.on('message', async message => {
             return;
         }
 
-        try {
-            if (isAsync(command.fn)) {
-                await command.fn(message, args);
-            } else {
-                command.fn(message, args);
-            }
-        } catch (e) {
+        await command.fn(message, args).catch(async e => {
             console.error(e);
+            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
             await message.channel.send('Deu ruim aqui lek.');
-        }
+        });
     }
 });
 
