@@ -338,6 +338,11 @@ module.exports = {
                                 filter: 'audioonly',
                                 highWaterMark: 1 << 25,
                                 quality: 'highestaudio',
+                                requestOptions: {
+                                    headers: {
+                                        Authorization: `Bearer ${ytapikey}`,
+                                    }
+                                },
                             },
                         };
 
@@ -365,6 +370,12 @@ module.exports = {
                             filter: 'audioonly',
                             highWaterMark: 1 << 25,
                             quality: 'highestaudio',
+                            requestOptions: {
+                                host: 'jukesbox.herokuapp.com',
+                                headers: {
+                                    Authorization: `Bearer ${ytapikey}`,
+                                }
+                            },
                         },
                     };
 
@@ -411,6 +422,11 @@ module.exports = {
                             filter: 'audioonly',
                             highWaterMark: 1 << 25,
                             quality: 'highestaudio',
+                            requestOptions: {
+                                headers: {
+                                    Authorization: `Bearer ${ytapikey}`,
+                                }
+                            },
                         },
                     };
 
