@@ -1,6 +1,6 @@
 const queue = new Map();
 
-const {MessageEmbed} = require('discord.js');
+const {Message, MessageEmbed} = require('discord.js');
 const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader');
@@ -19,7 +19,7 @@ const spotifyAPI = new SpotifyWebAPI({
  *
  * @param {Message} message
  * @param {any} song
- * @return {Promise<void>}
+ * @return {Promise<*>}
  */
 async function play(message, song) {
     const serverQueue = queue.get(message.guild.id);
@@ -40,14 +40,15 @@ async function play(message, song) {
 
     if (song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
-        serverQueue.songs[serverQueue.position] = song = await findOnYT(message, song.title);
+        const found = await findOnYT(message, song.title);
         await msg.delete();
-
         if (!song) {
-            serverQueue.toDelete = await message.channel.send('Achei nada lek.');
+            serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
             serverQueue.songs.shift();
             await play(message, serverQueue.songs[0]);
         }
+
+        serverQueue.songs[serverQueue.position] = song = {...song, ...found};
     }
 
     const stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
@@ -74,6 +75,12 @@ async function play(message, song) {
     serverQueue.toDelete = await module.exports.np.fn(message);
 }
 
+/**
+ *
+ * @param {Message} message
+ * @param {String} q
+ * @return {Promise<null|{duration: any, thumbnail: String, fn: Function, options: {filter: string, requestOptions: {headers: {Authorization: string}}, highWaterMark: number, quality: string}, title: *, url: *, channelTitle: string}>}
+ */
 async function findOnYT(message, q) {
     const url = ((await searchVideo(q, {
         key: ytapikey,
@@ -109,6 +116,11 @@ async function findOnYT(message, q) {
             filter: 'audioonly',
             highWaterMark: 1 << 25,
             quality: 'highestaudio',
+            requestOptions: {
+                headers: {
+                    Authorization: `Bearer ${ytapikey}`,
+                }
+            },
         },
     };
 }
@@ -131,7 +143,7 @@ module.exports = {
 
             const permissions = voiceChannel.permissionsFor(message.client.user);
             if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-                return message.channel.send('ME AJUDA!');
+                return await message.channel.send('ME AJUDA!');
             }
 
             await voiceChannel.join();
@@ -250,6 +262,51 @@ module.exports = {
         },
     },
 
+    videoinfo: {
+        description: 'Mostra informações de um vídeo do YouTube',
+
+        /**
+         *
+         * @param {Message} message
+         * @param {String[]} args
+         * @return {Promise<*>}
+         */
+        fn: async (message, args) => {
+            if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
+                return await message.channel.send('URL inválida.');
+            }
+
+            const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(args[0]).groups.VideoId;
+            const songInfo = (await videoInfo(videoId, {
+                key: ytapikey,
+                part: ['id', 'snippet', 'contentDetails', 'statistics']
+            }).catch(e => {
+                console.error(e);
+                return null;
+            }))[0];
+
+            if (!songInfo) {
+                return await message.channel.send('Eu não consigo clicar velho.');
+            }
+
+            return await message.channel.send(new MessageEmbed()
+                .setTitle('Informações do vídeo')
+                .setURL(songInfo.url)
+                .setAuthor(message.client.user.username, message.client.user.avatarURL())
+                .setTimestamp()
+                .setThumbnail(songInfo.snippet.thumbnails.high.url)
+                .setDescription(songInfo.snippet.title)
+                .addFields([
+                    {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
+                    {name: 'Duração', value: songInfo.duration, inline: true},
+                    {name: 'Descrição', value: songInfo.snippet.description},
+                    {name: 'Views', value: songInfo.statistics.viewCount, inline: true},
+                    {name: 'Likes', value: songInfo.statistics.likeCount, inline: true},
+                    {name: 'Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
+                ]));
+        },
+    },
+
     play: {
         description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
 
@@ -300,7 +357,7 @@ module.exports = {
             }))[0] || {url: null}).url || null;
 
             if (!url) {
-                return message.channel.send('Achei nada lesk.');
+                return await message.channel.send('Achei nada lesk.');
             }
 
             if (url.match(/youtube.com|youtu.be/gmu)) {
@@ -333,6 +390,8 @@ module.exports = {
                             channelTitle: songInfo.snippet.channelTitle,
                             thumbnail: songInfo.snippet.thumbnails.high.url,
                             duration: songInfo.duration,
+                            from: 'yt',
+                            addedBy: message.author,
                             fn: ytdl,
                             options: {
                                 filter: 'audioonly',
@@ -365,6 +424,8 @@ module.exports = {
                         channelTitle: songInfo.snippet.channelTitle,
                         thumbnail: songInfo.snippet.thumbnails.high.url,
                         duration: songInfo.duration,
+                        from: 'yt',
+                        addedBy: message.author,
                         fn: ytdl,
                         options: {
                             filter: 'audioonly',
@@ -399,6 +460,8 @@ module.exports = {
                     channelTitle: songInfo.user.username,
                     thumbnail: songInfo.artwork_url,
                     duration: `${parsedMS.hours}h ${parsedMS.minutes}m ${parsedMS.seconds}s`,
+                    from: 'sc',
+                    addedBy: message.author,
                     fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
                     options: scclientID,
                 };
@@ -417,6 +480,8 @@ module.exports = {
                         thumbnail: null,
                         duration: null,
                         findOnYT: true,
+                        from: 'sp',
+                        addedBy: message.author,
                         fn: ytdl,
                         options: {
                             filter: 'audioonly',
@@ -494,7 +559,9 @@ module.exports = {
 
             return await message.channel.send(new MessageEmbed()
                 .setTitle('Que porra de música é essa que tá tocando caraio!')
-                .setAuthor(message.client.user.username, message.client.user.avatarURL())
+                .setURL(song.url)
+                .setAuthor(song.addedBy.username, song.addedBy.avatarURL())
+                .setColor({yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[song.from])
                 .setTimestamp()
                 .setThumbnail(song.thumbnail)
                 .setDescription(song.title)
