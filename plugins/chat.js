@@ -14,6 +14,10 @@ module.exports = {
                 return await message.channel.send('ME AJUDA.');
             }
 
+            if (!message.member.guild.member(message.author).hasPermission('MANAGE_MESSAGES')) {
+                return await message.channel.send('Coé rapaz tá doidão?');
+            }
+
             const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
 
             await message.delete().then(async () => {
