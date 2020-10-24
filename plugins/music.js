@@ -118,6 +118,7 @@ async function findOnYT(message, q) {
             quality: 'highestaudio',
             requestOptions: {
                 headers: {
+                    host: 'jukesbox.herokuapp.com',
                     Authorization: `Bearer ${ytapikey}`,
                 }
             },
@@ -398,6 +399,7 @@ module.exports = {
                                 highWaterMark: 1 << 25,
                                 quality: 'highestaudio',
                                 requestOptions: {
+                                    host: 'jukesbox.herokuapp.com',
                                     headers: {
                                         Authorization: `Bearer ${ytapikey}`,
                                     }

@@ -11,11 +11,11 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
-    "discord.js": "^12.2.0",
-    "googleapis": "^52.1.0",
-    "iso-3166-1": "^1.1.0",
-    "soundcloud-downloader": "^0.1.6",
-    "spotify-web-api-node": "^4.0.0",
-    "ytdl-core": "^2.1.5"
+    "discord.js": "^12.4.1",
+    "googleapis": "^61.0.0",
+    "iso-3166-1": "^2.0.1",
+    "soundcloud-downloader": "^0.1.8",
+    "spotify-web-api-node": "^5.0.0",
+    "ytdl-core": "^3.4.2"
   }
 }
