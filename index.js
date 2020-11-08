@@ -36,7 +36,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 client.on('message', async message => {
     if (message.content.startsWith(prefix) && !message.author.bot) {
-        const args = message.content.slice(prefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || [];
+        const args = (message.content.slice(prefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
         if (!(cmd in client.commands)) {

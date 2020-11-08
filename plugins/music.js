@@ -86,6 +86,7 @@ async function findOnYT(message, q) {
         key: ytapikey,
         regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
         type: 'video',
+        part: ['id'],
     }).catch(e => {
         console.error(e);
         return null;
@@ -300,7 +301,7 @@ module.exports = {
                 .addFields([
                     {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
                     {name: 'Duração', value: songInfo.duration, inline: true},
-                    {name: 'Descrição', value: songInfo.snippet.description},
+                    {name: 'Descrição', value: songInfo.snippet.description || '⠀'},
                     {name: 'Views', value: songInfo.statistics.viewCount, inline: true},
                     {name: 'Likes', value: songInfo.statistics.likeCount, inline: true},
                     {name: 'Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
@@ -355,6 +356,7 @@ module.exports = {
                 key: ytapikey,
                 regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
                 type: kind,
+                part: ['id'],
             }))[0] || {url: null}).url || null;
 
             if (!url) {
