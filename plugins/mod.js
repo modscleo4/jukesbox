@@ -35,7 +35,7 @@ module.exports = {
             }
 
             if (roles.find(r => !r.editable)) {
-                return message.channel.send(`A Role \`${roles.find(r => !r.editable)}\` é muito potente.`);
+                return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
             }
 
             await user.roles.add(roles);
@@ -79,7 +79,7 @@ module.exports = {
             }
 
             if (roles.find(r => !r.editable)) {
-                return message.channel.send(`A Role \`${roles.find(r => !r.editable)}\` é muito potente.`);
+                return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
             }
 
             await user.roles.remove(roles);

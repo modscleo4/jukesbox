@@ -1,13 +1,12 @@
-const queue = new Map();
-
 const {Message, MessageEmbed} = require('discord.js');
 const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader');
 const SpotifyWebAPI = require('spotify-web-api-node');
 
-const {ytapikey, scclientID, spclientID, spsecret} = require('../config.js');
-const {isValidHttpURL, isAsync, parseMS, pageEmbed, searchVideo, videoInfo, getPlaylistItems, getSpotifyPlaylistItems} = require('../lib/utils');
+const {queue, serverConfig} = require('../global');
+const {database_url, prefix, ytapikey, scclientID, spclientID, spsecret} = require('../config.js');
+const {serverConfigConstruct, queueConstruct, saveServerConfig, isValidHttpURL, isAsync, cutUntil, parseMS, pageEmbed, searchVideo, videoInfo, getPlaylistItems, getSpotifyPlaylistItems} = require('../lib/utils');
 
 const spotifyAPI = new SpotifyWebAPI({
     clientId: spclientID,
@@ -301,10 +300,10 @@ module.exports = {
                 .addFields([
                     {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
                     {name: 'Duração', value: songInfo.duration, inline: true},
-                    {name: 'Descrição', value: songInfo.snippet.description || '⠀'},
-                    {name: 'Views', value: songInfo.statistics.viewCount, inline: true},
-                    {name: 'Likes', value: songInfo.statistics.likeCount, inline: true},
-                    {name: 'Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
+                    {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
+                    {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
+                    {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
+                    {name: '👎 Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
                 ]));
         },
     },
@@ -506,28 +505,18 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                const queueContruct = {
-                    textChannel: message.channel,
-                    voiceChannel: message.member.voice.channel,
-                    connection: null,
-                    songs: [...songs],
-                    volume: 100,
-                    playing: true,
-                    loop: false,
-                    shufle: false,
-                    toDelete: null,
-                    position: 0,
-                };
+                const sc = serverConfig.get(message.guild.id) || serverConfigConstruct(prefix);
+                const q = queueConstruct(message, sc.volume, songs);
 
-                queue.set(message.guild.id, queueContruct);
+                queue.set(message.guild.id, q);
 
                 try {
-                    queueContruct.connection = await voiceChannel.join();
-                    queueContruct.connection.on('disconnect', async () => {
+                    q.connection = await voiceChannel.join();
+                    q.connection.on('disconnect', async () => {
                         queue.delete(message.guild.id);
                     });
 
-                    await play(message, queueContruct.songs[0], message.client);
+                    await play(message, q.songs[0], message.client);
                 } catch (err) {
                     console.error(err);
                     queue.delete(message.guild.id);
@@ -799,6 +788,11 @@ module.exports = {
             serverQueue.volume = volume;
             serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
 
+            const sc = serverConfig.get(message.guild.id) || serverConfigConstruct(prefix);
+            sc.volume = volume;
+            serverConfig.set(message.guild.id, sc);
+            await saveServerConfig(database_url, message.guild.id, sc);
+
             return await message.channel.send('Aumenta essa porra aí.');
         },
     },
@@ -822,7 +816,7 @@ module.exports = {
                 return {name: `${i + 1}: ${s.title}`, value: s.channelTitle}
             });
 
-            return await pageEmbed(message, 'Fila tá assim lek', songs);
+            return await pageEmbed(message, {title: 'Fila tá assim lek'}, songs);
         },
     },
 };

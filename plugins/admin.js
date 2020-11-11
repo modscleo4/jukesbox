@@ -21,7 +21,7 @@ module.exports = {
                         value: `ID: ${g.id}`,
                     }));
 
-                    return await pageEmbed(message, 'Servidores', servers);
+                    return await pageEmbed(message, {title: 'Servidores'}, servers);
                 },
 
                 voicechannels: async () => {
@@ -30,7 +30,7 @@ module.exports = {
                         value: `Servidor: ${g.channel.guild.name}`,
                     }));
 
-                    return await pageEmbed(message, 'Canais de voz', voicechannels);
+                    return await pageEmbed(message, {title: 'Canais de voz'}, voicechannels);
                 },
             };
 

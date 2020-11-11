@@ -1,4 +1,5 @@
 {
+  "database_url": "",
   "prefix": ".",
   "token": "",
   "ytapikey": "",

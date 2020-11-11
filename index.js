@@ -1,6 +1,9 @@
 const Discord = require('discord.js');
-const {prefix, token, adminID} = require('./config.js');
-const commands = require('./plugins');
+const {setServerConfig} = require('./global');
+const {database_url, prefix, token, adminID} = require('./config.js');
+const {loadServerConfig} = require('./lib/utils');
+
+let serverConfig = new Map();
 
 const client = new Discord.Client();
 client.commands = [];
@@ -35,8 +38,15 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 client.on('message', async message => {
-    if (message.content.startsWith(prefix) && !message.author.bot) {
-        const args = (message.content.slice(prefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
+    if (message.author.bot) {
+        return;
+    }
+
+    const sc = serverConfig.get(message.guild.id);
+    const serverPrefix = sc ? sc.prefix : prefix;
+
+    if (message.content.startsWith(serverPrefix)) {
+        const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
         if (!(cmd in client.commands)) {
@@ -57,6 +67,10 @@ client.on('message', async message => {
     }
 });
 
-client.login(token).then(() => {
+client.login(token).then(async () => {
+    serverConfig = await loadServerConfig(database_url);
+    setServerConfig(serverConfig);
+
+    const commands = require('./plugins');
     client.loadCommands(commands);
 });

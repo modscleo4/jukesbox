@@ -2,6 +2,7 @@ const {requireOrNull} = require('./lib/utils');
 const config = requireOrNull('./config.json');
 
 module.exports = {
+    database_url: config.database_url || process.env.DATABASE_URL,
     prefix: config.prefix || process.env.PREFIX,
     token: config.token || process.env.TOKEN,
     ytapikey: config.ytapikey || process.env.YTAPIKEY,
@@ -9,5 +10,4 @@ module.exports = {
     spclientID: config.spclientID || process.env.SPCLIENTID,
     spsecret: config.spsecret || process.env.SPSECRET,
     adminID: config.adminID || process.env.ADMINID,
-    startupTime: new Date(),
 };
