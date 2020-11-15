@@ -17,10 +17,9 @@ const spotifyAPI = new SpotifyWebAPI({
 /**
  *
  * @param {Message} message
- * @param {any} song
  * @return {Promise<*>}
  */
-async function play(message, song) {
+async function play(message) {
     const serverQueue = queue.get(message.guild.id);
 
     if (!serverQueue) {
@@ -32,45 +31,53 @@ async function play(message, song) {
         serverQueue.toDelete = null;
     }
 
-    if (!song) {
+    if (serverQueue.songs.length === 0) {
         queue.delete(message.guild.id);
         return;
     }
+
+    let song = serverQueue.song;
 
     if (song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
         const found = await findOnYT(message, song.title);
         await msg.delete();
-        if (!song) {
+        if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
             serverQueue.songs.shift();
-            await play(message, serverQueue.songs[0]);
+            await play(message);
         }
 
-        serverQueue.songs[serverQueue.position] = song = {...song, ...found};
+        serverQueue.song = song = {...song, ...found};
     }
 
-    const stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
-    const dispatcher = serverQueue.connection.play(stream).on('finish', async () => {
-        if (!serverQueue.loop) {
-            serverQueue.songs.splice(serverQueue.position, 1);
+    serverQueue.song.stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
+
+    const dispatcher = serverQueue.connection.play(serverQueue.song.stream, {
+        seek: serverQueue.seek,
+        volume: serverQueue.volume / 100
+    }).on('finish', async () => {
+        if (serverQueue.seek === 0) {
+            if (!serverQueue.loop) {
+                serverQueue.songs.splice(serverQueue.position, 1);
+            }
+
+            serverQueue.position = 0;
+            if (serverQueue.shuffle) {
+                serverQueue.position = Math.floor(Math.random() * serverQueue.songs.length);
+            }
         }
 
-        serverQueue.position = 0;
-        if (serverQueue.shuffle) {
-            serverQueue.position = Math.floor(Math.random() * serverQueue.songs.length);
-        }
-
-        await play(message, serverQueue.songs[serverQueue.position]);
+        await play(message);
     }).on('error', async e => {
         console.error(e);
 
         await message.channel.send('Eu não consigo clicar velho.');
         serverQueue.songs.shift();
-        await play(message, serverQueue.songs[0]);
+        await play(message);
     });
 
-    dispatcher.setVolume(serverQueue.volume / 100);
+    serverQueue.seek = 0;
     serverQueue.toDelete = await module.exports.np.fn(message);
 }
 
@@ -129,6 +136,7 @@ async function findOnYT(message, q) {
 module.exports = {
     join: {
         description: 'Entra no canal de voz.',
+        usage: 'join',
 
         /**
          *
@@ -162,6 +170,7 @@ module.exports = {
 
     leave: {
         description: 'Sai do canal de voz.',
+        usage: 'leave',
 
         /**
          *
@@ -189,6 +198,7 @@ module.exports = {
 
     search: {
         description: 'Procura por uma música/playlist. `/playlist` para procurar por playlists.',
+        usage: 'search [/playlist] [q]',
 
         /**
          *
@@ -265,6 +275,7 @@ module.exports = {
 
     videoinfo: {
         description: 'Mostra informações de um vídeo do YouTube',
+        usage: 'videoinfo [youtube_url]',
 
         /**
          *
@@ -299,7 +310,7 @@ module.exports = {
                 .setDescription(songInfo.snippet.title)
                 .addFields([
                     {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
-                    {name: 'Duração', value: songInfo.duration, inline: true},
+                    {name: 'Duração', value: parseMS(songInfo.duration).toString(), inline: true},
                     {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
                     {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
                     {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
@@ -310,6 +321,9 @@ module.exports = {
 
     play: {
         description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
+        usage: 'play [/playlist] [youtube_url|q]',
+
+        alias: ['p'],
 
         /**
          *
@@ -455,14 +469,12 @@ module.exports = {
                     return await message.channel.send('Eu não consigo clicar velho.');
                 }
 
-                const parsedMS = parseMS(songInfo.duration);
-
                 const song = {
                     title: songInfo.title,
                     url: songInfo.permalink_url,
                     channelTitle: songInfo.user.username,
                     thumbnail: songInfo.artwork_url,
-                    duration: `${parsedMS.hours}h ${parsedMS.minutes}m ${parsedMS.seconds}s`,
+                    duration: songInfo.duration / 1000,
                     from: 'sc',
                     addedBy: message.author,
                     fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
@@ -516,7 +528,7 @@ module.exports = {
                         queue.delete(message.guild.id);
                     });
 
-                    await play(message, q.songs[0], message.client);
+                    await play(message);
                 } catch (err) {
                     console.error(err);
                     queue.delete(message.guild.id);
@@ -535,6 +547,7 @@ module.exports = {
 
     np: {
         description: 'Mostra a música que está tocando.',
+        usage: 'np',
 
         /**
          *
@@ -548,26 +561,25 @@ module.exports = {
                 return await message.channel.send('Tá limpo vei.');
             }
 
-            const song = serverQueue.songs[serverQueue.position];
-
             return await message.channel.send(new MessageEmbed()
                 .setTitle('Que porra de música é essa que tá tocando caraio!')
-                .setURL(song.url)
-                .setAuthor(song.addedBy.username, song.addedBy.avatarURL())
-                .setColor({yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[song.from])
+                .setURL(serverQueue.song.url)
+                .setAuthor(serverQueue.song.addedBy.username, serverQueue.song.addedBy.avatarURL())
+                .setColor({yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from])
                 .setTimestamp()
-                .setThumbnail(song.thumbnail)
-                .setDescription(song.title)
+                .setThumbnail(serverQueue.song.thumbnail)
+                .setDescription(serverQueue.song.title)
                 .addFields([
-                    {name: 'Canal', value: song.channelTitle},
+                    {name: 'Canal', value: serverQueue.song.channelTitle},
                     {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
-                    {name: 'Duração', value: song.duration, inline: true},
+                    {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000).toString(), inline: true},
                 ]));
         },
     },
 
     pause: {
         description: 'Pausa a música.',
+        usage: 'pause',
 
         /**
          *
@@ -583,7 +595,7 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send('ME AJUDA.');
+                return await message.channel.send('Tá limpo vei.');
             }
 
             serverQueue.connection.dispatcher.pause(true);
@@ -594,6 +606,7 @@ module.exports = {
 
     resume: {
         description: 'Continua a reprodução da música.',
+        usage: 'resume',
 
         /**
          *
@@ -609,12 +622,43 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send('ME AJUDA.');
+                return await message.channel.send('Tá limpo vei.');
             }
 
             serverQueue.connection.dispatcher.resume();
             serverQueue.playing = true;
             return await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
+        },
+    },
+
+    seek: {
+        description: 'Altera a posição da música. Formato em `xS`.',
+        usage: 'seek [s]',
+
+        /**
+         *
+         * @param {Message} message
+         * @param {String} args
+         * @return {Promise<*>}
+         */
+        fn: async (message, args) => {
+            const serverQueue = queue.get(message.guild.id);
+
+            if (!serverQueue) {
+                return await message.channel.send('Tá limpo vei.');
+            }
+
+            if (args.length === 0) {
+                return await message.channel.send('Sem meu tempo eu não consigo.');
+            }
+
+            let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
+            if (s > serverQueue.song.duration) {
+                s = serverQueue.song.duration;
+            }
+
+            serverQueue.seek = s;
+            await serverQueue.connection.dispatcher.end();
         },
     },
 
@@ -635,7 +679,7 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send('ME AJUDA.');
+                return await message.channel.send('Tá limpo vei.');
             }
 
             serverQueue.songs = [];
@@ -663,7 +707,7 @@ module.exports = {
             }
 
             if (!serverQueue) {
-                return await message.channel.send('ME AJUDA.');
+                return await message.channel.send('Tá limpo vei.');
             }
 
             let skips = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;

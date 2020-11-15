@@ -1,11 +1,11 @@
-const Discord = require('discord.js');
+const {Client} = require('discord.js');
 const {setServerConfig} = require('./global');
 const {database_url, prefix, token, adminID} = require('./config.js');
 const {loadServerConfig} = require('./lib/utils');
 
-let serverConfig = new Map();
+let serverConfig = null;
 
-const client = new Discord.Client();
+const client = new Client();
 client.commands = [];
 
 /**
@@ -38,7 +38,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 client.on('message', async message => {
-    if (message.author.bot) {
+    if (!serverConfig) {
         return;
     }
 
@@ -46,14 +46,18 @@ client.on('message', async message => {
     const serverPrefix = sc ? sc.prefix : prefix;
 
     if (message.content.startsWith(serverPrefix)) {
-        const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
-        const cmd = args.shift().toLowerCase();
-
-        if (!(cmd in client.commands)) {
+        if (message.author.bot) {
             return;
         }
 
-        const command = client.commands[cmd];
+        const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
+        const cmd = args.shift().toLowerCase();
+
+        if (!(cmd in client.commands) && !Object.keys(client.commands).find(k => client.commands[k].alias && client.commands[k].alias.includes(cmd))) {
+            return;
+        }
+
+        const command = client.commands[cmd] || client.commands[Object.keys(client.commands).find((k) => client.commands[k].alias && client.commands[k].alias.includes(cmd))];
 
         if (command.only && !command.only.includes(message.author.id)) {
             return;

@@ -1,10 +1,13 @@
 const {Message, MessageEmbed} = require('discord.js');
-const {adminID, startupTime} = require('../config');
+
+const {startupTime} = require('../global');
+const {adminID} = require('../config.js');
 const {pageEmbed} = require('../lib/utils');
 
 module.exports = {
     botinfo: {
         description: 'Informações do bot.',
+        usage: 'botinfo [servers] [voicechannels]',
         only: [adminID],
 
         /**
@@ -55,6 +58,7 @@ module.exports = {
 
     restart: {
         description: 'Reinicia o bot.',
+        usage: 'restart',
         only: [adminID],
 
         /**
@@ -68,6 +72,7 @@ module.exports = {
 
     reload: {
         description: 'Recarrega os comandos do bot.',
+        usage: 'reload',
         only: [adminID],
 
         /**

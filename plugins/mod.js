@@ -1,6 +1,9 @@
+const {Message} = require('discord.js');
+
 module.exports = {
     addrole: {
         description: 'Adiciona um ou mais cargos a um @membro.',
+        usage: 'addrole [role1] [role2]...',
 
         /**
          *
@@ -12,6 +15,10 @@ module.exports = {
             const permissions = message.channel.permissionsFor(message.client.user);
             if (!permissions.has('MANAGE_ROLES')) {
                 return await message.channel.send('ME AJUDA!');
+            }
+
+            if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
+                return await message.channel.send('Coé rapaz tá doidão?');
             }
 
             if (!args[0].match(/\d+/gm)) {
@@ -45,6 +52,7 @@ module.exports = {
 
     rmrole: {
         description: 'Remove um ou mais cargos de um @membro.',
+        usage: 'addrole [role1] [role2]...',
 
         /**
          *
@@ -56,6 +64,10 @@ module.exports = {
             const permissions = message.channel.permissionsFor(message.client.user);
             if (!permissions.has('MANAGE_ROLES')) {
                 return await message.channel.send('ME AJUDA!');
+            }
+
+            if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
+                return await message.channel.send('Coé rapaz tá doidão?');
             }
 
             if (!args[0].match(/\d+/gm)) {

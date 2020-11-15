@@ -5,6 +5,7 @@ const {serverConfigConstruct, saveServerConfig} = require('../lib/utils');
 module.exports = {
     setprefix: {
         description: 'Altera o prefixo no servidor.',
+        usage: 'setprefix [prefix]',
 
         /**
          *

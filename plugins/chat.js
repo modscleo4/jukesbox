@@ -1,8 +1,9 @@
-const {MessageEmbed} = require('discord.js');
+const {Message, MessageEmbed} = require('discord.js');
 
 module.exports = {
     clear: {
         description: 'Apaga {n} mensagens do canal atual.',
+        usage: 'clear [n]...',
 
         /**
          *
@@ -37,6 +38,7 @@ module.exports = {
 
     poll: {
         description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre ""',
+        usage: 'poll [n1] [n2] ... n[10]',
 
         /**
          *
