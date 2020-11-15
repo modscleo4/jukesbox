@@ -26,8 +26,10 @@ async function play(message) {
         return;
     }
 
-    if (serverQueue.toDelete && !serverQueue.toDelete.deleted) {
-        await serverQueue.toDelete.delete();
+    if (serverQueue.toDelete !== null && !serverQueue.toDelete.deleted) {
+        await serverQueue.toDelete.delete().catch((e) => {
+            console.error(e);
+        });
         serverQueue.toDelete = null;
     }
 
@@ -558,7 +560,8 @@ module.exports = {
             const serverQueue = queue.get(message.guild.id);
 
             if (!serverQueue) {
-                return await message.channel.send('Tá limpo vei.');
+                await message.channel.send('Tá limpo vei.');
+                return null;
             }
 
             return await message.channel.send(new MessageEmbed()
@@ -664,6 +667,7 @@ module.exports = {
 
     stop: {
         description: 'Limpa a fila e para de tocar.',
+        usage: 'stop',
 
         /**
          *
@@ -691,6 +695,7 @@ module.exports = {
 
     skip: {
         description: 'Pula {n} músicas.',
+        usage: 'skip [n]',
 
         /**
          *
@@ -729,6 +734,7 @@ module.exports = {
 
     loop: {
         description: 'Liga ou desliga o modo Repetição.',
+        usage: 'loop',
 
         /**
          *
@@ -754,6 +760,7 @@ module.exports = {
 
     shuffle: {
         description: 'Liga/desliga o modo Aleatório.',
+        usage: 'shuffle',
 
         /**
          *
@@ -779,6 +786,7 @@ module.exports = {
 
     remove: {
         description: 'Remove uma música da fila.',
+        usage: 'remove',
 
         /**
          *
@@ -810,6 +818,7 @@ module.exports = {
 
     volume: {
         description: 'Altera o volume (0-100).',
+        usage: 'volume [v]',
 
         /**
          *
@@ -843,6 +852,7 @@ module.exports = {
 
     queue: {
         description: 'Mostra a fila.',
+        usage: 'queue',
 
         /**
          *
