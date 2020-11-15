@@ -17,6 +17,6 @@
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.0",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.0.4"
+    "ytdl-core": "^4.0.3"
   }
 }
