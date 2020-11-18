@@ -38,11 +38,9 @@ async function play(message) {
         return;
     }
 
-    let song = serverQueue.song;
-
-    if (song.findOnYT) {
+    if (serverQueue.song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
-        const found = await findOnYT(message, song.title);
+        const found = await findOnYT(message, serverQueue.song.title);
         await msg.delete();
         if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
@@ -50,12 +48,12 @@ async function play(message) {
             await play(message);
         }
 
-        serverQueue.song = song = {...song, ...found};
+        serverQueue.song = {...serverQueue.song, ...found};
     }
 
-    serverQueue.song.stream = isAsync(song.fn) ? await song.fn(song.url, song.options) : song.fn(song.url, song.options);
+    serverQueue.song.stream = isAsync(serverQueue.song.fn) ? await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options) : serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    const dispatcher = serverQueue.connection.play(serverQueue.song.stream, {
+    serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.seek,
         volume: serverQueue.volume / 100
     }).on('finish', async () => {
@@ -126,8 +124,8 @@ async function findOnYT(message, q) {
             highWaterMark: 1 << 25,
             quality: 'highestaudio',
             requestOptions: {
+                host: 'jukesbox.herokuapp.com',
                 headers: {
-                    host: 'jukesbox.herokuapp.com',
                     Authorization: `Bearer ${ytapikey}`,
                 }
             },
@@ -505,6 +503,7 @@ module.exports = {
                             highWaterMark: 1 << 25,
                             quality: 'highestaudio',
                             requestOptions: {
+                                host: 'jukesbox.herokuapp.com',
                                 headers: {
                                     Authorization: `Bearer ${ytapikey}`,
                                 }
