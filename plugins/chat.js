@@ -49,7 +49,7 @@ module.exports = {
         fn: async (message, args) => {
             const titleI = args.findIndex(a => /\/title{[^}]+}/gmi.test(a));
             if (titleI === -1) {
-                return message.reply('Informe o título da enquete.');
+                return await message.channel.send('Informe o título da enquete.');
             }
 
             const title = /\/title{(?<Title>[^}]+)}/gmi.exec(args[titleI]).groups.Title;
@@ -62,10 +62,7 @@ module.exports = {
                 .setTitle(title)
                 .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
-                .addFields(args.map((r, i) => ({
-                    name: `${i + 1}`,
-                    value: r,
-                }))));
+                .setDescription(args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n')));
 
             await message.delete();
             reactions.map(async r => await msg.react(r));

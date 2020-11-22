@@ -250,10 +250,7 @@ module.exports = {
                 .setTitle('Achei isso aqui lek')
                 .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
-                .addFields(results.map((r, i) => ({
-                    name: `${i + 1}: ${r.snippet.title}`,
-                    value: r.url,
-                }))));
+                .setDescription(results.map((r, i) => `**${i + 1}** - ${r.snippet.title} (${r.url})`).join('\n\n')));
             reactions.map(async r => await msg.react(r));
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
@@ -310,7 +307,7 @@ module.exports = {
                 .setDescription(songInfo.snippet.title)
                 .addFields([
                     {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
-                    {name: 'Duração', value: parseMS(songInfo.duration).toString(), inline: true},
+                    {name: 'Duração', value: parseMS(songInfo.duration * 1000).toString(), inline: true},
                     {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
                     {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
                     {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
