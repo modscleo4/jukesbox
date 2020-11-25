@@ -5,7 +5,7 @@ const scdl = require('soundcloud-downloader');
 const SpotifyWebAPI = require('spotify-web-api-node');
 
 const {queue, serverConfig} = require('../global');
-const {database_url, prefix, ytapikey, scclientID, spclientID, spsecret} = require('../config.js');
+const {database_url, prefix, highWaterMark, ytapikey, scclientID, spclientID, spsecret} = require('../config.js');
 const {serverConfigConstruct, queueConstruct, saveServerConfig, isValidHttpURL, isAsync, cutUntil, parseMS, pageEmbed, searchVideo, videoInfo, getPlaylistItems, getSpotifyPlaylistItems} = require('../lib/utils');
 
 const spotifyAPI = new SpotifyWebAPI({
@@ -55,9 +55,10 @@ async function play(message) {
 
     serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.seek,
-        volume: serverQueue.volume / 100
+        volume: serverQueue.volume / 100,
+        highWaterMark,
     }).on('finish', async () => {
-        if (serverQueue.seek === 0) {
+        if (serverQueue.seek === null) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
@@ -77,7 +78,7 @@ async function play(message) {
         await play(message);
     });
 
-    serverQueue.seek = 0;
+    serverQueue.seek = null;
     serverQueue.toDelete = await module.exports.np.fn(message);
 }
 
@@ -121,7 +122,7 @@ async function findOnYT(message, q) {
         fn: ytdl,
         options: {
             filter: 'audioonly',
-            highWaterMark: 1 << 25,
+            highWaterMark,
             quality: 'highestaudio',
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
@@ -408,7 +409,7 @@ module.exports = {
                             fn: ytdl,
                             options: {
                                 filter: 'audioonly',
-                                highWaterMark: 1 << 25,
+                                highWaterMark,
                                 quality: 'highestaudio',
                                 requestOptions: {
                                     host: 'jukesbox.herokuapp.com',
@@ -443,7 +444,7 @@ module.exports = {
                         fn: ytdl,
                         options: {
                             filter: 'audioonly',
-                            highWaterMark: 1 << 25,
+                            highWaterMark,
                             quality: 'highestaudio',
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
@@ -497,7 +498,7 @@ module.exports = {
                         fn: ytdl,
                         options: {
                             filter: 'audioonly',
-                            highWaterMark: 1 << 25,
+                            highWaterMark,
                             quality: 'highestaudio',
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
@@ -597,7 +598,7 @@ module.exports = {
                 return await message.channel.send('Tá limpo vei.');
             }
 
-            serverQueue.connection.dispatcher.pause(true);
+            serverQueue.connection.dispatcher.pause();
             serverQueue.playing = false;
             return await message.channel.send(`Vai gankar quem caralho.`);
         },

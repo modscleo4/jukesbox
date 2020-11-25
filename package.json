@@ -7,16 +7,22 @@
     "test": "mocha test"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Dhiego Cassiano Fogaça Barbosa",
+    "email": "modscleo4@outlook.com"
+  },
   "license": "Apache-2.0",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "discord.js": "^12.4.1",
-    "googleapis": "^64.0.0",
+    "discord.js": "^12.5.0",
+    "googleapis": "^65.0.0",
     "iso-3166-1": "^2.0.1",
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.0",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.0.3"
+    "ytdl-core": "^4.1.0"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }
