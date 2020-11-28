@@ -1,5 +1,26 @@
+/**
+ * Copyright 2020 Dhiego Cassiano Fogaça Barbosa
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+
+ *     http://www.apache.org/licenses/LICENSE-2.0
+
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @file Music plugin
+ *
+ * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
+ */
+
+'use strict';
+
 const {Message, MessageEmbed} = require('discord.js');
-const isoCountries = require('iso-3166-1');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader');
 const SpotifyWebAPI = require('spotify-web-api-node');
@@ -27,7 +48,7 @@ async function play(message) {
     }
 
     if (serverQueue.toDelete !== null && !serverQueue.toDelete.deleted) {
-        await serverQueue.toDelete.delete().catch((e) => {
+        await serverQueue.toDelete.delete().catch(e => {
             console.error(e);
         });
         serverQueue.toDelete = null;
@@ -73,7 +94,11 @@ async function play(message) {
     }).on('error', async e => {
         console.error(e);
 
-        await message.channel.send('Eu não consigo clicar velho.');
+        await message.channel.send(new MessageEmbed()
+            .setTitle('Eu não consigo clicar velho.')
+            .setAuthor(message.client.user.username, message.client.user.avatarURL())
+            .setTimestamp()
+            .setDescription(`Erro: ${e.message}\n\nVídeo: **${serverQueue.song.title}** (${serverQueue.song.url})`));
         serverQueue.songs.shift();
         await play(message);
     });
@@ -91,7 +116,7 @@ async function play(message) {
 async function findOnYT(message, q) {
     const url = ((await searchVideo(q, {
         key: ytapikey,
-        regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
+        regionCode: 'us',
         type: 'video',
         part: ['id'],
     }).catch(e => {
@@ -241,7 +266,7 @@ module.exports = {
 
             const results = await searchVideo(args.join(' '), {
                 key: ytapikey,
-                regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
+                regionCode: 'us',
                 type: kind,
             });
 
@@ -251,8 +276,10 @@ module.exports = {
                 .setTitle('Achei isso aqui lek')
                 .setAuthor(message.client.user.username, message.client.user.avatarURL())
                 .setTimestamp()
-                .setDescription(results.map((r, i) => `**${i + 1}** - ${r.snippet.title} (${r.url})`).join('\n\n')));
-            reactions.map(async r => await msg.react(r));
+                .setDescription(results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n')));
+            reactions.map(async r => await msg.react(r).catch(() => {
+
+            }));
 
             await msg.awaitReactions((r, u) => reactions.includes(r.emoji.name) && u.id === message.author.id, {
                 max: 1,
@@ -365,7 +392,7 @@ module.exports = {
             const songs = [];
             const url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
                 key: ytapikey,
-                regionCode: (isoCountries.whereCountry(message.guild.region) || {alpha2: 'us'}).alpha2.toLowerCase(),
+                regionCode: 'us',
                 type: kind,
                 part: ['id'],
             }))[0] || {url: null}).url || null;
@@ -377,6 +404,10 @@ module.exports = {
             if (url.match(/youtube.com|youtu.be/gmu)) {
                 if (url.match(/([&?])list=[^&#]+/gmu)) {
                     const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
+                    if (!playlistId.startsWith('PL')) {
+                        return await message.channel.send('Coé lek YouTube Mix é mole.');
+                    }
+
                     const plsongs = await getPlaylistItems(playlistId, {
                         key: ytapikey,
                     }).catch(e => {
@@ -694,6 +725,8 @@ module.exports = {
         description: 'Pula {n} músicas.',
         usage: 'skip [n]',
 
+        alias: ['next'],
+
         /**
          *
          * @param {Message} message
@@ -732,6 +765,8 @@ module.exports = {
     loop: {
         description: 'Liga ou desliga o modo Repetição.',
         usage: 'loop',
+
+        alias: ['repeat'],
 
         /**
          *
@@ -814,7 +849,7 @@ module.exports = {
     },
 
     volume: {
-        description: 'Altera o volume (0-100).',
+        description: 'Mostra/altera o volume (0-100).',
         usage: 'volume [v]',
 
         /**
@@ -825,9 +860,10 @@ module.exports = {
          */
         fn: async (message, args) => {
             const serverQueue = queue.get(message.guild.id);
+            const sc = serverConfig.get(message.guild.id) || serverConfigConstruct(prefix);
 
-            if (!serverQueue) {
-                return await message.channel.send('Tá limpo vei.');
+            if (args.length === 0) {
+                return await message.channel.send(`Volume: ${sc.volume}`);
             }
 
             let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
@@ -835,10 +871,11 @@ module.exports = {
                 volume = 100;
             }
 
-            serverQueue.volume = volume;
-            serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
+            if (serverQueue) {
+                serverQueue.volume = volume;
+                serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
+            }
 
-            const sc = serverConfig.get(message.guild.id) || serverConfigConstruct(prefix);
             sc.volume = volume;
             serverConfig.set(message.guild.id, sc);
             await saveServerConfig(database_url, message.guild.id, sc);
@@ -864,7 +901,7 @@ module.exports = {
             }
 
             const songs = serverQueue.songs.map((s, i) => {
-                return {name: `${i + 1}: ${s.title}`, value: s.channelTitle}
+                return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.channelTitle}
             });
 
             return await pageEmbed(message, {title: 'Fila tá assim lek'}, songs);
