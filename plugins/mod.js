@@ -20,104 +20,102 @@
 
 'use strict';
 
-const {Message} = require('discord.js');
+import {Message} from "discord.js";
 
-module.exports = {
-    addrole: {
-        description: 'Adiciona um ou mais cargos a um @membro.',
-        usage: 'addrole [role1] [role2]...',
+export const addrole = {
+    description: 'Adiciona um ou mais cargos a um @membro.',
+    usage: 'addrole [role1] [role2]...',
 
-        /**
-         *
-         * @param {Message} message
-         * @param {String[]} args
-         * @return {Promise<*>}
-         */
-        fn: async (message, args) => {
-            const permissions = message.channel.permissionsFor(message.client.user);
-            if (!permissions.has('MANAGE_ROLES')) {
-                return await message.channel.send('ME AJUDA!');
-            }
+    /**
+     *
+     * @param {Message} message
+     * @param {String[]} args
+     * @return {Promise<*>}
+     */
+    fn: async (message, args) => {
+        const permissions = message.channel.permissionsFor(message.client.user);
+        if (!permissions.has('MANAGE_ROLES')) {
+            return await message.channel.send('ME AJUDA!');
+        }
 
-            if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
-                return await message.channel.send('Coé rapaz tá doidão?');
-            }
+        if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
+            return await message.channel.send('Coé rapaz tá doidão?');
+        }
 
-            if (!args[0].match(/\d+/gm)) {
-                return await message.channel.send('Informe o @membro.');
-            }
+        if (!args[0].match(/\d+/gm)) {
+            return await message.channel.send('Informe o @membro.');
+        }
 
-            if (args.length < 2) {
-                return await message.channel.send('Informe um cargo.');
-            }
+        if (args.length < 2) {
+            return await message.channel.send('Informe um cargo.');
+        }
 
-            const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
-            const user = message.guild.member(userID);
-            const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
+        const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
+        const user = message.guild.member(userID);
+        const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
 
-            if (!user) {
-                return await message.channel.send('Usuário inválido.');
-            }
+        if (!user) {
+            return await message.channel.send('Usuário inválido.');
+        }
 
-            if (roles.includes(undefined)) {
-                return await message.channel.send(`Cargo \`${args[roles.indexOf(undefined)]}\` não encontrado.`);
-            }
+        if (roles.includes(undefined)) {
+            return await message.channel.send(`Cargo \`${args[roles.indexOf(undefined)]}\` não encontrado.`);
+        }
 
-            if (roles.find(r => !r.editable)) {
-                return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
-            }
+        if (roles.find(r => !r.editable)) {
+            return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
+        }
 
-            await user.roles.add(roles);
-            await message.channel.send('Cargos adicionados.');
-        },
+        await user.roles.add(roles);
+        await message.channel.send('Cargos adicionados.');
     },
+};
 
-    rmrole: {
-        description: 'Remove um ou mais cargos de um @membro.',
-        usage: 'addrole [role1] [role2]...',
+export const rmrole = {
+    description: 'Remove um ou mais cargos de um @membro.',
+    usage: 'addrole [role1] [role2]...',
 
-        /**
-         *
-         * @param {Message} message
-         * @param {String[]} args
-         * @return {Promise<*>}
-         */
-        fn: async (message, args) => {
-            const permissions = message.channel.permissionsFor(message.client.user);
-            if (!permissions.has('MANAGE_ROLES')) {
-                return await message.channel.send('ME AJUDA!');
-            }
+    /**
+     *
+     * @param {Message} message
+     * @param {String[]} args
+     * @return {Promise<*>}
+     */
+    fn: async (message, args) => {
+        const permissions = message.channel.permissionsFor(message.client.user);
+        if (!permissions.has('MANAGE_ROLES')) {
+            return await message.channel.send('ME AJUDA!');
+        }
 
-            if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
-                return await message.channel.send('Coé rapaz tá doidão?');
-            }
+        if (!message.member.guild.member(message.author).hasPermission('MANAGE_ROLES')) {
+            return await message.channel.send('Coé rapaz tá doidão?');
+        }
 
-            if (!args[0].match(/\d+/gm)) {
-                return await message.channel.send('Informe o @membro.');
-            }
+        if (!args[0].match(/\d+/gm)) {
+            return await message.channel.send('Informe o @membro.');
+        }
 
-            if (args.length < 2) {
-                return await message.channel.send('Informe um cargo.');
-            }
+        if (args.length < 2) {
+            return await message.channel.send('Informe um cargo.');
+        }
 
-            const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
-            const user = message.guild.member(userID);
-            const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
+        const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
+        const user = message.guild.member(userID);
+        const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
 
-            if (!user) {
-                return await message.channel.send('Usuário inválido.');
-            }
+        if (!user) {
+            return await message.channel.send('Usuário inválido.');
+        }
 
-            if (roles.includes(undefined)) {
-                return await message.channel.send(`Cargo \`${args[roles.indexOf(undefined)]}\` não encontrado.`);
-            }
+        if (roles.includes(undefined)) {
+            return await message.channel.send(`Cargo \`${args[roles.indexOf(undefined)]}\` não encontrado.`);
+        }
 
-            if (roles.find(r => !r.editable)) {
-                return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
-            }
+        if (roles.find(r => !r.editable)) {
+            return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
+        }
 
-            await user.roles.remove(roles);
-            await message.channel.send('Cargos removidos.');
-        },
+        await user.roles.remove(roles);
+        await message.channel.send('Cargos removidos.');
     },
-}
+};

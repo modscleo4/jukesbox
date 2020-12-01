@@ -20,10 +20,10 @@
 
 'use strict';
 
-const {Client} = require('discord.js');
-const {setServerConfig} = require('./global');
-const {database_url, prefix, token, adminID} = require('./config.js');
-const {loadServerConfig} = require('./lib/utils');
+import {Client} from "discord.js";
+import {setServerConfig} from "./global.js";
+import {adminID, database_url, prefix, token} from "./config.js";
+import {loadServerConfig} from "./lib/utils.js";
 
 let serverConfig = null;
 
@@ -72,14 +72,14 @@ client.on('message', async message => {
             return;
         }
 
-        const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) || []).map(a => a.replace(/"/gmi, ''));
+        const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
         if (!(cmd in client.commands) && !Object.keys(client.commands).find(k => client.commands[k].alias && client.commands[k].alias.includes(cmd))) {
             return;
         }
 
-        const command = client.commands[cmd] || client.commands[Object.keys(client.commands).find((k) => client.commands[k].alias && client.commands[k].alias.includes(cmd))];
+        const command = client.commands[cmd] ?? client.commands[Object.keys(client.commands).find((k) => client.commands[k].alias && client.commands[k].alias.includes(cmd))];
 
         if (command.only && !command.only.includes(message.author.id)) {
             return;
@@ -97,6 +97,6 @@ client.login(token).then(async () => {
     serverConfig = await loadServerConfig(database_url);
     setServerConfig(serverConfig);
 
-    const commands = require('./plugins');
+    const commands = await import('./plugins/index.js');
     client.loadCommands(commands);
 });

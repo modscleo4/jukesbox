@@ -20,12 +20,10 @@
 
 'use strict';
 
-module.exports = {
-    queue: new Map(),
-    startupTime: new Date(),
-    serverConfig: null,
+export const queue = new Map();
+export const startupTime = new Date();
+export let serverConfig = null;
 
-    setServerConfig: (sc) => {
-        module.exports.serverConfig = sc;
-    },
+export function setServerConfig(sc) {
+    serverConfig = sc;
 }
