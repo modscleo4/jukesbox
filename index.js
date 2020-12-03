@@ -20,23 +20,15 @@
 
 'use strict';
 
-import {Client} from "discord.js";
+import Client from "./lib/Client.js";
 import {setServerConfig} from "./global.js";
 import {adminID, database_url, prefix, token} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 
-let serverConfig = null;
+const serverConfig = await loadServerConfig(database_url);
+setServerConfig(serverConfig);
 
 const client = new Client();
-client.commands = [];
-
-/**
- *
- * @param {{description: String, only?: String[], fn: Function}[]} commands
- */
-client.loadCommands = function (commands) {
-    this.commands = commands;
-}
 
 client.on('ready', () => {
     client.user.setPresence({
@@ -65,7 +57,7 @@ client.on('message', async message => {
     }
 
     const sc = serverConfig.get(message.guild.id);
-    const serverPrefix = sc ? sc.prefix : prefix;
+    const serverPrefix = sc?.prefix ?? prefix;
 
     if (message.content.startsWith(serverPrefix)) {
         if (message.author.bot) {
@@ -93,10 +85,6 @@ client.on('message', async message => {
     }
 });
 
-client.login(token).then(async () => {
-    serverConfig = await loadServerConfig(database_url);
-    setServerConfig(serverConfig);
-
-    const commands = await import('./plugins/index.js');
-    client.loadCommands(commands);
-});
+await client.login(token);
+client.loadCommands(await import('./plugins/index.js'));
+console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);

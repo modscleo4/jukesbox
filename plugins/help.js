@@ -38,7 +38,7 @@ export const help = {
      */
     fn: async (message, args) => {
         const sc = serverConfig.get(message.guild.id);
-        const serverPrefix = sc ? sc.prefix : prefix;
+        const serverPrefix = sc?.prefix ?? prefix;
 
         const description = `
 O prefixo deste servidor é \`${serverPrefix}\`.

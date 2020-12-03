@@ -24,13 +24,14 @@
     "@discordjs/opus": "^0.3.3",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
-    "googleapis": "^65.0.0",
+    "googleapis": "^66.0.0",
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.1",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.1.1"
+    "ytdl-core": "^4.1.2"
   },
   "engines": {
-    "node": "14.x"
+    "node": "14.x",
+    "npm": "7.x"
   }
 }
