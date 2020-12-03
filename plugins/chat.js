@@ -58,7 +58,7 @@ export const clear = {
 };
 
 export const poll = {
-    description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre ""',
+    description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
     usage: 'poll [n1] [n2] ... n[10]',
 
     /**

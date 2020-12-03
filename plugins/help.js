@@ -43,7 +43,7 @@ export const help = {
         const description = `
 O prefixo deste servidor é \`${serverPrefix}\`.
 
-Digite \`${serverPrefix}help {comando1} {comando2}\` para obter ajuda de um ou mais comandos em específico.`;
+Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou mais comandos em específico.`;
 
         const commands = message.client.commands;
 
@@ -56,14 +56,12 @@ Digite \`${serverPrefix}help {comando1} {comando2}\` para obter ajuda de um ou m
 
             for (let i = 0; i < args.length; i++) {
                 const desc = `
-O prefixo deste servidor é \`${serverPrefix}\`
+O prefixo deste servidor é \`${serverPrefix}\`.
 
 \`${serverPrefix}${args[i]}\`
 ${commands[args[i]].description}
-
-Uso: ${commands[args[i]].usage}
-
-${commands[args[i]].alias ? `Alias: ${commands[args[i]].alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
+**Uso**: ${commands[args[i]].usage}
+${commands[args[i]].alias ? `**Alias**: ${commands[args[i]].alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
 
                 await message.channel.send(new MessageEmbed()
                     .setTitle('Ajuda')
@@ -75,16 +73,27 @@ ${commands[args[i]].alias ? `Alias: ${commands[args[i]].alias.map(a => `\`${a}\`
             return;
         }
 
-        const cmds = [];
-        for (const c in commands) {
-            if (commands[c].only && !commands[c].only.includes(message.author.id)) {
-                continue;
+        const cmds = {};
+        for (const cat in message.client.categoriesCommands) {
+            const category = {...message.client.categoriesCommands[cat]}
+            cmds[cat] = [];
+
+            for (const cmd in category) {
+                const command = category[cmd];
+
+                if (command.only && !command.only.includes(message.author.id)) {
+                    continue;
+                }
+
+                cmds[cat].push({
+                    name: `${serverPrefix}${cmd}`,
+                    value: command.description + (command.alias ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '')
+                })
             }
 
-            cmds[cmds.length] = {
-                name: `${serverPrefix}${c}`,
-                value: commands[c].description + (commands[c].alias ? `\n\nAlias: ${commands[c].alias.map(a => `\`${a}\``).join(', ')}` : '')
-            };
+            if (Object.keys(cmds[cat]).length === 0) {
+                delete cmds[cat];
+            }
         }
 
         return await pageEmbed(message, {title: 'Eu entendo isso aqui vei', description}, cmds);

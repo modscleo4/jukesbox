@@ -20,9 +20,9 @@
 
 'use strict';
 
-export * from "./admin.js";
-export * from "./chat.js";
-export * from "./help.js";
-export * from "./mod.js";
-export * from "./music.js";
-export * from "./server.js";
+export * as Admin from "./admin.js";
+export * as Chat from "./chat.js";
+export * as Help from "./help.js";
+export * as Mod from "./mod.js";
+export * as Music from "./music.js";
+export * as Server from "./server.js";

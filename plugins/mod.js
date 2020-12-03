@@ -20,7 +20,7 @@
 
 'use strict';
 
-import {Message} from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 
 export const addrole = {
     description: 'Adiciona um ou mais cargos a um @membro.',
@@ -117,5 +117,45 @@ export const rmrole = {
 
         await user.roles.remove(roles);
         await message.channel.send('Cargos removidos.');
+    },
+};
+
+export const userinfo = {
+    description: 'Informações de um @membro.',
+    usage: 'userinfo @membro',
+
+    fn: async (message, args) => {
+        if (!args[0].match(/\d+/gm)) {
+            return await message.channel.send('Informe o @membro.');
+        }
+
+        const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
+        const user = message.guild.member(userID);
+
+        if (!user) {
+            return await message.channel.send('Usuário inválido.');
+        }
+
+        return await message.channel.send(new MessageEmbed()
+            .setTitle(user.nickname ?? user.user.tag)
+            .setAuthor(message.author.username, message.author.avatarURL())
+            .setColor(user.displayHexColor)
+            .setTimestamp()
+            .setThumbnail(user.user.avatarURL())
+            .addFields([
+                {name: 'username#tag', value: user.user.tag, inline: true},
+                {name: 'ID', value: user.id, inline: true},
+                {name: 'Cargos', value: user.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
+                {name: 'Entrou',
+                    value: new Intl.DateTimeFormat('pt-br', {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric"
+                    }).format(user.joinedAt),
+                    inline: true
+                },
+            ]));
     },
 };
