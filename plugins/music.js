@@ -36,6 +36,7 @@ import {
     saveServerConfig, searchVideo,
     serverConfigConstruct, videoInfo
 } from "../lib/utils.js";
+import Command from "../lib/Command.js";
 
 const scdl = _scdl.default;
 
@@ -169,7 +170,7 @@ async function findOnYT(message, q) {
     };
 }
 
-export const join = {
+export const join = new Command({
     description: 'Entra no canal de voz.',
     usage: 'join',
 
@@ -201,9 +202,9 @@ export const join = {
                 {name: 'Canal de texto', value: message.channel.name, inline: true}
             ]));
     },
-};
+});
 
-export const leave = {
+export const leave = new Command({
     description: 'Sai do canal de voz.',
     usage: 'leave',
 
@@ -229,9 +230,9 @@ export const leave = {
         await voiceChannel.leave();
         await message.channel.send('Sai Minerva filha da puta.');
     },
-};
+});
 
-export const search = {
+export const search = new Command({
     description: 'Procura por uma música/playlist. `/playlist` para procurar por playlists.',
     usage: 'search [/playlist] [q]',
 
@@ -305,9 +306,9 @@ export const search = {
             await msg.delete();
         }
     },
-};
+});
 
-export const videoinfo = {
+export const videoinfo = new Command({
     description: 'Mostra informações de um vídeo do YouTube',
     usage: 'videoinfo [youtube_url]',
 
@@ -351,9 +352,9 @@ export const videoinfo = {
                 {name: '👎 Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
             ]));
     },
-};
+});
 
-export const play = {
+export const play = new Command({
     description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
     usage: 'play [/playlist] [youtube_url|q]',
 
@@ -582,9 +583,9 @@ export const play = {
             return await message.channel.send(`${songs.length} músicas na fila.`);
         }
     },
-};
+});
 
-export const np = {
+export const np = new Command({
     description: 'Mostra a música que está tocando.',
     usage: 'np',
 
@@ -615,9 +616,9 @@ export const np = {
                 {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000).toString(), inline: true},
             ]));
     },
-};
+});
 
-export const pause = {
+export const pause = new Command({
     description: 'Pausa a música.',
     usage: 'pause',
 
@@ -642,9 +643,9 @@ export const pause = {
         serverQueue.playing = false;
         return await message.channel.send(`Vai gankar quem caralho.`);
     },
-};
+});
 
-export const resume = {
+export const resume = new Command({
     description: 'Continua a reprodução da música.',
     usage: 'resume',
 
@@ -669,10 +670,10 @@ export const resume = {
         serverQueue.playing = true;
         return await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
     },
-};
+});
 
-export const seek = {
-    description: 'Altera a posição da música. Formato em `xS`.',
+export const seek = new Command({
+    description: 'Altera a posição da música. Formato em `segundos`.',
     usage: 'seek [s]',
 
     /**
@@ -700,9 +701,9 @@ export const seek = {
         serverQueue.seek = s;
         await serverQueue.connection.dispatcher.end();
     },
-};
+});
 
-export const stop = {
+export const stop = new Command({
     description: 'Limpa a fila e para de tocar.',
     usage: 'stop',
 
@@ -728,9 +729,9 @@ export const stop = {
         serverQueue.playing = false;
         return await message.channel.send(`Caralho filha da puta morre logo.`);
     },
-};
+});
 
-export const skip = {
+export const skip = new Command({
     description: 'Pula {n} músicas.',
     usage: 'skip [n]',
 
@@ -769,9 +770,9 @@ export const skip = {
 
         return await message.channel.send('Pode passar jovi.');
     },
-};
+});
 
-export const loop = {
+export const loop = new Command({
     description: 'Liga ou desliga o modo Repetição.',
     usage: 'loop',
 
@@ -797,9 +798,9 @@ export const loop = {
             return await message.channel.send(`Tu cancelou o auto ataque vei.`);
         }
     },
-};
+});
 
-export const shuffle = {
+export const shuffle = new Command({
     description: 'Liga/desliga o modo Aleatório.',
     usage: 'shuffle',
 
@@ -823,9 +824,9 @@ export const shuffle = {
             return await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
         }
     },
-};
+});
 
-export const remove = {
+export const remove = new Command({
     description: 'Remove uma música da fila.',
     usage: 'remove',
 
@@ -855,9 +856,9 @@ export const remove = {
 
         return await message.channel.send('Cospe esse filha da puta porra.');
     },
-};
+});
 
-export const volume = {
+export const volume = new Command({
     description: 'Mostra/altera o volume (0-100).',
     usage: 'volume [v]',
 
@@ -891,9 +892,9 @@ export const volume = {
 
         return await message.channel.send('Aumenta essa porra aí.');
     },
-};
+});
 
-export const queue = {
+export const queue = new Command({
     description: 'Mostra a fila.',
     usage: 'queue',
 
@@ -915,4 +916,4 @@ export const queue = {
 
         return await pageEmbed(message, {title: 'Fila tá assim lek'}, songs);
     },
-};
+});

@@ -25,8 +25,9 @@ import {MessageEmbed} from "discord.js";
 import {serverConfig} from "../global.js";
 import {prefix} from "../config.js";
 import {pageEmbed} from "../lib/utils.js";
+import Command from "../lib/Command.js";
 
-export const help = {
+export const help = new Command({
     description: 'Mostra os comandos.',
     usage: 'help [comando1] [comando2]...',
 
@@ -46,31 +47,35 @@ O prefixo deste servidor é \`${serverPrefix}\`.
 Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou mais comandos em específico.`;
 
         const commands = message.client.commands;
+        const aliases = message.client.aliases;
 
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
-                if (!(args[i] in commands)) {
+                if (!(args[i] in commands) && !(args[i] in aliases)) {
                     return await message.channel.send(`Comando \`${args[i]}\` não encontrado.`);
                 }
             }
 
+            let desc = `
+O prefixo deste servidor é \`${serverPrefix}\`.`;
+
             for (let i = 0; i < args.length; i++) {
-                const desc = `
-O prefixo deste servidor é \`${serverPrefix}\`.
+                const command = commands[args[i]] ?? commands[aliases[args[i]]];
+
+                desc += `
+
 
 \`${serverPrefix}${args[i]}\`
-${commands[args[i]].description}
-**Uso**: ${commands[args[i]].usage}
-${commands[args[i]].alias ? `**Alias**: ${commands[args[i]].alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
-
-                await message.channel.send(new MessageEmbed()
-                    .setTitle('Ajuda')
-                    .setDescription(desc)
-                    .setAuthor(message.client.user.username, message.client.user.avatarURL())
-                    .setTimestamp());
+${command.description}
+**Uso**: ${command.usage}
+${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
             }
 
-            return;
+            return await message.channel.send(new MessageEmbed()
+                .setTitle('Ajuda')
+                .setDescription(desc)
+                .setAuthor(message.client.user.username, message.client.user.avatarURL())
+                .setTimestamp());
         }
 
         const cmds = {};
@@ -87,7 +92,7 @@ ${commands[args[i]].alias ? `**Alias**: ${commands[args[i]].alias.map(a => `\`${
 
                 cmds[cat].push({
                     name: `${serverPrefix}${cmd}`,
-                    value: command.description + (command.alias ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '')
+                    value: command.description + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '')
                 })
             }
 
@@ -98,4 +103,4 @@ ${commands[args[i]].alias ? `**Alias**: ${commands[args[i]].alias.map(a => `\`${
 
         return await pageEmbed(message, {title: 'Eu entendo isso aqui vei', description}, cmds);
     }
-};
+});

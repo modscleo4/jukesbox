@@ -20,11 +20,12 @@
 
 'use strict';
 
+import Command from "../lib/Command.js";
 import {serverConfig} from "../global.js";
 import {database_url, prefix as Prefix} from "../config.js";
 import {saveServerConfig, serverConfigConstruct} from "../lib/utils.js";
 
-export const prefix = {
+export const prefix = new Command({
     description: 'Mostra/altera o prefixo no servidor.',
     usage: 'setprefix [prefix]',
 
@@ -51,4 +52,4 @@ export const prefix = {
 
         return await message.channel.send(`Prefixo alterado para \`${args[0]}\`.`);
     },
-};
+});

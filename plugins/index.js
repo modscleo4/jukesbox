@@ -23,6 +23,6 @@
 export * as Admin from "./admin.js";
 export * as Chat from "./chat.js";
 export * as Help from "./help.js";
-export * as Mod from "./mod.js";
 export * as Music from "./music.js";
+export * as Mod from "./mod.js";
 export * as Server from "./server.js";

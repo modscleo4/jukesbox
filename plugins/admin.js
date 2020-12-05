@@ -25,8 +25,9 @@ import {Message, MessageEmbed} from "discord.js";
 import {startupTime} from "../global.js";
 import {adminID} from "../config.js";
 import {pageEmbed} from "../lib/utils.js";
+import Command from "../lib/Command.js";
 
-export const botinfo = {
+export const botinfo = new Command({
     description: 'Informações do bot.',
     usage: 'botinfo [servers] [voicechannels]',
     only: [adminID],
@@ -75,9 +76,9 @@ export const botinfo = {
                 {name: 'Ping', value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
             ]));
     }
-};
+});
 
-export const restart = {
+export const restart = new Command({
     description: 'Reinicia o bot.',
     usage: 'restart',
     only: [adminID],
@@ -89,9 +90,9 @@ export const restart = {
     fn: async () => {
         process.exit(0);
     },
-};
+});
 
-export const reload = {
+export const reload = new Command({
     description: 'Recarrega os comandos do bot.',
     usage: 'reload',
     only: [adminID],
@@ -108,4 +109,4 @@ export const reload = {
         message.client.loadCommands(await import('./index.js'));
         return await message.channel.send('Jukera tá de volta.');
     },
-};
+});

@@ -67,11 +67,11 @@ client.on('message', async message => {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
-        if (!(cmd in client.commands) && !Object.keys(client.commands).find(k => client.commands[k].alias && client.commands[k].alias.includes(cmd))) {
+        if (!(cmd in client.commands) && !(cmd in client.aliases)) {
             return;
         }
 
-        const command = client.commands[cmd] ?? client.commands[Object.keys(client.commands).find((k) => client.commands[k].alias && client.commands[k].alias.includes(cmd))];
+        const command = client.commands[cmd] ?? client.commands[client.aliases[cmd]];
 
         if (command.only && !command.only.includes(message.author.id)) {
             return;

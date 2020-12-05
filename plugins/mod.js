@@ -21,8 +21,9 @@
 'use strict';
 
 import {Message, MessageEmbed} from "discord.js";
+import Command from "../lib/Command.js";
 
-export const addrole = {
+export const addrole = new Command({
     description: 'Adiciona um ou mais cargos a um @membro.',
     usage: 'addrole [role1] [role2]...',
 
@@ -69,9 +70,9 @@ export const addrole = {
         await user.roles.add(roles);
         await message.channel.send('Cargos adicionados.');
     },
-};
+});
 
-export const rmrole = {
+export const rmrole = new Command({
     description: 'Remove um ou mais cargos de um @membro.',
     usage: 'addrole [role1] [role2]...',
 
@@ -118,9 +119,9 @@ export const rmrole = {
         await user.roles.remove(roles);
         await message.channel.send('Cargos removidos.');
     },
-};
+});
 
-export const userinfo = {
+export const userinfo = new Command({
     description: 'Informações de um @membro.',
     usage: 'userinfo @membro',
 
@@ -158,4 +159,4 @@ export const userinfo = {
                 },
             ]));
     },
-};
+});

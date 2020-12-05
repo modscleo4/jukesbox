@@ -21,8 +21,9 @@
 'use strict';
 
 import {Message, MessageEmbed} from "discord.js";
+import Command from "../lib/Command.js";
 
-export const clear = {
+export const clear = new Command({
     description: 'Apaga {n} mensagens do canal atual.',
     usage: 'clear [n]...',
 
@@ -49,15 +50,15 @@ export const clear = {
                 await message.channel.bulkDelete(100);
             }
         }).then(async () => {
-            await message.channel.send(`Apaguei ${n} mensagens.`).then(m => m.delete({timeout: 1000}));
+            await message.channel.send(`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`).then(m => m.delete({timeout: 1000}));
         }).catch(async e => {
             console.error(e);
             await message.channel.send('Deu ruim aqui lek.');
         });
     }
-};
+});
 
-export const poll = {
+export const poll = new Command({
     description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
     usage: 'poll [n1] [n2] ... n[10]',
 
@@ -88,4 +89,4 @@ export const poll = {
         await message.delete();
         reactions.map(async r => await msg.react(r));
     },
-};
+});
