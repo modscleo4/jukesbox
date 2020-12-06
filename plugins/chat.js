@@ -30,7 +30,7 @@ export const clear = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      */
     fn: async (message, args) => {
         if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
@@ -50,7 +50,7 @@ export const clear = new Command({
                 await message.channel.bulkDelete(100);
             }
         }).then(async () => {
-            await message.channel.send(`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`).then(m => m.delete({timeout: 1000}));
+            await message.channel.send(`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`).then(async m => await m.delete({timeout: 1000}));
         }).catch(async e => {
             console.error(e);
             await message.channel.send('Deu ruim aqui lek.');
@@ -65,7 +65,7 @@ export const poll = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -80,11 +80,12 @@ export const poll = new Command({
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, args.length);
 
-        const msg = await message.channel.send(new MessageEmbed()
-            .setTitle(title)
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .setDescription(args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n')));
+        const msg = await message.channel.send(new MessageEmbed({
+            title,
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
+        }));
 
         await message.delete();
         reactions.map(async r => await msg.react(r));

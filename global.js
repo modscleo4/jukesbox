@@ -20,6 +20,10 @@
 
 'use strict';
 
+/**
+ *
+ * @type {Map<string, ServerQueue>}
+ */
 export const queue = new Map();
 export const startupTime = new Date();
 export let serverConfig = null;

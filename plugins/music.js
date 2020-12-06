@@ -32,11 +32,12 @@ import {
     isAsync,
     isValidHttpURL, pageEmbed,
     parseMS,
-    queueConstruct,
     saveServerConfig, searchVideo,
     serverConfigConstruct, videoInfo
 } from "../lib/utils.js";
 import Command from "../lib/Command.js";
+import Song from "../lib/Song.js";
+import ServerQueue from "../lib/ServerQueue.js";
 
 const scdl = _scdl.default;
 
@@ -72,15 +73,16 @@ async function playSong(message) {
 
     if (serverQueue.song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
-        const found = await findOnYT(message, serverQueue.song.title);
+        const found = await findOnYT(message, serverQueue.song);
         await msg.delete();
+
         if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
-            serverQueue.songs.shift();
+            await serverQueue.songs.shift();
             await playSong(message);
         }
 
-        serverQueue.song = {...serverQueue.song, ...found};
+        serverQueue.song = found;
     }
 
     serverQueue.song.stream = isAsync(serverQueue.song.fn) ? await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options) : serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
@@ -105,12 +107,14 @@ async function playSong(message) {
     }).on('error', async e => {
         console.error(e);
 
-        await message.channel.send(new MessageEmbed()
-            .setTitle('Eu não consigo clicar velho.')
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .setDescription(`Erro: ${e.message}\n\nVídeo: **${serverQueue.song.title}** (${serverQueue.song.url})`));
-        serverQueue.songs.shift();
+        await message.channel.send(new MessageEmbed({
+            title: 'Eu não consigo clicar velho.',
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            description: `Erro: ${e.message}\n\nVídeo: **${serverQueue.song.title}** (${serverQueue.song.url})`,
+        }));
+
+        await serverQueue.songs.shift();
         await playSong(message);
     });
 
@@ -121,11 +125,11 @@ async function playSong(message) {
 /**
  *
  * @param {Message} message
- * @param {String} q
- * @return {Promise<null|{duration: any, thumbnail: String, fn: Function, options: {filter: string, requestOptions: {headers: {Authorization: string}}, highWaterMark: number, quality: string}, title: *, url: *, channelTitle: string}>}
+ * @param {Song} song
+ * @return {Promise<Song|null>}
  */
-async function findOnYT(message, q) {
-    const url = ((await searchVideo(q, {
+async function findOnYT(message, song) {
+    const url = ((await searchVideo(`${song.channelTitle} - ${song.title} Provided to Youtube by`, {
         key: ytapikey,
         regionCode: 'us',
         type: 'video',
@@ -149,12 +153,14 @@ async function findOnYT(message, q) {
         return null;
     }
 
-    return {
+    return new Song({
         title: songInfo.snippet.title,
         url: songInfo.url,
         channelTitle: songInfo.snippet.channelTitle,
         thumbnail: songInfo.snippet.thumbnails.high.url,
         duration: songInfo.duration,
+        from: song.from,
+        addedBy: song.addedBy,
         fn: ytdl,
         options: {
             filter: 'audioonly',
@@ -167,7 +173,7 @@ async function findOnYT(message, q) {
                 }
             },
         },
-    };
+    });
 }
 
 export const join = new Command({
@@ -192,15 +198,16 @@ export const join = new Command({
         }
 
         await voiceChannel.join();
-        return await message.channel.send(new MessageEmbed()
-            .setTitle('Salve salve Yodinha!')
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .setDescription('Conectado a um canal de voz')
-            .addFields([
+        return await message.channel.send(new MessageEmbed({
+            title: 'Salve salve Yodinha!',
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            description: 'Conectado a um canal de voz',
+            fields: [
                 {name: 'Canal de voz', value: voiceChannel.name, inline: true},
                 {name: 'Canal de texto', value: message.channel.name, inline: true}
-            ]));
+            ],
+        }));
     },
 });
 
@@ -239,7 +246,7 @@ export const search = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -282,11 +289,13 @@ export const search = new Command({
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
-        const msg = await message.channel.send(new MessageEmbed()
-            .setTitle('Achei isso aqui lek')
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .setDescription(results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n')));
+        const msg = await message.channel.send(new MessageEmbed({
+            title: 'Achei isso aqui lek',
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            description: results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n'),
+        }));
+
         reactions.map(async r => await msg.react(r).catch(() => {
 
         }));
@@ -298,8 +307,6 @@ export const search = new Command({
         }).then(async collected => {
             const reaction = collected.first();
             await play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
-        }).catch(() => {
-
         });
 
         if (!msg.deleted) {
@@ -315,7 +322,7 @@ export const videoinfo = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -326,7 +333,7 @@ export const videoinfo = new Command({
         const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(args[0]).groups.VideoId;
         const songInfo = (await videoInfo(videoId, {
             key: ytapikey,
-            part: ['id', 'snippet', 'contentDetails', 'statistics']
+            part: ['id', 'snippet', 'contentDetails', 'statistics'],
         }).catch(e => {
             console.error(e);
             return null;
@@ -336,21 +343,22 @@ export const videoinfo = new Command({
             return await message.channel.send('Eu não consigo clicar velho.');
         }
 
-        return await message.channel.send(new MessageEmbed()
-            .setTitle('Informações do vídeo')
-            .setURL(songInfo.url)
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .setThumbnail(songInfo.snippet.thumbnails.high.url)
-            .setDescription(songInfo.snippet.title)
-            .addFields([
+        return await message.channel.send(new MessageEmbed({
+            title: 'Informações do vídeo',
+            url: songInfo.url,
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            thumbnail: {url: songInfo.snippet.thumbnails.high.url},
+            description: songInfo.snippet.title,
+            fields: [
                 {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
                 {name: 'Duração', value: parseMS(songInfo.duration * 1000).toString(), inline: true},
                 {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) ?? '(Sem descrição)'},
                 {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
                 {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
                 {name: '👎 Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
-            ]));
+            ],
+        }));
     },
 });
 
@@ -363,7 +371,7 @@ export const play = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -439,7 +447,7 @@ export const play = new Command({
                 }
 
                 songsInfo.forEach(songInfo => {
-                    const song = {
+                    const song = new Song({
                         title: songInfo.snippet.title,
                         url: songInfo.url,
                         channelTitle: songInfo.snippet.channelTitle,
@@ -459,7 +467,7 @@ export const play = new Command({
                                 }
                             },
                         },
-                    };
+                    });
 
                     songs.push(song);
                 });
@@ -474,7 +482,7 @@ export const play = new Command({
                     return await message.channel.send('Eu não consigo clicar velho.');
                 }
 
-                const song = {
+                const song = new Song({
                     title: songInfo.snippet.title,
                     url: songInfo.url,
                     channelTitle: songInfo.snippet.channelTitle,
@@ -494,7 +502,7 @@ export const play = new Command({
                             }
                         },
                     },
-                };
+                });
 
                 songs.push(song);
             }
@@ -508,7 +516,7 @@ export const play = new Command({
                 return await message.channel.send('Eu não consigo clicar velho.');
             }
 
-            const song = {
+            const song = new Song({
                 title: songInfo.title,
                 url: songInfo.permalink_url,
                 channelTitle: songInfo.user.username,
@@ -518,7 +526,7 @@ export const play = new Command({
                 addedBy: message.author,
                 fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
                 options: scclientID,
-            };
+            });
 
             songs.push(song);
         } else if (url.match(/spotify.com\/playlist\/[^?#]+/gmu)) {
@@ -527,7 +535,7 @@ export const play = new Command({
                 console.error(e);
                 return null;
             })).forEach(plSong => {
-                const song = {
+                const song = new Song({
                     title: plSong.name,
                     url: null,
                     channelTitle: plSong.artists,
@@ -548,7 +556,7 @@ export const play = new Command({
                             }
                         },
                     },
-                };
+                });
 
                 songs.push(song);
             });
@@ -558,7 +566,7 @@ export const play = new Command({
 
         if (!serverQueue) {
             const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(prefix);
-            const q = queueConstruct(message, sc.volume, songs);
+            const q = new ServerQueue({message, songs, volume: sc.volume});
 
             Queue.set(message.guild.id, q);
 
@@ -602,19 +610,20 @@ export const np = new Command({
             return null;
         }
 
-        return await message.channel.send(new MessageEmbed()
-            .setTitle('Que porra de música é essa que tá tocando caraio!')
-            .setURL(serverQueue.song.url)
-            .setAuthor(serverQueue.song.addedBy.username, serverQueue.song.addedBy.avatarURL())
-            .setColor({yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from])
-            .setTimestamp()
-            .setThumbnail(serverQueue.song.thumbnail)
-            .setDescription(serverQueue.song.title)
-            .addFields([
+        return await message.channel.send(new MessageEmbed({
+            title: 'Que porra de música é essa que tá tocando caraio!',
+            url: serverQueue.song.url,
+            author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
+            color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
+            timestamp: new Date(),
+            thumbnail: {url: serverQueue.song.thumbnail},
+            description: serverQueue.song.title,
+            fields: [
                 {name: 'Canal', value: serverQueue.song.channelTitle},
                 {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
                 {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000).toString(), inline: true},
-            ]));
+            ],
+        }));
     },
 });
 
@@ -679,7 +688,7 @@ export const seek = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String} args
+     * @param {string} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -740,7 +749,7 @@ export const skip = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -761,9 +770,9 @@ export const skip = new Command({
             serverQueue.playing = false;
         }
 
-        serverQueue.songs.splice(0, skips - 1);
+        serverQueue.songs.splice(serverQueue.position, skips - 1);
         if (serverQueue.loop) {
-            serverQueue.songs.shift();
+            await serverQueue.songs.shift();
         }
 
         serverQueue.connection.dispatcher.end();
@@ -833,7 +842,7 @@ export const remove = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -865,7 +874,7 @@ export const volume = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -914,6 +923,6 @@ export const queue = new Command({
             return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.channelTitle}
         });
 
-        return await pageEmbed(message, {title: 'Fila tá assim lek'}, songs);
+        return await pageEmbed(message, {title: 'Fila tá assim lek', content: songs});
     },
 });

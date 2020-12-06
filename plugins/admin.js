@@ -35,7 +35,7 @@ export const botinfo = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -46,7 +46,7 @@ export const botinfo = new Command({
                     value: `ID: ${g.id}`,
                 }));
 
-                return await pageEmbed(message, {title: 'Servidores'}, servers);
+                return await pageEmbed(message, {title: 'Servidores', content: servers});
             },
 
             voicechannels: async () => {
@@ -55,7 +55,7 @@ export const botinfo = new Command({
                     value: `Servidor: ${g.channel.guild.name}`,
                 }));
 
-                return await pageEmbed(message, {title: 'Canais de voz'}, voicechannels);
+                return await pageEmbed(message, {title: 'Canais de voz', content: voicechannels});
             },
         };
 
@@ -63,18 +63,19 @@ export const botinfo = new Command({
             return await subcommands[args[0]]();
         }
 
-        return await message.channel.send(new MessageEmbed()
-            .setTitle('Admin')
-            .setAuthor(message.client.user.username, message.client.user.avatarURL())
-            .setTimestamp()
-            .addFields([
+        return await message.channel.send(new MessageEmbed({
+            title: 'Admin',
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            fields: [
                 {name: 'Servidores', value: message.client.guilds.cache.size, inline: true},
                 {name: 'Canais de voz', value: message.client.voice.connections.size, inline: true},
                 {name: 'Uptime', value: `${((Date.now() - startupTime) / 1000).toFixed(0)} s`, inline: true},
                 {name: 'UID', value: message.client.user.id, inline: false},
                 {name: 'Servidor', value: message.guild.region, inline: true},
                 {name: 'Ping', value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
-            ]));
+            ],
+        }));
     }
 });
 
@@ -100,7 +101,7 @@ export const reload = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<void>}
      */
     fn: async (message, args) => {

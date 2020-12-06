@@ -27,20 +27,21 @@ import {loadServerConfig} from "./lib/utils.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
+console.log(`${serverConfig.size} configuração(ões) carregada(s).`);
 
 const client = new Client();
 
-client.on('ready', () => {
-    client.user.setPresence({
+client.on('ready', async () => {
+    await client.user.setPresence({
         activity: {
             name: 'Jukera carai',
             type: 'WATCHING',
         },
 
         status: 'online',
-    }).then(() => {
-        console.log(`Stream do Jukera on.`);
     });
+
+    console.log(`Stream do Jukera on.`);
 });
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
@@ -53,6 +54,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 client.on('message', async message => {
     if (!serverConfig) {
+        return;
+    }
+
+    if (message.channel.type !== 'text') {
         return;
     }
 
@@ -85,6 +90,7 @@ client.on('message', async message => {
     }
 });
 
-await client.login(token);
 client.loadCommands(await import('./plugins/index.js'));
 console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);
+
+await client.login(token);

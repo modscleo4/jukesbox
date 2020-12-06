@@ -30,7 +30,7 @@ export const addrole = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -79,7 +79,7 @@ export const rmrole = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
+     * @param {string[]} args
      * @return {Promise<*>}
      */
     fn: async (message, args) => {
@@ -137,13 +137,13 @@ export const userinfo = new Command({
             return await message.channel.send('Usuário inválido.');
         }
 
-        return await message.channel.send(new MessageEmbed()
-            .setTitle(user.nickname ?? user.user.tag)
-            .setAuthor(message.author.username, message.author.avatarURL())
-            .setColor(user.displayHexColor)
-            .setTimestamp()
-            .setThumbnail(user.user.avatarURL())
-            .addFields([
+        return await message.channel.send(new MessageEmbed({
+            title: user.nickname ?? user.user.tag,
+            author: {name: message.author.username, iconURL: message.author.avatarURL()},
+            color: user.displayHexColor,
+            timestamp: new Date(),
+            thumbnail: user.user.avatarURL(),
+            fields: [
                 {name: 'username#tag', value: user.user.tag, inline: true},
                 {name: 'ID', value: user.id, inline: true},
                 {name: 'Cargos', value: user.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
@@ -157,6 +157,7 @@ export const userinfo = new Command({
                     }).format(user.joinedAt),
                     inline: true
                 },
-            ]));
+            ],
+        }));
     },
 });

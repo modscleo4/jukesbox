@@ -32,8 +32,8 @@ export const prefix = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
-     * @return {Promise<void>}
+     * @param {string[]} args
+     * @return {Promise<*>}
      */
     fn: async (message, args) => {
         const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(Prefix);
@@ -42,7 +42,7 @@ export const prefix = new Command({
             return await message.channel.send(`Prefixo: \`${sc.prefix}\`.`);
         }
 
-        if (!message.member.guild.member(message.author).hasPermission('MANAGE_SERVER')) {
+        if (!message.member.guild.member(message.author).hasPermission('MANAGE_GUILD')) {
             return await message.channel.send('Coé rapaz tá doidão?');
         }
 

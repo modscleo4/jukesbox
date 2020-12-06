@@ -34,8 +34,8 @@ export const help = new Command({
     /**
      *
      * @param {Message} message
-     * @param {String[]} args
-     * @return {Promise<void>}
+     * @param {string[]} args
+     * @return {Promise<*>}
      */
     fn: async (message, args) => {
         const sc = serverConfig.get(message.guild.id);
@@ -71,11 +71,12 @@ ${command.description}
 ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
             }
 
-            return await message.channel.send(new MessageEmbed()
-                .setTitle('Ajuda')
-                .setDescription(desc)
-                .setAuthor(message.client.user.username, message.client.user.avatarURL())
-                .setTimestamp());
+            return await message.channel.send(new MessageEmbed({
+                title: 'Ajuda',
+                description: desc,
+                author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+                timestamp: new Date(),
+            }));
         }
 
         const cmds = {};
@@ -101,6 +102,6 @@ ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).jo
             }
         }
 
-        return await pageEmbed(message, {title: 'Eu entendo isso aqui vei', description}, cmds);
+        return await pageEmbed(message, {title: 'Eu entendo isso aqui vei', description, content: cmds});
     }
 });
