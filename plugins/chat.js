@@ -24,7 +24,7 @@ import {Message, MessageEmbed} from "discord.js";
 import Command from "../lib/Command.js";
 
 export const clear = new Command({
-    description: 'Apaga {n} mensagens do canal atual.',
+    description: 'Apaga `n` mensagens do canal atual.',
     usage: 'clear [n]...',
 
     /**
@@ -32,7 +32,7 @@ export const clear = new Command({
      * @param {Message} message
      * @param {string[]} args
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
             return await message.channel.send('ME AJUDA.');
         }
@@ -60,7 +60,7 @@ export const clear = new Command({
 
 export const poll = new Command({
     description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
-    usage: 'poll [n1] [n2] ... n[10]',
+    usage: 'poll [n1] [n2] ... [n10]',
 
     /**
      *
@@ -68,7 +68,7 @@ export const poll = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const titleI = args.findIndex(a => /\/title{[^}]+}/gmi.test(a));
         if (titleI === -1) {
             return await message.channel.send('Informe o título da enquete.');

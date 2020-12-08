@@ -59,12 +59,7 @@ async function playSong(message) {
         return;
     }
 
-    if (serverQueue.toDelete !== null && !serverQueue.toDelete.deleted) {
-        await serverQueue.toDelete.delete().catch(e => {
-            console.error(e);
-        });
-        serverQueue.toDelete = null;
-    }
+    await serverQueue.deletePending();
 
     if (serverQueue.songs.length === 0) {
         Queue.delete(message.guild.id);
@@ -78,12 +73,14 @@ async function playSong(message) {
 
         if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
-            await serverQueue.songs.shift();
+            serverQueue.songs.shift();
             await playSong(message);
         }
 
         serverQueue.song = found;
     }
+
+    serverQueue.playing = true;
 
     serverQueue.song.stream = isAsync(serverQueue.song.fn) ? await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options) : serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
@@ -92,6 +89,8 @@ async function playSong(message) {
         volume: serverQueue.volume / 100,
         highWaterMark,
     }).on('finish', async () => {
+        serverQueue.playing = false;
+
         if (serverQueue.seek === null) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
@@ -114,9 +113,20 @@ async function playSong(message) {
             description: `Erro: ${e.message}\n\nVídeo: **${serverQueue.song.title}** (${serverQueue.song.url})`,
         }));
 
-        await serverQueue.songs.shift();
+        serverQueue.songs.shift();
         await playSong(message);
     });
+
+    if (!serverQueue.connection.dispatcher) {
+        await message.channel.send(new MessageEmbed({
+            title: 'Eu não consigo clicar velho.',
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+        }));
+
+        serverQueue.songs.shift();
+        await playSong(message);
+    }
 
     serverQueue.seek = null;
     serverQueue.toDelete = await np.fn(message);
@@ -129,7 +139,7 @@ async function playSong(message) {
  * @return {Promise<Song|null>}
  */
 async function findOnYT(message, song) {
-    const url = ((await searchVideo(`${song.channelTitle} - ${song.title} Provided to Youtube by`, {
+    const url = ((await searchVideo(`${song.uploader} - ${song.title} Provided to YouTube by`, {
         key: ytapikey,
         regionCode: 'us',
         type: 'video',
@@ -156,7 +166,7 @@ async function findOnYT(message, song) {
     return new Song({
         title: songInfo.snippet.title,
         url: songInfo.url,
-        channelTitle: songInfo.snippet.channelTitle,
+        uploader: songInfo.snippet.channelTitle,
         thumbnail: songInfo.snippet.thumbnails.high.url,
         duration: songInfo.duration,
         from: song.from,
@@ -185,7 +195,7 @@ export const join = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const voiceChannel = message.member.voice.channel;
 
         if (!voiceChannel) {
@@ -220,7 +230,7 @@ export const leave = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -249,7 +259,7 @@ export const search = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const voiceChannel = message.member.voice.channel;
 
         if (!voiceChannel) {
@@ -325,7 +335,7 @@ export const videoinfo = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
             return await message.channel.send('URL inválida.');
         }
@@ -374,7 +384,7 @@ export const play = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -450,7 +460,7 @@ export const play = new Command({
                     const song = new Song({
                         title: songInfo.snippet.title,
                         url: songInfo.url,
-                        channelTitle: songInfo.snippet.channelTitle,
+                        uploader: songInfo.snippet.channelTitle,
                         thumbnail: songInfo.snippet.thumbnails.high.url,
                         duration: songInfo.duration,
                         from: 'yt',
@@ -485,7 +495,7 @@ export const play = new Command({
                 const song = new Song({
                     title: songInfo.snippet.title,
                     url: songInfo.url,
-                    channelTitle: songInfo.snippet.channelTitle,
+                    uploader: songInfo.snippet.channelTitle,
                     thumbnail: songInfo.snippet.thumbnails.high.url,
                     duration: songInfo.duration,
                     from: 'yt',
@@ -519,7 +529,7 @@ export const play = new Command({
             const song = new Song({
                 title: songInfo.title,
                 url: songInfo.permalink_url,
-                channelTitle: songInfo.user.username,
+                uploader: songInfo.user.username,
                 thumbnail: songInfo.artwork_url,
                 duration: songInfo.duration / 1000,
                 from: 'sc',
@@ -537,25 +547,10 @@ export const play = new Command({
             })).forEach(plSong => {
                 const song = new Song({
                     title: plSong.name,
-                    url: null,
-                    channelTitle: plSong.artists,
-                    thumbnail: null,
-                    duration: null,
+                    uploader: plSong.artists,
                     findOnYT: true,
                     from: 'sp',
                     addedBy: message.author,
-                    fn: ytdl,
-                    options: {
-                        filter: 'audioonly',
-                        highWaterMark,
-                        quality: 'highestaudio',
-                        requestOptions: {
-                            host: 'jukesbox.herokuapp.com',
-                            headers: {
-                                Authorization: `Bearer ${ytapikey}`,
-                            }
-                        },
-                    },
                 });
 
                 songs.push(song);
@@ -566,13 +561,14 @@ export const play = new Command({
 
         if (!serverQueue) {
             const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(prefix);
-            const q = new ServerQueue({message, songs, volume: sc.volume});
+            const q = new ServerQueue({songs, volume: sc.volume});
 
             Queue.set(message.guild.id, q);
 
             try {
                 q.connection = await voiceChannel.join();
                 q.connection.on('disconnect', async () => {
+                    await q.deletePending();
                     Queue.delete(message.guild.id);
                 });
 
@@ -602,7 +598,7 @@ export const np = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -619,7 +615,7 @@ export const np = new Command({
             thumbnail: {url: serverQueue.song.thumbnail},
             description: serverQueue.song.title,
             fields: [
-                {name: 'Canal', value: serverQueue.song.channelTitle},
+                {name: 'Canal', value: serverQueue.song.uploader},
                 {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
                 {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000).toString(), inline: true},
             ],
@@ -636,7 +632,7 @@ export const pause = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -646,6 +642,10 @@ export const pause = new Command({
 
         if (!serverQueue) {
             return await message.channel.send('Tá limpo vei.');
+        }
+
+        if (!serverQueue.playing) {
+            return await message.channel.send('Já tá pausado lek.');
         }
 
         serverQueue.connection.dispatcher.pause();
@@ -663,7 +663,7 @@ export const resume = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -673,6 +673,10 @@ export const resume = new Command({
 
         if (!serverQueue) {
             return await message.channel.send('Tá limpo vei.');
+        }
+
+        if (serverQueue.playing) {
+            return await message.channel.send('Já tá tocando lek.');
         }
 
         serverQueue.connection.dispatcher.resume();
@@ -691,7 +695,7 @@ export const seek = new Command({
      * @param {string} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -708,7 +712,7 @@ export const seek = new Command({
         }
 
         serverQueue.seek = s;
-        await serverQueue.connection.dispatcher.end();
+        serverQueue.connection.dispatcher.end();
     },
 });
 
@@ -721,7 +725,7 @@ export const stop = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -741,7 +745,7 @@ export const stop = new Command({
 });
 
 export const skip = new Command({
-    description: 'Pula {n} músicas.',
+    description: 'Pula `n` músicas.',
     usage: 'skip [n]',
 
     alias: ['next'],
@@ -752,7 +756,7 @@ export const skip = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const voiceChannel = message.member.voice.channel;
         const serverQueue = Queue.get(message.guild.id);
 
@@ -772,7 +776,7 @@ export const skip = new Command({
 
         serverQueue.songs.splice(serverQueue.position, skips - 1);
         if (serverQueue.loop) {
-            await serverQueue.songs.shift();
+            serverQueue.songs.shift();
         }
 
         serverQueue.connection.dispatcher.end();
@@ -792,7 +796,7 @@ export const loop = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -818,7 +822,7 @@ export const shuffle = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -845,7 +849,7 @@ export const remove = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -877,7 +881,7 @@ export const volume = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const serverQueue = Queue.get(message.guild.id);
         const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(prefix);
 
@@ -912,7 +916,7 @@ export const queue = new Command({
      * @param {Message} message
      * @return {Promise<*>}
      */
-    fn: async message => {
+    async fn(message) {
         const serverQueue = Queue.get(message.guild.id);
 
         if (!serverQueue) {
@@ -920,7 +924,7 @@ export const queue = new Command({
         }
 
         const songs = serverQueue.songs.map((s, i) => {
-            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.channelTitle}
+            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader}
         });
 
         return await pageEmbed(message, {title: 'Fila tá assim lek', content: songs});

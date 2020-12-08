@@ -24,8 +24,8 @@ import {Message, MessageEmbed} from "discord.js";
 import Command from "../lib/Command.js";
 
 export const addrole = new Command({
-    description: 'Adiciona um ou mais cargos a um @membro.',
-    usage: 'addrole [role1] [role2]...',
+    description: 'Adiciona um ou mais cargos a um `@membro`.',
+    usage: 'addrole [@membro] [role1] [role2]...',
 
     /**
      *
@@ -33,7 +33,7 @@ export const addrole = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const permissions = message.channel.permissionsFor(message.client.user);
         if (!permissions.has('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
@@ -73,8 +73,8 @@ export const addrole = new Command({
 });
 
 export const rmrole = new Command({
-    description: 'Remove um ou mais cargos de um @membro.',
-    usage: 'addrole [role1] [role2]...',
+    description: 'Remove um ou mais cargos de um `@membro`.',
+    usage: 'addrole [@membro] [role1] [role2]...',
 
     /**
      *
@@ -82,7 +82,7 @@ export const rmrole = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const permissions = message.channel.permissionsFor(message.client.user);
         if (!permissions.has('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
@@ -122,10 +122,10 @@ export const rmrole = new Command({
 });
 
 export const userinfo = new Command({
-    description: 'Informações de um @membro.',
-    usage: 'userinfo @membro',
+    description: 'Informações de um `@membro`.',
+    usage: 'userinfo [@membro]',
 
-    fn: async (message, args) => {
+    async fn(message, args) {
         if (!args[0].match(/\d+/gm)) {
             return await message.channel.send('Informe o @membro.');
         }
@@ -147,7 +147,8 @@ export const userinfo = new Command({
                 {name: 'username#tag', value: user.user.tag, inline: true},
                 {name: 'ID', value: user.id, inline: true},
                 {name: 'Cargos', value: user.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
-                {name: 'Entrou',
+                {
+                    name: 'Entrou',
                     value: new Intl.DateTimeFormat('pt-br', {
                         year: "numeric",
                         month: "numeric",

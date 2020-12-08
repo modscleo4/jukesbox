@@ -22,7 +22,7 @@
 
 import {Message, MessageEmbed} from "discord.js";
 
-import {startupTime} from "../global.js";
+import {startupTime, queue} from "../global.js";
 import {adminID} from "../config.js";
 import {pageEmbed} from "../lib/utils.js";
 import Command from "../lib/Command.js";
@@ -38,7 +38,7 @@ export const botinfo = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const subcommands = {
             servers: async () => {
                 const servers = message.client.guilds.cache.map((g, i) => ({
@@ -74,6 +74,8 @@ export const botinfo = new Command({
                 {name: 'UID', value: message.client.user.id, inline: false},
                 {name: 'Servidor', value: message.guild.region, inline: true},
                 {name: 'Ping', value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
+                {name: 'Tocando em', value: `${queue.size} servidor(es)`, inline: true},
+                {name: 'RAM', value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
             ],
         }));
     }
@@ -88,7 +90,7 @@ export const restart = new Command({
      *
      * @return {Promise<*>}
      */
-    fn: async () => {
+    async fn() {
         process.exit(0);
     },
 });
@@ -104,7 +106,7 @@ export const reload = new Command({
      * @param {string[]} args
      * @return {Promise<void>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         return await message.channel.send('Função desativada.');
 
         message.client.loadCommands(await import('./index.js'));

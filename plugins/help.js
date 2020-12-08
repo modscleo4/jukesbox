@@ -24,7 +24,6 @@ import {MessageEmbed} from "discord.js";
 
 import {serverConfig} from "../global.js";
 import {prefix} from "../config.js";
-import {pageEmbed} from "../lib/utils.js";
 import Command from "../lib/Command.js";
 
 export const help = new Command({
@@ -37,7 +36,7 @@ export const help = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const sc = serverConfig.get(message.guild.id);
         const serverPrefix = sc?.prefix ?? prefix;
 
@@ -58,31 +57,29 @@ Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou m
 
             let desc = `
 O prefixo deste servidor é \`${serverPrefix}\`.`;
-
             for (let i = 0; i < args.length; i++) {
                 const command = commands[args[i]] ?? commands[aliases[args[i]]];
 
                 desc += `
 
-
-\`${serverPrefix}${args[i]}\`
+\`${serverPrefix}${args[i] in aliases ? aliases[args[i]] : args[i]}\`
 ${command.description}
 **Uso**: ${command.usage}
 ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
             }
 
             return await message.channel.send(new MessageEmbed({
-                title: 'Ajuda',
+                title: 'ME AJUDA!',
                 description: desc,
                 author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
                 timestamp: new Date(),
             }));
         }
 
-        const cmds = {};
-        for (const cat in message.client.categoriesCommands) {
+        const cmds = [];
+        Object.keys(message.client.categoriesCommands).forEach((cat, i, arr) => {
             const category = {...message.client.categoriesCommands[cat]}
-            cmds[cat] = [];
+            const c = {name: cat, value: '', inline: false};
 
             for (const cmd in category) {
                 const command = category[cmd];
@@ -91,17 +88,24 @@ ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).jo
                     continue;
                 }
 
-                cmds[cat].push({
-                    name: `${serverPrefix}${cmd}`,
-                    value: command.description + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '')
-                })
+                c.value += `**${serverPrefix}${cmd}**: ` + command.description + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '') + '\n';
             }
 
-            if (Object.keys(cmds[cat]).length === 0) {
-                delete cmds[cat];
-            }
-        }
+            if (c.value.length > 0) {
+                cmds.push(c);
 
-        return await pageEmbed(message, {title: 'Eu entendo isso aqui vei', description, content: cmds});
+                if (i < arr.length - 1) {
+                    cmds.push({name: '\u200B', value: '\u200B'});
+                }
+            }
+        });
+
+        return await message.channel.send(new MessageEmbed({
+            title: 'ME AJUDA!',
+            description,
+            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            timestamp: new Date(),
+            fields: cmds,
+        }));
     }
 });

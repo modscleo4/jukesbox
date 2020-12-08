@@ -53,7 +53,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 client.on('message', async message => {
-    if (!serverConfig) {
+    if (message.author.bot) {
         return;
     }
 
@@ -65,10 +65,6 @@ client.on('message', async message => {
     const serverPrefix = sc?.prefix ?? prefix;
 
     if (message.content.startsWith(serverPrefix)) {
-        if (message.author.bot) {
-            return;
-        }
-
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 

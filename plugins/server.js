@@ -35,7 +35,7 @@ export const prefix = new Command({
      * @param {string[]} args
      * @return {Promise<*>}
      */
-    fn: async (message, args) => {
+    async fn(message, args) {
         const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(Prefix);
 
         if (args.length === 0) {
