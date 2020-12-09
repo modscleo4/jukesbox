@@ -64,7 +64,15 @@ client.on('message', async message => {
     const sc = serverConfig.get(message.guild.id);
     const serverPrefix = sc?.prefix ?? prefix;
 
-    if (message.content.startsWith(serverPrefix)) {
+    if (message.content.startsWith(`<@!${client.user.id}>`)) {
+        const command = client.commands.prefix;
+
+        await command.fn(message, []).catch(async e => {
+            console.error(e);
+            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
+            await message.channel.send('Deu ruim aqui lek.');
+        });
+    } else if (message.content.startsWith(serverPrefix)) {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? []).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
@@ -81,7 +89,9 @@ client.on('message', async message => {
         await command.fn(message, args).catch(async e => {
             console.error(e);
             adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
-            await message.channel.send('Deu ruim aqui lek.');
+            await message.channel.send('Deu ruim aqui lek.').catch(() => {
+
+            });
         });
     }
 });
@@ -90,3 +100,7 @@ client.loadCommands(await import('./plugins/index.js'));
 console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);
 
 await client.login(token);
+
+process.on('unhandledRejection', async (reason, promise) => {
+    adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${reason.stack}\`\`\``);
+});

@@ -69,7 +69,9 @@ async function playSong(message) {
     if (serverQueue.song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
         const found = await findOnYT(message, serverQueue.song);
-        await msg.delete();
+        await msg.delete().catch(() => {
+
+        });
 
         if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
@@ -320,7 +322,9 @@ export const search = new Command({
         });
 
         if (!msg.deleted) {
-            await msg.delete();
+            await msg.delete().catch(() => {
+
+            });
         }
     },
 });
@@ -362,8 +366,8 @@ export const videoinfo = new Command({
             description: songInfo.snippet.title,
             fields: [
                 {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
-                {name: 'Duração', value: parseMS(songInfo.duration * 1000).toString(), inline: true},
-                {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) ?? '(Sem descrição)'},
+                {name: 'Duração', value: parseMS(songInfo.duration * 1000), inline: true},
+                {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
                 {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
                 {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
                 {name: '👎 Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
@@ -617,7 +621,7 @@ export const np = new Command({
             fields: [
                 {name: 'Canal', value: serverQueue.song.uploader},
                 {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
-                {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000).toString(), inline: true},
+                {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000), inline: true},
             ],
         }));
     },
