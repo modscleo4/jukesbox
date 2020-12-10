@@ -26,7 +26,12 @@
  */
 export const queue = new Map();
 export const startupTime = new Date();
-export let serverConfig = null;
+
+/**
+ *
+ * @type {Map<string, {prefix: string, volume: number}>}
+ */
+export let serverConfig = new Map();
 
 export function setServerConfig(sc) {
     serverConfig = sc;

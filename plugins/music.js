@@ -146,6 +146,7 @@ async function findOnYT(message, song) {
         regionCode: 'us',
         type: 'video',
         part: ['id'],
+        videoEmbeddable: true,
     }).catch(e => {
         console.error(e);
         return null;
@@ -212,7 +213,7 @@ export const join = new Command({
         await voiceChannel.join();
         return await message.channel.send(new MessageEmbed({
             title: 'Salve salve Yodinha!',
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
             description: 'Conectado a um canal de voz',
             fields: [
@@ -297,13 +298,14 @@ export const search = new Command({
             key: ytapikey,
             regionCode: 'us',
             type: kind,
+            videoEmbeddable: kind === 'video' ? true : 'any',
         });
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
         const msg = await message.channel.send(new MessageEmbed({
             title: 'Achei isso aqui lek',
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
             description: results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n'),
         }));
@@ -360,7 +362,7 @@ export const videoinfo = new Command({
         return await message.channel.send(new MessageEmbed({
             title: 'Informações do vídeo',
             url: songInfo.url,
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
             thumbnail: {url: songInfo.snippet.thumbnails.high.url},
             description: songInfo.snippet.title,
@@ -427,6 +429,7 @@ export const play = new Command({
             regionCode: 'us',
             type: kind,
             part: ['id'],
+            videoEmbeddable: kind === 'video' ? true : 'any',
         }))[0] ?? {url: null}).url;
 
         if (!url) {

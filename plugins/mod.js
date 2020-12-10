@@ -131,22 +131,22 @@ export const userinfo = new Command({
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
-        const user = message.guild.member(userID);
+        const guildMember = message.guild.member(userID);
 
-        if (!user) {
+        if (!guildMember) {
             return await message.channel.send('Usuário inválido.');
         }
 
         return await message.channel.send(new MessageEmbed({
-            title: user.nickname ?? user.user.tag,
+            title: guildMember.nickname ?? guildMember.user.tag,
             author: {name: message.author.username, iconURL: message.author.avatarURL()},
-            color: user.displayHexColor,
+            color: guildMember.displayHexColor,
             timestamp: new Date(),
-            thumbnail: user.user.avatarURL(),
+            thumbnail: {url: guildMember.user.avatarURL()},
             fields: [
-                {name: 'username#tag', value: user.user.tag, inline: true},
-                {name: 'ID', value: user.id, inline: true},
-                {name: 'Cargos', value: user.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
+                {name: 'username#tag', value: guildMember.user.tag, inline: true},
+                {name: 'ID', value: guildMember.id, inline: true},
+                {name: 'Cargos', value: guildMember.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
                 {
                     name: 'Entrou',
                     value: new Intl.DateTimeFormat('pt-br', {
@@ -155,7 +155,7 @@ export const userinfo = new Command({
                         day: "numeric",
                         hour: "numeric",
                         minute: "numeric"
-                    }).format(user.joinedAt),
+                    }).format(guildMember.joinedAt),
                     inline: true
                 },
             ],
