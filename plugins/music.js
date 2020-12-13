@@ -26,18 +26,27 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue as Queue, serverConfig} from "../global.js";
-import {database_url, highWaterMark, prefix, scclientID, spclientID, spsecret, ytapikey} from "../config.js";
+import {
+    database_url,
+    highWaterMark,
+    prefix,
+    scclientID,
+    spclientID,
+    spsecret,
+    ytapikey
+} from "../config.js";
 import {
     cutUntil, getPlaylistItems, getSpotifyPlaylistItems,
     isAsync,
     isValidHttpURL, pageEmbed,
     parseMS,
-    saveServerConfig, searchVideo,
-    serverConfigConstruct, videoInfo
+    searchVideo,
+    videoInfo
 } from "../lib/utils.js";
 import Command from "../lib/Command.js";
 import Song from "../lib/Song.js";
 import ServerQueue from "../lib/ServerQueue.js";
+import ServerConfig from "../lib/ServerConfig.js";
 
 const scdl = _scdl.default;
 
@@ -567,7 +576,7 @@ export const play = new Command({
         }
 
         if (!serverQueue) {
-            const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(prefix);
+            const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
             const q = new ServerQueue({songs, volume: sc.volume});
 
             Queue.set(message.guild.id, q);
@@ -890,7 +899,7 @@ export const volume = new Command({
      */
     async fn(message, args) {
         const serverQueue = Queue.get(message.guild.id);
-        const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(prefix);
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
 
         if (args.length === 0) {
             return await message.channel.send(`Volume: ${sc.volume}`);
@@ -908,7 +917,7 @@ export const volume = new Command({
 
         sc.volume = volume;
         serverConfig.set(message.guild.id, sc);
-        await saveServerConfig(database_url, message.guild.id, sc);
+        await sc.save(database_url);
 
         return await message.channel.send('Aumenta essa porra aí.');
     },

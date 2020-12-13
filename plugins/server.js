@@ -23,7 +23,7 @@
 import Command from "../lib/Command.js";
 import {serverConfig} from "../global.js";
 import {database_url, prefix as Prefix} from "../config.js";
-import {saveServerConfig, serverConfigConstruct} from "../lib/utils.js";
+import ServerConfig from "../lib/ServerConfig.js";
 
 export const prefix = new Command({
     description: 'Mostra/altera o prefixo no servidor.',
@@ -36,7 +36,7 @@ export const prefix = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? serverConfigConstruct(Prefix);
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix: Prefix});
 
         if (args.length === 0) {
             return await message.channel.send(`Prefixo: \`${sc.prefix}\`.`);
@@ -48,7 +48,7 @@ export const prefix = new Command({
 
         sc.prefix = args[0];
         serverConfig.set(message.guild.id, sc);
-        await saveServerConfig(database_url, message.guild.id, sc);
+        await sc.save(database_url);
 
         return await message.channel.send(`Prefixo alterado para \`${args[0]}\`.`);
     },

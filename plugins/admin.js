@@ -88,28 +88,11 @@ export const restart = new Command({
 
     /**
      *
+     * @param {Message} message
      * @return {Promise<*>}
      */
-    async fn() {
+    async fn(message) {
+        await message.channel.send('F');
         process.exit(0);
-    },
-});
-
-export const reload = new Command({
-    description: 'Recarrega os comandos do bot.',
-    usage: 'reload',
-    only: [adminID],
-
-    /**
-     *
-     * @param {Message} message
-     * @param {string[]} args
-     * @return {Promise<void>}
-     */
-    async fn(message, args) {
-        return await message.channel.send('Função desativada.');
-
-        message.client.loadCommands(await import('./index.js'));
-        return await message.channel.send('Jukera tá de volta.');
     },
 });

@@ -29,7 +29,7 @@ export const startupTime = new Date();
 
 /**
  *
- * @type {Map<string, {prefix: string, volume: number}>}
+ * @type {Map<string, ServerConfig>}
  */
 export let serverConfig = new Map();
 
