@@ -88,6 +88,10 @@ client.on('message', async message => {
             return;
         }
 
+        if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
+            return await message.author.send('Me deixa falar! (Permissão `SEND_MESSAGES` no Canal de Texto)');
+        }
+
         await command.fn(message, args).catch(async e => {
             console.error(e);
             adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
