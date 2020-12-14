@@ -355,8 +355,8 @@ export const videoinfo = new Command({
             return await message.channel.send('URL inválida.');
         }
 
-        const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(args[0]).groups.VideoId;
-        const songInfo = (await videoInfo(videoId, {
+        const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
+        const songInfo = (await videoInfo(VideoId, {
             key: ytapikey,
             part: ['id', 'snippet', 'contentDetails', 'statistics'],
         }).catch(e => {
@@ -498,8 +498,8 @@ export const play = new Command({
                     songs.push(song);
                 });
             } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-                const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(url).groups.VideoId;
-                const songInfo = (await videoInfo(videoId, {key: ytapikey}).catch(e => {
+                const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
+                const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
                     console.error(e);
                     return null;
                 }))[0];
