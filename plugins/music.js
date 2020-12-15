@@ -330,10 +330,12 @@ export const search = new Command({
         }).then(async collected => {
             const reaction = collected.first();
             await play.fn(message, [results[reactions.indexOf(reaction.emoji.name)].url]);
+        }).catch(() => {
+
         });
 
         if (!msg.deleted) {
-            await msg.delete().catch(() => {
+            return await msg.delete().catch(() => {
 
             });
         }
