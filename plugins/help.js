@@ -25,10 +25,14 @@ import {MessageEmbed} from "discord.js";
 import {serverConfig} from "../global.js";
 import {prefix} from "../config.js";
 import Command from "../lib/Command.js";
+import getLocalizedString from "../lang/lang.js";
 
 export const help = new Command({
-    description: 'Mostra os comandos.',
-    usage: 'help [comando1] [comando2]...',
+    description: {
+        en_US: 'Show the commands.',
+        pt_BR: 'Mostra os comandos.',
+    },
+    usage: 'help [command1] [command2]...',
 
     /**
      *
@@ -63,7 +67,7 @@ O prefixo deste servidor é \`${serverPrefix}\`.`;
                 desc += `
 
 \`${serverPrefix}${args[i] in aliases ? aliases[args[i]] : args[i]}\`
-${command.description}
+${command.description[sc?.lang ?? 'pt_BR']}
 **Uso**: ${command.usage}
 ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
             }
@@ -88,7 +92,7 @@ ${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).jo
                     continue;
                 }
 
-                c.value += `**${serverPrefix}${cmd}**: ` + command.description + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '') + '\n';
+                c.value += `**${serverPrefix}${cmd}**: ` + command.description[sc?.lang ?? 'pt_BR'] + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '') + '\n';
             }
 
             if (c.value.length > 0) {

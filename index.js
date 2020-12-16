@@ -24,6 +24,7 @@ import Client from "./lib/Client.js";
 import {setServerConfig} from "./global.js";
 import {adminID, database_url, prefix, token} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
+import getLocalizedString from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
@@ -45,7 +46,7 @@ client.on('ready', async () => {
 });
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
-    if (!newState.channel && oldState.channel) {
+    if ((!newState.channel || newState.channel !== oldState.channel) && oldState.channel) {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
             await oldState.channel.leave();
         }
@@ -89,13 +90,13 @@ client.on('message', async message => {
         }
 
         if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-            return await message.author.send('Me deixa falar! (Permissão `SEND_MESSAGES` no Canal de Texto)');
+            return await message.author.send(getLocalizedString('permission.SEND_MESSAGES', sc?.lang ?? 'pt_BR'));
         }
 
         await command.fn(message, args).catch(async e => {
             console.error(e);
             adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
-            await message.channel.send('Deu ruim aqui lek.').catch(() => {
+            await message.channel.send(getLocalizedString('unhandledException', sc?.lang ?? 'pt_BR')).catch(() => {
 
             });
         });

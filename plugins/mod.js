@@ -21,10 +21,15 @@
 'use strict';
 
 import {Message, MessageEmbed} from "discord.js";
+
 import Command from "../lib/Command.js";
+import getLocalizedString from "../lang/lang.js";
 
 export const addrole = new Command({
-    description: 'Adiciona um ou mais cargos a um `@membro`.',
+    description: {
+        en_US: 'Give one or more roles to a `@member`.',
+        pt_BR: 'Adiciona um ou mais cargos a um `@membro`.',
+    },
     usage: 'addrole [@membro] [role1] [role2]...',
 
     /**
@@ -73,7 +78,10 @@ export const addrole = new Command({
 });
 
 export const rmrole = new Command({
-    description: 'Remove um ou mais cargos de um `@membro`.',
+    description: {
+        en_US: 'Remove one or more roles from a `@member`.',
+        pt_BR: 'Remove um ou mais cargos de um `@membro`.',
+    },
     usage: 'addrole [@membro] [role1] [role2]...',
 
     /**
@@ -122,8 +130,11 @@ export const rmrole = new Command({
 });
 
 export const userinfo = new Command({
-    description: 'Informações de um `@membro`.',
-    usage: 'userinfo [@membro]',
+    description: {
+        en_US: '`@member` information.',
+        pt_BR: 'Informações de um `@membro`.',
+    },
+    usage: 'userinfo [@member]',
 
     async fn(message, args) {
         if (!args[0].match(/\d+/gm)) {
@@ -158,6 +169,7 @@ export const userinfo = new Command({
                     }).format(guildMember.joinedAt),
                     inline: true
                 },
+                {name: 'Bot', value: guildMember.user.bot ? 'Sim' : 'Não', inline: true}
             ],
         }));
     },

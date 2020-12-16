@@ -21,10 +21,15 @@
 'use strict';
 
 import {Message, MessageEmbed} from "discord.js";
+
 import Command from "../lib/Command.js";
+import getLocalizedString from "../lang/lang.js";
 
 export const clear = new Command({
-    description: 'Apaga `n` mensagens do canal atual.',
+    description: {
+        en_US: 'Deletes `n` messages from the current channel.',
+        pt_BR: 'Apaga `n` mensagens do canal atual.',
+    },
     usage: 'clear [n]...',
 
     /**
@@ -59,7 +64,10 @@ export const clear = new Command({
 });
 
 export const poll = new Command({
-    description: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
+    description: {
+        en_US: 'Create a poll (max. of 10 items). They must be between `""`.',
+        pt_BR: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
+    },
     usage: 'poll [n1] [n2] ... [n10]',
 
     /**
@@ -87,7 +95,10 @@ export const poll = new Command({
             description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
         }));
 
-        await message.delete();
+        await message.delete().catch(() => {
+
+        });
+
         reactions.map(async r => await msg.react(r));
     },
 });

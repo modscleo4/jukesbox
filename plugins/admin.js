@@ -26,9 +26,13 @@ import {startupTime, queue} from "../global.js";
 import {adminID} from "../config.js";
 import {pageEmbed} from "../lib/utils.js";
 import Command from "../lib/Command.js";
+import getLocalizedString from "../lang/lang.js";
 
 export const botinfo = new Command({
-    description: 'Informações do bot.',
+    description: {
+        en_US: 'Bot information.',
+        pt_BR: 'Informações do bot.',
+    },
     usage: 'botinfo [servers] [voicechannels]',
     only: [adminID],
 
@@ -76,13 +80,17 @@ export const botinfo = new Command({
                 {name: 'Ping', value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
                 {name: 'Tocando em', value: `${queue.size} servidor(es)`, inline: true},
                 {name: 'RAM', value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
+                {name: 'Plataforma', value: process.platform, inline: true},
             ],
         }));
     }
 });
 
 export const restart = new Command({
-    description: 'Reinicia o bot.',
+    description: {
+        en_US: 'Restarts the bot.',
+        pt_BR: 'Reinicia o bot.',
+    },
     usage: 'restart',
     only: [adminID],
 

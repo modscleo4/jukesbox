@@ -47,6 +47,7 @@ import Command from "../lib/Command.js";
 import Song from "../lib/Song.js";
 import ServerQueue from "../lib/ServerQueue.js";
 import ServerConfig from "../lib/ServerConfig.js";
+import getLocalizedString from "../lang/lang.js";
 
 const scdl = _scdl.default;
 
@@ -71,6 +72,7 @@ async function playSong(message) {
     await serverQueue.deletePending();
 
     if (serverQueue.songs.length === 0) {
+        serverQueue.connection.removeAllListeners('disconnect');
         Queue.delete(message.guild.id);
         return;
     }
@@ -199,7 +201,10 @@ async function findOnYT(message, song) {
 }
 
 export const join = new Command({
-    description: 'Entra no canal de voz.',
+    description: {
+        en_US: 'Joins the current Voice Channel.',
+        pt_BR: 'Entra no canal de voz.',
+    },
     usage: 'join',
 
     /**
@@ -234,7 +239,10 @@ export const join = new Command({
 });
 
 export const leave = new Command({
-    description: 'Sai do canal de voz.',
+    description: {
+        en_US: 'Leaves the Voice Channel.',
+        pt_BR: 'Sai do canal de voz.',
+    },
     usage: 'leave',
 
     /**
@@ -262,7 +270,10 @@ export const leave = new Command({
 });
 
 export const search = new Command({
-    description: 'Procura por uma música/playlist. `/playlist` para procurar por playlists.',
+    description: {
+        en_US: 'Searches for a music/playlist. Use `/playlist` to search for playlists.',
+        pt_BR: 'Procura por uma música/playlist. Use `/playlist` para procurar por playlists.',
+    },
     usage: 'search [/playlist] [q]',
 
     /**
@@ -343,7 +354,10 @@ export const search = new Command({
 });
 
 export const videoinfo = new Command({
-    description: 'Mostra informações de um vídeo do YouTube',
+    description: {
+        en_US: 'Shows YouTube video information.',
+        pt_BR: 'Mostra informações de um vídeo do YouTube',
+    },
     usage: 'videoinfo [youtube_url]',
 
     /**
@@ -390,7 +404,10 @@ export const videoinfo = new Command({
 });
 
 export const play = new Command({
-    description: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
+    description: {
+        en_US: 'Adds a music/playlist in the queue. Use `/playlist` to search for playlists.',
+        pt_BR: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
+    },
     usage: 'play [/playlist] [youtube_url|q]',
 
     alias: ['p'],
@@ -608,7 +625,10 @@ export const play = new Command({
 });
 
 export const np = new Command({
-    description: 'Mostra a música que está tocando.',
+    description: {
+        en_US: 'Shows the current song.',
+        pt_BR: 'Mostra a música que está tocando.',
+    },
     usage: 'np',
 
     /**
@@ -642,7 +662,10 @@ export const np = new Command({
 });
 
 export const pause = new Command({
-    description: 'Pausa a música.',
+    description: {
+        en_US: 'Pauses the playback.',
+        pt_BR: 'Pausa a música.',
+    },
     usage: 'pause',
 
     /**
@@ -673,7 +696,10 @@ export const pause = new Command({
 });
 
 export const resume = new Command({
-    description: 'Continua a reprodução da música.',
+    description: {
+        en_US: 'Resumes the playback.',
+        pt_BR: 'Continua a reprodução da música.',
+    },
     usage: 'resume',
 
     /**
@@ -704,7 +730,10 @@ export const resume = new Command({
 });
 
 export const seek = new Command({
-    description: 'Altera a posição da música. Formato em `segundos`.',
+    description: {
+        en_US: 'Seeks on a specific timestamp of the song. Format is in `seconds`.',
+        pt_BR: 'Altera a posição da música. Formato em `segundos`.',
+    },
     usage: 'seek [s]',
 
     /**
@@ -735,7 +764,10 @@ export const seek = new Command({
 });
 
 export const stop = new Command({
-    description: 'Limpa a fila e para de tocar.',
+    description: {
+        en_US: 'Clears the queue and stops the playback.',
+        pt_BR: 'Limpa a fila e para de tocar.',
+    },
     usage: 'stop',
 
     /**
@@ -763,7 +795,10 @@ export const stop = new Command({
 });
 
 export const skip = new Command({
-    description: 'Pula `n` músicas.',
+    description: {
+        en_US: 'Skip `n` songs.',
+        pt_BR: 'Pula `n` músicas.',
+    },
     usage: 'skip [n]',
 
     alias: ['next'],
@@ -804,7 +839,10 @@ export const skip = new Command({
 });
 
 export const loop = new Command({
-    description: 'Liga ou desliga o modo Repetição.',
+    description: {
+        en_US: 'Toggle the Loop mode (for the current song).',
+        pt_BR: 'Liga ou desliga o modo Repetição (para a música atual).',
+    },
     usage: 'loop',
 
     alias: ['repeat'],
@@ -832,7 +870,10 @@ export const loop = new Command({
 });
 
 export const shuffle = new Command({
-    description: 'Liga/desliga o modo Aleatório.',
+    description: {
+        en_US: 'Toggles the Shuffle mode.',
+        pt_BR: 'Liga/desliga o modo Aleatório.',
+    },
     usage: 'shuffle',
 
     /**
@@ -858,7 +899,10 @@ export const shuffle = new Command({
 });
 
 export const remove = new Command({
-    description: 'Remove uma música da fila.',
+    description: {
+        en_US: 'Removes a song from the queue.',
+        pt_BR: 'Remove uma música da fila.',
+    },
     usage: 'remove',
 
     /**
@@ -890,7 +934,10 @@ export const remove = new Command({
 });
 
 export const volume = new Command({
-    description: 'Mostra/altera o volume (0-100).',
+    description: {
+        en_US: 'Shows/changes the volume (0-100).',
+        pt_BR: 'Mostra/altera o volume (0-100).',
+    },
     usage: 'volume [v]',
 
     /**
@@ -926,7 +973,10 @@ export const volume = new Command({
 });
 
 export const queue = new Command({
-    description: 'Mostra a fila.',
+    description: {
+        en_US: 'Displays the current queue.',
+        pt_BR: 'Mostra a fila.',
+    },
     usage: 'queue',
 
     /**
