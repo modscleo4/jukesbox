@@ -39,8 +39,7 @@ export const addrole = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const permissions = message.channel.permissionsFor(message.client.user);
-        if (!permissions.has('MANAGE_ROLES')) {
+        if (!message.member.guild.member(message.client.user).hasPermission('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
         }
 
@@ -91,8 +90,7 @@ export const rmrole = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const permissions = message.channel.permissionsFor(message.client.user);
-        if (!permissions.has('MANAGE_ROLES')) {
+        if (!message.member.guild.member(message.client.user).hasPermission('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
         }
 
@@ -136,6 +134,12 @@ export const userinfo = new Command({
     },
     usage: 'userinfo [@member]',
 
+    /**
+     *
+     * @param {Message} message
+     * @param {string[]} args
+     * @return {Promise<*>}
+     */
     async fn(message, args) {
         if (!args[0].match(/\d+/gm)) {
             return await message.channel.send('Informe o @membro.');
