@@ -32,17 +32,25 @@ export const clear = new Command({
     },
     usage: 'clear [n]...',
 
+    botPermissions: {
+        text: ['MANAGE_MESSAGES'],
+    },
+
+    userPermissions: {
+        text: ['MANAGE_MESSAGES'],
+    },
+
     /**
      *
      * @param {Message} message
      * @param {string[]} args
      */
     async fn(message, args) {
-        if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+        if (!message.channel.permissionsFor(message.client.user).hasPermission('MANAGE_MESSAGES')) {
             return await message.channel.send('ME AJUDA.');
         }
 
-        if (!message.member.guild.member(message.author).hasPermission('MANAGE_MESSAGES')) {
+        if (!message.channel.permissionsFor(message.author).hasPermission('MANAGE_MESSAGES')) {
             return await message.channel.send('Coé rapaz tá doidão?');
         }
 

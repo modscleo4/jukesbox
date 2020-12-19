@@ -30,7 +30,15 @@ export const addrole = new Command({
         en_US: 'Give one or more roles to a `@member`.',
         pt_BR: 'Adiciona um ou mais cargos a um `@membro`.',
     },
-    usage: 'addrole [@membro] [role1] [role2]...',
+    usage: 'addrole [@member] [role1] [role2]...',
+
+    botPermissions: {
+        server: ['MANAGE_ROLES'],
+    },
+
+    userPermissions: {
+        server: ['MANAGE_ROLES'],
+    },
 
     /**
      *
@@ -39,7 +47,7 @@ export const addrole = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        if (!message.member.guild.member(message.client.user).hasPermission('MANAGE_ROLES')) {
+        if (!message.guild.me.hasPermission('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
         }
 
@@ -81,7 +89,15 @@ export const rmrole = new Command({
         en_US: 'Remove one or more roles from a `@member`.',
         pt_BR: 'Remove um ou mais cargos de um `@membro`.',
     },
-    usage: 'addrole [@membro] [role1] [role2]...',
+    usage: 'addrole [@member] [role1] [role2]...',
+
+    botPermissions: {
+        server: ['MANAGE_ROLES'],
+    },
+
+    userPermissions: {
+        server: ['MANAGE_ROLES'],
+    },
 
     /**
      *
@@ -90,7 +106,7 @@ export const rmrole = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        if (!message.member.guild.member(message.client.user).hasPermission('MANAGE_ROLES')) {
+        if (!message.guild.me.hasPermission.hasPermission('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
         }
 

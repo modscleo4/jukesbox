@@ -20,7 +20,7 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import {Message, MessageEmbed} from "discord.js";
 
 import {serverConfig} from "../global.js";
 import {prefix} from "../config.js";
@@ -54,7 +54,7 @@ Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou m
 
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
-                if (!(args[i] in commands) && !(args[i] in aliases)) {
+                if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(message.author.id))) {
                     return await message.channel.send(`Comando \`${args[i]}\` não encontrado.`);
                 }
             }
@@ -68,8 +68,11 @@ O prefixo deste servidor é \`${serverPrefix}\`.`;
 
 \`${serverPrefix}${args[i] in aliases ? aliases[args[i]] : args[i]}\`
 ${command.description[sc?.lang ?? 'pt_BR']}
-**Uso**: ${command.usage}
-${command.alias.length > 0 ? `**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}` : ''}`;
+**Uso**: ${command.usage}\n`;
+
+                command.alias.length > 0 && (desc += `\n**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}`);
+                command.botPermissions && (desc += `\n**Permissões do bot**: ${[...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}`);
+                command.userPermissions && (desc += `\n**Permissões do usuário**: ${[...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}`);
             }
 
             return await message.channel.send(new MessageEmbed({

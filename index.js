@@ -48,7 +48,7 @@ client.on('ready', async () => {
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if ((!newState.channel || newState.channel !== oldState.channel) && oldState.channel) {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
-            await oldState.channel.leave();
+            oldState.channel.leave();
         }
     }
 });
@@ -108,6 +108,7 @@ console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);
 
 await client.login(token);
 
-process.on('unhandledRejection', async (reason, promise) => {
-    adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${reason.stack}\`\`\``);
+process.on('unhandledRejection', async (e, promise) => {
+    console.error(e);
+    adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
 });

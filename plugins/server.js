@@ -33,6 +33,10 @@ export const prefix = new Command({
     },
     usage: 'setprefix [prefix]',
 
+    botPermissions: {
+        server: ['MANAGE_GUILD'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -64,6 +68,10 @@ export const lang = new Command({
         pt_BR: 'Altera o idioma do bot no servidor.',
     },
     usage: 'lang [lang_COUNTRY]',
+
+    botPermissions: {
+        server: ['MANAGE_GUILD'],
+    },
 
     /**
      *

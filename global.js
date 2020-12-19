@@ -20,6 +20,9 @@
 
 'use strict';
 
+import ServerQueue from "./lib/ServerQueue.js";
+import ServerConfig from "./lib/ServerConfig.js";
+
 /**
  *
  * @type {Map<string, ServerQueue>}

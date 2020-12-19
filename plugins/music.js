@@ -26,19 +26,14 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue as Queue, serverConfig} from "../global.js";
+import {database_url, highWaterMark, prefix, scclientID, spclientID, spsecret, ytapikey} from "../config.js";
 import {
-    database_url,
-    highWaterMark,
-    prefix,
-    scclientID,
-    spclientID,
-    spsecret,
-    ytapikey
-} from "../config.js";
-import {
-    cutUntil, getPlaylistItems, getSpotifyPlaylistItems,
+    cutUntil,
+    getPlaylistItems,
+    getSpotifyPlaylistItems,
     isAsync,
-    isValidHttpURL, pageEmbed,
+    isValidHttpURL,
+    pageEmbed,
     parseMS,
     searchVideo,
     videoInfo
@@ -79,7 +74,7 @@ async function playSong(message) {
 
     if (serverQueue.song.findOnYT) {
         const msg = await message.channel.send('Procurando no YouTube...');
-        const found = await findOnYT(message, serverQueue.song);
+        const found = await findOnYT(serverQueue.song);
         await msg.delete().catch(() => {
 
         });
@@ -147,11 +142,10 @@ async function playSong(message) {
 
 /**
  *
- * @param {Message} message
  * @param {Song} song
  * @return {Promise<Song|null>}
  */
-async function findOnYT(message, song) {
+async function findOnYT(song) {
     const url = ((await searchVideo(`${song.uploader} - ${song.title} Provided to YouTube by`, {
         key: ytapikey,
         regionCode: 'us',
@@ -167,8 +161,8 @@ async function findOnYT(message, song) {
         return null;
     }
 
-    const videoId = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^&#]+)/gmu.exec(url).groups.VideoId;
-    const songInfo = (await videoInfo(videoId, {key: ytapikey}).catch(e => {
+    const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
+    const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
         console.error(e);
         return null;
     }))[0];
@@ -206,6 +200,10 @@ export const join = new Command({
         pt_BR: 'Entra no canal de voz.',
     },
     usage: 'join',
+
+    botPermissions: {
+        voice: ['CONNECT', 'SPEAK'],
+    },
 
     /**
      *
@@ -275,6 +273,10 @@ export const search = new Command({
         pt_BR: 'Procura por uma música/playlist. Use `/playlist` para procurar por playlists.',
     },
     usage: 'search [/playlist] [q]',
+
+    botPermissions: {
+        voice: ['CONNECT', 'SPEAK'],
+    },
 
     /**
      *
@@ -411,6 +413,10 @@ export const play = new Command({
     usage: 'play [/playlist] [youtube_url|q]',
 
     alias: ['p'],
+
+    botPermissions: {
+        voice: ['CONNECT', 'SPEAK'],
+    },
 
     /**
      *
@@ -940,6 +946,10 @@ export const volume = new Command({
     },
     usage: 'volume [v]',
 
+    userPermissions: {
+        server: ['MANAGE_GUILD'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -952,6 +962,10 @@ export const volume = new Command({
 
         if (args.length === 0) {
             return await message.channel.send(`Volume: ${sc.volume}`);
+        }
+
+        if (!message.member.guild.member(message.author).hasPermission('MANAGE_GUILD')) {
+            return await message.channel.send('Coé rapaz tá doidão?');
         }
 
         let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;

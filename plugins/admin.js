@@ -44,8 +44,8 @@ export const botinfo = new Command({
      */
     async fn(message, args) {
         const subcommands = {
-            servers: async () => {
-                const servers = message.client.guilds.cache.map((g, i) => ({
+            async servers() {
+                const servers = message.client.guilds.cache.map(g => ({
                     name: g.name,
                     value: `ID: ${g.id}`,
                 }));
@@ -53,13 +53,13 @@ export const botinfo = new Command({
                 return await pageEmbed(message, {title: 'Servidores', content: servers});
             },
 
-            voicechannels: async () => {
-                const voicechannels = message.client.voice.connections.map((g, i) => ({
+            async voicechannels() {
+                const voiceChannels = message.client.voice.connections.map(g => ({
                     name: g.channel.name,
                     value: `Servidor: ${g.channel.guild.name}`,
                 }));
 
-                return await pageEmbed(message, {title: 'Canais de voz', content: voicechannels});
+                return await pageEmbed(message, {title: 'Canais de voz', content: voiceChannels});
             },
         };
 
