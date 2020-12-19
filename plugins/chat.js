@@ -46,11 +46,11 @@ export const clear = new Command({
      * @param {string[]} args
      */
     async fn(message, args) {
-        if (!message.channel.permissionsFor(message.client.user).hasPermission('MANAGE_MESSAGES')) {
+        if (!message.channel.permissionsFor(message.client.user).has('MANAGE_MESSAGES')) {
             return await message.channel.send('ME AJUDA.');
         }
 
-        if (!message.channel.permissionsFor(message.author).hasPermission('MANAGE_MESSAGES')) {
+        if (!message.channel.permissionsFor(message.author).has('MANAGE_MESSAGES')) {
             return await message.channel.send('Coé rapaz tá doidão?');
         }
 

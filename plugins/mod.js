@@ -106,7 +106,7 @@ export const rmrole = new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        if (!message.guild.me.hasPermission.hasPermission('MANAGE_ROLES')) {
+        if (!message.guild.me.hasPermission('MANAGE_ROLES')) {
             return await message.channel.send('ME AJUDA!');
         }
 
