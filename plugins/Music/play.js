@@ -20,7 +20,7 @@
 
 'use strict';
 
-import {Message, MessageEmbed} from "discord.js";
+import {MessageEmbed} from "discord.js";
 import ytdl from "ytdl-core";
 import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
@@ -28,6 +28,7 @@ import SpotifyWebAPI from "spotify-web-api-node";
 import {queue, serverConfig} from "../../global.js";
 import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikey} from "../../config.js";
 import {getPlaylistItems, getSpotifyPlaylistItems, isAsync, isValidHttpURL, searchVideo, videoInfo} from "../../lib/utils.js";
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import Song from "../../lib/Song.js";
 import ServerQueue from "../../lib/ServerQueue.js";
@@ -307,7 +308,7 @@ export default new Command({
                 const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
                 const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
                     console.error(e);
-                    return null;
+                    return [null];
                 }))[0];
 
                 if (!songInfo) {

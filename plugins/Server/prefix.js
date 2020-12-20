@@ -20,6 +20,7 @@
 
 'use strict';
 
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import {database_url, prefix as Prefix} from "../../config.js";

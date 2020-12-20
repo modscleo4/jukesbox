@@ -98,11 +98,11 @@ client.on('message', async message => {
 
         await command.fn(message, args).catch(async e => {
             if (e instanceof InsufficientBotPermissionsError) {
-                return await message.channel.send(`ME AJUDA. (\`${e.message}\`)`);
+                return await message.channel.send(getLocalizedString('insufficientBotPermissions', sc?.lang ?? 'pt_BR', {permission: e.message}));
             }
 
             if (e instanceof InsufficientUserPermissionsError) {
-                return await message.channel.send(`Coé rapaz tá doidão? (\`${e.message}\`)`);
+                return await message.channel.send(getLocalizedString('insufficientUserPermissions', sc?.lang ?? 'pt_BR', {permission: e.message}));
             }
 
             console.error(e);

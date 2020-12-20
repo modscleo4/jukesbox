@@ -20,10 +20,10 @@
 
 'use strict';
 
-import {Message} from "discord.js";
-
 import {queue} from "../../global.js";
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
+import skip from "./skip.js";
 import getLocalizedString from "../../lang/lang.js";
 
 export default new Command({

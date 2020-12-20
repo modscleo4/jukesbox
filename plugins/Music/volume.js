@@ -20,10 +20,9 @@
 
 'use strict';
 
-import {Message} from "discord.js";
-
 import {queue, serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import getLocalizedString from "../../lang/lang.js";

@@ -26,6 +26,7 @@
   "type": "module",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
+    "@types/pg": "^7.14.7",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "googleapis": "^66.0.0",

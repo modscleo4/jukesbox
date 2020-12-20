@@ -20,11 +20,9 @@
 
 'use strict';
 
-import {Message} from "discord.js";
-
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import getLocalizedString from "../../lang/lang.js";
-
 
 export default new Command({
     description: {

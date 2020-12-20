@@ -20,8 +20,7 @@
 
 'use strict';
 
-import {Message} from "discord.js";
-
+import Message from "../../lib/Message.js";
 import {queue} from "../../global.js";
 import {pageEmbed} from "../../lib/utils.js";
 import Command from "../../lib/Command.js";

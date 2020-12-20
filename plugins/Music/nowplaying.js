@@ -20,10 +20,11 @@
 
 'use strict';
 
-import {Message, MessageEmbed} from "discord.js";
+import {MessageEmbed} from "discord.js";
 
 import {queue} from "../../global.js";
 import {parseMS} from "../../lib/utils.js";
+import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import getLocalizedString from "../../lang/lang.js";
 
