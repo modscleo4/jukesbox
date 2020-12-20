@@ -26,7 +26,7 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue, serverConfig} from "../../global.js";
-import {highWaterMark, prefix, scclientID, spclientID, spsecret, ytapikey} from "../../config.js";
+import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikey} from "../../config.js";
 import {getPlaylistItems, getSpotifyPlaylistItems, isAsync, isValidHttpURL, searchVideo, videoInfo} from "../../lib/utils.js";
 import Command from "../../lib/Command.js";
 import Song from "../../lib/Song.js";
@@ -175,6 +175,7 @@ async function findOnYT(song) {
             filter: 'audioonly',
             highWaterMark,
             quality: 'highestaudio',
+            dlChunkSize,
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
@@ -288,6 +289,7 @@ export default new Command({
                             filter: 'audioonly',
                             highWaterMark,
                             quality: 'highestaudio',
+                            dlChunkSize,
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
@@ -323,6 +325,7 @@ export default new Command({
                         filter: 'audioonly',
                         highWaterMark,
                         quality: 'highestaudio',
+                        dlChunkSize,
                         requestOptions: {
                             host: 'jukesbox.herokuapp.com',
                             headers: {
