@@ -13,56 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Server configuration plugin
+ * @file Server configuration plugin (lang command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-import Command from "../lib/Command.js";
-import {serverConfig} from "../global.js";
-import {database_url, prefix as Prefix} from "../config.js";
-import ServerConfig from "../lib/ServerConfig.js";
-import getLocalizedString, {langs} from "../lang/lang.js";
+import Command from "../../lib/Command.js";
+import {serverConfig} from "../../global.js";
+import {database_url, prefix as Prefix} from "../../config.js";
+import ServerConfig from "../../lib/ServerConfig.js";
+import getLocalizedString, {langs} from "../../lang/lang.js";
 
-export const prefix = new Command({
-    description: {
-        en_US: 'Shows/changes the server prefix.',
-        pt_BR: 'Mostra/altera o prefixo no servidor.',
-    },
-    usage: 'setprefix [prefix]',
-
-    botPermissions: {
-        server: ['MANAGE_GUILD'],
-    },
-
-    /**
-     *
-     * @param {Message} message
-     * @param {string[]} args
-     * @return {Promise<*>}
-     */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix: Prefix});
-
-        if (args.length === 0) {
-            return await message.channel.send(`Prefixo: \`${sc.prefix}\`.`);
-        }
-
-        if (!message.member.guild.member(message.author).hasPermission('MANAGE_GUILD')) {
-            return await message.channel.send('Coé rapaz tá doidão?');
-        }
-
-        sc.prefix = args[0];
-        serverConfig.set(message.guild.id, sc);
-        await sc.save(database_url);
-
-        return await message.channel.send(`Prefixo alterado para \`${args[0]}\`.`);
-    },
-});
-
-export const lang = new Command({
+export default new Command({
     description: {
         en_US: 'Changes the bot language.',
         pt_BR: 'Altera o idioma do bot no servidor.',
@@ -86,9 +50,7 @@ export const lang = new Command({
             return await message.channel.send(`Qual o idioma lek?`);
         }
 
-        if (!message.member.guild.member(message.author).hasPermission('MANAGE_GUILD')) {
-            return await message.channel.send('Coé rapaz tá doidão?');
-        }
+        await this.checkPermissions(message);
 
         if (!(args[0] in langs)) {
             return await message.channel.send('Não falo em língua estranha.');

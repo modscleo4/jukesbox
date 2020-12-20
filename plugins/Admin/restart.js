@@ -13,16 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Loads all plugins into a single file
+ * @file Admin plugin (restart command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-export * as Admin from "./Admin/index.js";
-export * as Chat from "./Chat/index.js";
-export * as Help from "./Help/index.js";
-export * as Music from "./Music/index.js";
-export * as Moderation from "./Moderation/index.js";
-export * as Server from "./Server/index.js";
+import {Message} from "discord.js";
+
+import {adminID} from "../../config.js";
+import Command from "../../lib/Command.js";
+import getLocalizedString from "../../lang/lang.js";
+
+export default new Command({
+    description: {
+        en_US: 'Restarts the bot.',
+        pt_BR: 'Reinicia o bot.',
+    },
+    usage: 'restart',
+    only: [adminID],
+
+    /**
+     *
+     * @param {Message} message
+     * @return {Promise<*>}
+     */
+    async fn(message) {
+        await message.channel.send('F');
+        process.exit(0);
+    },
+});

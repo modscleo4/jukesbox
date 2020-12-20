@@ -24,6 +24,8 @@ import Client from "./lib/Client.js";
 import {setServerConfig} from "./global.js";
 import {adminID, database_url, prefix, token} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
+import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
+import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
 import getLocalizedString from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
@@ -94,6 +96,14 @@ client.on('message', async message => {
         }
 
         await command.fn(message, args).catch(async e => {
+            if (e instanceof InsufficientBotPermissionsError) {
+                return await message.channel.send(`ME AJUDA. (\`${e.message}\`)`);
+            }
+
+            if (e instanceof InsufficientUserPermissionsError) {
+                return await message.channel.send(`Coé rapaz tá doidão? (\`${e.message}\`)`);
+            }
+
             console.error(e);
             adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
             await message.channel.send(getLocalizedString('unhandledException', sc?.lang ?? 'pt_BR')).catch(() => {

@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Loads all plugins into a single file
+ * @file Moderation plugin
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-export * as Admin from "./Admin/index.js";
-export * as Chat from "./Chat/index.js";
-export * as Help from "./Help/index.js";
-export * as Music from "./Music/index.js";
-export * as Moderation from "./Moderation/index.js";
-export * as Server from "./Server/index.js";
+export {default as addrole} from "./addrole.js";
+export {default as rmrole} from "./rmrole.js";
+export {default as userinfo} from "./userinfo.js";

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Admin plugin
+ * @file Admin plugin (botinfo command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
@@ -22,13 +22,13 @@
 
 import {Message, MessageEmbed} from "discord.js";
 
-import {startupTime, queue} from "../global.js";
-import {adminID} from "../config.js";
-import {pageEmbed} from "../lib/utils.js";
-import Command from "../lib/Command.js";
-import getLocalizedString from "../lang/lang.js";
+import {startupTime, queue} from "../../global.js";
+import {adminID} from "../../config.js";
+import {pageEmbed} from "../../lib/utils.js";
+import Command from "../../lib/Command.js";
+import getLocalizedString from "../../lang/lang.js";
 
-export const botinfo = new Command({
+export default new Command({
     description: {
         en_US: 'Bot information.',
         pt_BR: 'Informações do bot.',
@@ -84,23 +84,4 @@ export const botinfo = new Command({
             ],
         }));
     }
-});
-
-export const restart = new Command({
-    description: {
-        en_US: 'Restarts the bot.',
-        pt_BR: 'Reinicia o bot.',
-    },
-    usage: 'restart',
-    only: [adminID],
-
-    /**
-     *
-     * @param {Message} message
-     * @return {Promise<*>}
-     */
-    async fn(message) {
-        await message.channel.send('F');
-        process.exit(0);
-    },
 });

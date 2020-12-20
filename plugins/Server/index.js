@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Loads all plugins into a single file
+ * @file Server plugin
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-export * as Admin from "./Admin/index.js";
-export * as Chat from "./Chat/index.js";
-export * as Help from "./Help/index.js";
-export * as Music from "./Music/index.js";
-export * as Moderation from "./Moderation/index.js";
-export * as Server from "./Server/index.js";
+export {default as prefix} from "./prefix.js";
+export {default as lang} from "./lang.js";

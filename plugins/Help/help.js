@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Help plugin
+ * @file Help plugin (help command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
@@ -22,12 +22,12 @@
 
 import {Message, MessageEmbed} from "discord.js";
 
-import {serverConfig} from "../global.js";
-import {prefix} from "../config.js";
-import Command from "../lib/Command.js";
-import getLocalizedString from "../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import {prefix} from "../../config.js";
+import Command from "../../lib/Command.js";
+import getLocalizedString from "../../lang/lang.js";
 
-export const help = new Command({
+export default new Command({
     description: {
         en_US: 'Show the commands.',
         pt_BR: 'Mostra os comandos.',

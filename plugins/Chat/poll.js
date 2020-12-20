@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Chat plugin
+ * @file Chat plugin (poll command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
@@ -22,56 +22,10 @@
 
 import {Message, MessageEmbed} from "discord.js";
 
-import Command from "../lib/Command.js";
-import getLocalizedString from "../lang/lang.js";
+import Command from "../../lib/Command.js";
+import getLocalizedString from "../../lang/lang.js";
 
-export const clear = new Command({
-    description: {
-        en_US: 'Deletes `n` messages from the current channel.',
-        pt_BR: 'Apaga `n` mensagens do canal atual.',
-    },
-    usage: 'clear [n]...',
-
-    botPermissions: {
-        text: ['MANAGE_MESSAGES'],
-    },
-
-    userPermissions: {
-        text: ['MANAGE_MESSAGES'],
-    },
-
-    /**
-     *
-     * @param {Message} message
-     * @param {string[]} args
-     */
-    async fn(message, args) {
-        if (!message.channel.permissionsFor(message.client.user).has('MANAGE_MESSAGES')) {
-            return await message.channel.send('ME AJUDA.');
-        }
-
-        if (!message.channel.permissionsFor(message.author).has('MANAGE_MESSAGES')) {
-            return await message.channel.send('Coé rapaz tá doidão?');
-        }
-
-        const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
-
-        await message.delete().then(async () => {
-            n % 100 > 0 && await message.channel.bulkDelete(n % 100);
-
-            for (let i = 0; i < Math.floor(n / 100); i++) {
-                await message.channel.bulkDelete(100);
-            }
-        }).then(async () => {
-            await message.channel.send(`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`).then(async m => await m.delete({timeout: 1000}));
-        }).catch(async e => {
-            console.error(e);
-            await message.channel.send('Deu ruim aqui lek.');
-        });
-    }
-});
-
-export const poll = new Command({
+export default new Command({
     description: {
         en_US: 'Create a poll (max. of 10 items). They must be between `""`.',
         pt_BR: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
