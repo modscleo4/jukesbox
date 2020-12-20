@@ -26,6 +26,7 @@ import {ytapikey} from "../../config.js";
 import {searchVideo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
+import play from "./play.js";
 import getLocalizedString from "../../lang/lang.js";
 
 export default new Command({
