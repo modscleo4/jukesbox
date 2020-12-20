@@ -172,10 +172,11 @@ async function findOnYT(song) {
         addedBy: song.addedBy,
         fn: ytdl,
         options: {
-            filter: 'audioonly',
+            filter: songInfo.duration === 0 ? null : 'audioonly',
             highWaterMark,
-            quality: 'highestaudio',
+            quality: songInfo.duration === 0 ? null : 'highestaudio',
             dlChunkSize,
+            isHLS: songInfo.duration === 0,
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
@@ -286,10 +287,11 @@ export default new Command({
                         addedBy: message.author,
                         fn: ytdl,
                         options: {
-                            filter: 'audioonly',
+                            filter: songInfo.duration === 0 ? null : 'audioonly',
                             highWaterMark,
-                            quality: 'highestaudio',
+                            quality: songInfo.duration === 0 ? null : 'highestaudio',
                             dlChunkSize,
+                            isHLS: songInfo.duration === 0,
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
@@ -322,10 +324,12 @@ export default new Command({
                     addedBy: message.author,
                     fn: ytdl,
                     options: {
-                        filter: 'audioonly',
+                        // If the song duration is 0s, it's a livestream
+                        filter: songInfo.duration === 0 ? null : 'audioonly',
                         highWaterMark,
-                        quality: 'highestaudio',
+                        quality: songInfo.duration === 0 ? null : 'highestaudio',
                         dlChunkSize,
+                        isHLS: songInfo.duration === 0,
                         requestOptions: {
                             host: 'jukesbox.herokuapp.com',
                             headers: {
@@ -364,7 +368,8 @@ export default new Command({
             const playlistId = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups.PlaylistId;
             (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
                 console.error(e);
-                return null;
+                await message.channel.send('Eu não consigo clicar velho.');
+                return [];
             })).forEach(plSong => {
                 const song = new Song({
                     title: plSong.name,
