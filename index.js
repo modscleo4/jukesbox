@@ -119,6 +119,19 @@ console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);
 
 await client.login(token);
 
+process.on('SIGTERM', async () => {
+    await client.user.setPresence({
+        activity: {
+            name: 'Atualizando',
+            type: 'CUSTOM_STATUS',
+        },
+
+        status: 'invisible',
+    });
+
+    console.log(`Atualizando.`);
+});
+
 process.on('unhandledRejection', async (e, promise) => {
     console.error(e);
     adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
