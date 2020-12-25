@@ -32,7 +32,7 @@ export const langs = {
  *
  * @param {string} key
  * @param {string} lang
- * @param {Object<string, string>} [params=null]
+ * @param {Object<string, string>} [params={}]
  */
 export default function getLocalizedString(key, lang, params = {}) {
     if (!(key in langs[lang])) {
@@ -40,8 +40,8 @@ export default function getLocalizedString(key, lang, params = {}) {
     }
 
     // Set all params keys to the "this" instance, so eval can catch them.
-    for (const key in params) {
-        this[key] = params[key];
+    for (const k in params) {
+        this[k] = params[k];
     }
 
     return eval(langs[lang][key]);

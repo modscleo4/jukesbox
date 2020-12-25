@@ -156,7 +156,7 @@ async function findOnYT(song) {
     const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
     const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
         console.error(e);
-        return null;
+        return [null];
     }))[0];
 
     if (!songInfo) {
