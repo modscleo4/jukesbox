@@ -26,8 +26,8 @@ dotenv.config();
 
 export const database_url = process.env.DATABASE_URL;
 export const prefix = process.env.PREFIX;
-export const highWaterMark = parseInt(process.env.HIGH_WATER_MARK);
-export const dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE);
+export const highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
+export const dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
 export const token = process.env.TOKEN;
 export const ytapikey = process.env.YTAPIKEY;
 export const scclientID = process.env.SCCLIENTID;

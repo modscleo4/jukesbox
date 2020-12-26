@@ -46,8 +46,7 @@ export default new Command({
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            await message.channel.send('Tá limpo vei.');
-            return null;
+            return await message.channel.send('Tá limpo vei.');
         }
 
         return await message.channel.send(new MessageEmbed({

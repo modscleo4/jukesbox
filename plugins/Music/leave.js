@@ -51,7 +51,7 @@ export default new Command({
             serverQueue.playing = false;
         }
 
-        await voiceChannel.leave();
+        voiceChannel.leave();
         await message.channel.send('Sai Minerva filha da puta.');
     },
 });

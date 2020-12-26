@@ -55,6 +55,9 @@ export default new Command({
 
         await this.checkPermissions(message);
 
+        /**
+         * @type {'video'|'playlist'}
+         */
         let kind = 'video';
         switch (args[0]) {
             case '/playlist':

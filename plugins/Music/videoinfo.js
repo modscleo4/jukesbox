@@ -52,7 +52,7 @@ export default new Command({
             part: ['id', 'snippet', 'contentDetails', 'statistics'],
         }).catch(e => {
             console.error(e);
-            return null;
+            return [null];
         }))[0];
 
         if (!songInfo) {

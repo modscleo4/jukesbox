@@ -27,7 +27,14 @@ import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue, serverConfig} from "../../global.js";
 import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikey} from "../../config.js";
-import {getPlaylistItems, getSpotifyPlaylistItems, isAsync, isValidHttpURL, searchVideo, videoInfo} from "../../lib/utils.js";
+import {
+    getPlaylistItems,
+    getSpotifyPlaylistItems,
+    isAsync,
+    isValidHttpURL,
+    searchVideo,
+    videoInfo
+} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import Song from "../../lib/Song.js";
@@ -74,7 +81,7 @@ async function playSong(message) {
         if (!found) {
             serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
             serverQueue.songs.shift();
-            await playSong(message);
+            return await playSong(message);
         }
 
         serverQueue.song = found;
@@ -129,7 +136,7 @@ async function playSong(message) {
     }
 
     serverQueue.seek = null;
-    serverQueue.toDelete = await nowplaying.fn(message);
+    serverQueue.toDelete = await nowplaying.fn(message, ['']);
 }
 
 /**
@@ -146,7 +153,7 @@ async function findOnYT(song) {
         videoEmbeddable: true,
     }).catch(e => {
         console.error(e);
-        return null;
+        return [null];
     }))[0] ?? {url: null}).url;
 
     if (!url) {
@@ -217,6 +224,9 @@ export default new Command({
 
         await this.checkPermissions(message);
 
+        /**
+         * @type {'video'|'playlist'}
+         */
         let kind = 'video';
         switch (args[0]) {
             case '/playlist':
@@ -367,11 +377,16 @@ export default new Command({
             songs.push(song);
         } else if (url.match(/spotify.com\/playlist\/[^?#]+/gmu)) {
             const playlistId = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups.PlaylistId;
-            (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
+            const plsongs = (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
                 console.error(e);
-                await message.channel.send('Eu não consigo clicar velho.');
                 return [];
-            })).forEach(plSong => {
+            }));
+
+            if (!plsongs) {
+                return await message.channel.send('Eu não consigo clicar velho.');
+            }
+
+            plsongs.forEach(plSong => {
                 const song = new Song({
                     title: plSong.name,
                     uploader: plSong.artists,
