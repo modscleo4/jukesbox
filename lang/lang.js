@@ -41,8 +41,8 @@ export default function getLocalizedString(key, lang, params = {}) {
 
     // Set all params keys to the "this" instance, so eval can catch them.
     for (const k in params) {
-        this[k] = params[k];
+        globalThis[k] = params[k];
     }
 
-    return eval(langs[lang][key]);
+    return eval(langs[lang][key]).replace(/,,,/gmu, '`');
 }

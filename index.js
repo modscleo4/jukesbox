@@ -93,7 +93,7 @@ client.on('message', async message => {
 
         // DM User if the bot cannot send Messages in the Text Channel
         if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-            return await message.author.send(getLocalizedString('permission_SEND_MESSAGES', sc?.lang ?? 'pt_BR'));
+            return await message.author.send(getLocalizedString('permission.SEND_MESSAGES', sc?.lang ?? 'pt_BR'));
         }
 
         await command.fn(message, args).catch(async e => {

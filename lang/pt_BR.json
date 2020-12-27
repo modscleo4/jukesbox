@@ -1,6 +1,6 @@
 {
-  "permission_SEND_MESSAGES": "`Me deixa falar! (Permissão `SEND_MESSAGES` no Canal de Texto)`",
+  "permission.SEND_MESSAGES": "`Me deixa falar! (Permissão ,,,SEND_MESSAGES,,, no Canal de Texto)`",
   "unhandledException": "`Deu ruim aqui lek.`",
-  "insufficientBotPermissions": "`ME AJUDA. (`${e.message}`)`",
-  "insufficientUserPermissions": "`Coé rapaz tá doidão? (`${e.message}`)`"
+  "insufficientBotPermissions": "`ME AJUDA. (,,,${permission},,,)`",
+  "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`"
 }

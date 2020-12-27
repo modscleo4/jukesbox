@@ -32,6 +32,8 @@ export default new Command({
     },
     usage: 'leave',
 
+    alias: ['leave'],
+
     /**
      *
      * @param {Message} message
