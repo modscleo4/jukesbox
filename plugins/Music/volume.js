@@ -25,7 +25,7 @@ import {database_url, prefix} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
-import getLocalizedString from "../../lang/lang.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -49,7 +49,7 @@ export default new Command({
         const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
 
         if (args.length === 0) {
-            return await message.channel.send(`Volume: ${sc.volume}`);
+            return await message.channel.send(i18n('music.volume.volume', sc?.lang, {volume: sc.volume}));
         }
 
         await this.checkPermissions(message);
@@ -68,6 +68,6 @@ export default new Command({
         serverConfig.set(message.guild.id, sc);
         await sc.save(database_url);
 
-        return await message.channel.send('Aumenta essa porra aí.');
+        return await message.channel.send(i18n('music.volume.success', sc?.lang));
     },
 });

@@ -27,7 +27,8 @@ import {searchVideo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import play from "./play.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -47,11 +48,9 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const voiceChannel = message.member.voice.channel;
+        const sc = serverConfig.get(message.guild.id);
 
-        if (!voiceChannel) {
-            return await message.channel.send(`Tá solo né filha da puta.`);
-        }
+        await this.checkVoiceChannel(message);
 
         await this.checkPermissions(message);
 
@@ -75,7 +74,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return await message.channel.send('Sem meu link eu não consigo.');
+            return await message.channel.send(i18n('music.search.noArgs', sc?.lang));
         }
 
         const results = await searchVideo(args.join(' '), {
@@ -88,7 +87,7 @@ export default new Command({
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
         const msg = await message.channel.send(new MessageEmbed({
-            title: 'Achei isso aqui lek',
+            title: i18n('music.search.embedTitle', sc?.lang),
             author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
             description: results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n'),

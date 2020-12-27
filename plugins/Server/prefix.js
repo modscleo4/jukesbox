@@ -23,9 +23,9 @@
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
-import {database_url, prefix as Prefix} from "../../config.js";
+import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
-import getLocalizedString from "../../lang/lang.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -34,7 +34,7 @@ export default new Command({
     },
     usage: 'setprefix [prefix]',
 
-    botPermissions: {
+    userPermissions: {
         server: ['MANAGE_GUILD'],
     },
 
@@ -45,10 +45,10 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix: Prefix});
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
 
         if (args.length === 0) {
-            return await message.channel.send(`Prefixo: \`${sc.prefix}\`.`);
+            return await message.channel.send(i18n('server.prefix.prefix', sc?.lang, {prefix: sc.prefix}));
         }
 
         await this.checkPermissions(message);
@@ -57,6 +57,6 @@ export default new Command({
         serverConfig.set(message.guild.id, sc);
         await sc.save(database_url);
 
-        return await message.channel.send(`Prefixo alterado para \`${args[0]}\`.`);
+        return await message.channel.send(i18n('server.prefix.success', sc?.lang, {prefix: args[0]}));
     },
 });

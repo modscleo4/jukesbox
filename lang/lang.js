@@ -24,25 +24,40 @@ import en_US from "./en_US.json";
 import pt_BR from "./pt_BR.json";
 
 export const langs = {
-    //en_US,
+    en_US,
     pt_BR,
+}
+
+/**
+ * 
+ * @param {Object<string, Object<string, Object<string, string>>|string>} obj
+ * @param {string} path
+ * 
+ * @return {string|undefined}
+ * 
+ * @see https://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
+ */
+function resolve(obj, path) {
+    return path.split('.').reduce((prev, curr) => prev ? prev[curr] : undefined, obj);
 }
 
 /**
  *
  * @param {string} key
- * @param {string} lang
- * @param {Object<string, string>} [params={}]
+ * @param {string} [lang='pt_BR']
+ * @param {Object<string, *>} [params={}]
  */
-export default function getLocalizedString(key, lang, params = {}) {
-    if (!(key in langs[lang])) {
+export default function i18n(key, lang = 'pt_BR', params = {}) {
+    const str = resolve(langs[lang], key);
+
+    if (!str) {
         throw new ReferenceError('Invalid key.');
     }
 
-    // Set all params keys to the "this" instance, so eval can catch them.
+    // Set all params keys to the "globalThis" instance, so eval can catch them.
     for (const k in params) {
         globalThis[k] = params[k];
     }
 
-    return eval(langs[lang][key]).replace(/,,,/gmu, '`');
+    return eval(str).replace(/,,,/gmu, '`');
 }

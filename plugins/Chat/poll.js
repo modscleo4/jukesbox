@@ -24,14 +24,15 @@ import {MessageEmbed} from "discord.js";
 
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
         en_US: 'Create a poll (max. of 10 items). They must be between `""`.',
         pt_BR: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
     },
-    usage: 'poll [n1] [n2] ... [n10]',
+    usage: 'poll /title{[title]} [n1] [n2] ... [n10]',
 
     /**
      *
@@ -40,9 +41,11 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         const titleI = args.findIndex(a => /\/title{[^}]+}/gmi.test(a));
         if (titleI === -1) {
-            return await message.channel.send('Informe o título da enquete.');
+            return await message.channel.send(i18n('chat.poll.missingTitle', sc?.lang));
         }
 
         const title = /\/title{(?<Title>[^}]+)}/gmi.exec(args[titleI]).groups.Title;

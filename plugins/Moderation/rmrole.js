@@ -22,7 +22,8 @@
 
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -46,14 +47,16 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         await this.checkPermissions(message);
 
-        if (!args[0].match(/\d+/gm)) {
-            return await message.channel.send('Informe o @membro.');
+        if (!args[0]?.match(/\d+/gm)) {
+            return await message.channel.send(i18n('mod.rmrole.missingUser', sc?.lang));
         }
 
         if (args.length < 2) {
-            return await message.channel.send('Informe um cargo.');
+            return await message.channel.send(i18n('mod.rmrole.missingRole', sc?.lang));
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
@@ -61,18 +64,18 @@ export default new Command({
         const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
 
         if (!guildMember) {
-            return await message.channel.send('Usuário inválido.');
+            return await message.channel.send(i18n('mod.rmrole.invalidUser', sc?.lang));
         }
 
         if (roles.includes(undefined)) {
-            return await message.channel.send(`Cargo \`${args[roles.indexOf(undefined)]}\` não encontrado.`);
+            return await message.channel.send(i18n('mod.rmrole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]}));
         }
 
         if (roles.find(r => !r.editable)) {
-            return message.channel.send(`A Role \`${roles.find(r => !r.editable).name}\` é muito potente.`);
+            return message.channel.send(i18n('mod.rmrole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name}));
         }
 
         await guildMember.roles.remove(roles);
-        await message.channel.send('Cargos removidos.');
+        await message.channel.send(i18n('mod.rmrole.success', sc?.lang));
     },
 });

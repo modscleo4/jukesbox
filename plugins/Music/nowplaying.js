@@ -26,7 +26,8 @@ import {queue} from "../../global.js";
 import {parseMS} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -43,14 +44,15 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send('Tá limpo vei.');
+            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         return await message.channel.send(new MessageEmbed({
-            title: 'Que porra de música é essa que tá tocando caraio!',
+            title: i18n('music.nowplaying.embedTitle', sc?.lang),
             url: serverQueue.song.url,
             author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
             color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
@@ -58,9 +60,9 @@ export default new Command({
             thumbnail: {url: serverQueue.song.thumbnail},
             description: serverQueue.song.title,
             fields: [
-                {name: 'Canal', value: serverQueue.song.uploader},
-                {name: 'Posição na fila', value: serverQueue.position + 1, inline: true},
-                {name: 'Duração', value: parseMS(serverQueue.song.duration * 1000), inline: true},
+                {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
+                {name: i18n('music.nowplaying.queuePos', sc?.lang), value: serverQueue.position + 1, inline: true},
+                {name: i18n('music.nowplaying.duration', sc?.lang), value: parseMS(serverQueue.song.duration * 1000), inline: true},
             ],
         }));
     },

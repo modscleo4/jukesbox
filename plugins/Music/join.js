@@ -24,7 +24,8 @@ import {MessageEmbed} from "discord.js";
 
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -43,23 +44,21 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
-        const voiceChannel = message.member.voice.channel;
+        const sc = serverConfig.get(message.guild.id);
 
-        if (!voiceChannel) {
-            return await message.channel.send(`Tá solo né filha da puta.`);
-        }
+        await this.checkVoiceChannel(message);
 
         await this.checkPermissions(message);
 
-        await voiceChannel.join();
+        await message.member.voice.channel.join();
         return await message.channel.send(new MessageEmbed({
-            title: 'Salve salve Yodinha!',
+            title: i18n('music.join.embedTitle', sc?.lang),
             author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
-            description: 'Conectado a um canal de voz',
+            description: i18n('music.join.embedDescription', sc?.lang),
             fields: [
-                {name: 'Canal de voz', value: voiceChannel.name, inline: true},
-                {name: 'Canal de texto', value: message.channel.name, inline: true}
+                {name: i18n('music.join.voiceChannel', sc?.lang), value: message.member.voice.channel.name, inline: true},
+                {name: i18n('music.join.textChannel', sc?.lang), value: message.channel.name, inline: true}
             ],
         }));
     },

@@ -26,7 +26,8 @@ import {ytapikey} from "../../config.js";
 import {cutUntil, isValidHttpURL, parseMS, videoInfo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -42,8 +43,10 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-            return await message.channel.send('URL inválida.');
+            return await message.channel.send(i18n('music.videoinfo.invalidURL', sc?.lang));
         }
 
         const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
@@ -56,23 +59,23 @@ export default new Command({
         }))[0];
 
         if (!songInfo) {
-            return await message.channel.send('Eu não consigo clicar velho.');
+            return await message.channel.send(i18n('music.videoinfo.error', sc?.lang));
         }
 
         return await message.channel.send(new MessageEmbed({
-            title: 'Informações do vídeo',
+            title: i18n('music.videoinfo.embedTitle', sc?.lang),
             url: songInfo.url,
             author: {name: message.author.username, iconURL: message.author.avatarURL()},
             timestamp: new Date(),
             thumbnail: {url: songInfo.snippet.thumbnails.high.url},
             description: songInfo.snippet.title,
             fields: [
-                {name: 'Canal', value: songInfo.snippet.channelTitle, inline: true},
-                {name: 'Duração', value: parseMS(songInfo.duration * 1000), inline: true},
-                {name: 'Descrição', value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
-                {name: '👁‍ Views', value: songInfo.statistics.viewCount, inline: true},
-                {name: '👍 Likes', value: songInfo.statistics.likeCount, inline: true},
-                {name: '👎 Dislikes', value: songInfo.statistics.dislikeCount, inline: true},
+                {name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true},
+                {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000), inline: true},
+                {name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
+                {name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true},
+                {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
+                {name: i18n('music.videoinfo.dislikes', sc?.lang), value: songInfo.statistics.dislikeCount, inline: true},
             ],
         }));
     },

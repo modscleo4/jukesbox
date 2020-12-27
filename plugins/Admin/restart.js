@@ -23,7 +23,8 @@
 import {adminID} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -39,7 +40,9 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
-        await message.channel.send('F');
+        const sc = serverConfig.get(message.guild.id);
+
+        await message.channel.send(i18n('admin.restart.restarting', sc?.lang));
         process.exit(0);
     },
 });

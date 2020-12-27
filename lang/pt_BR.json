@@ -1,6 +1,169 @@
 {
-  "permission.SEND_MESSAGES": "`Me deixa falar! (Permissão ,,,SEND_MESSAGES,,, no Canal de Texto)`",
-  "unhandledException": "`Deu ruim aqui lek.`",
+  "permission": {
+    "SEND_MESSAGES": "`Me deixa falar! (Permissão ,,,SEND_MESSAGES,,, no Canal de Texto)`"
+  },
+  "unhandledException": "'Deu ruim aqui lek.'",
   "insufficientBotPermissions": "`ME AJUDA. (,,,${permission},,,)`",
-  "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`"
+  "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`",
+  "noVoiceChannel": "'Tá solo né filha da puta.'",
+  "admin": {
+    "botinfo": {
+      "serverID": "`ID: ${id}`",
+      "serverName": "`Servidor: ${server}`",
+      "id": "ID",
+      "servers": "'Servidores'",
+      "voiceChannels": "'Canais de voz'",
+      "uptime": "'Uptime'",
+      "uuid": "'UUID'",
+      "server": "'Servidor'",
+      "ping": "'Ping'",
+      "playingIn": "'Tocando em'",
+      "ram": "'RAM'",
+      "platform": "'Plataforma'",
+      "nServers": "`${n} servidor(es)`"
+    },
+    "restart": {
+      "restarting": "'F'"
+    }
+  },
+  "chat": {
+    "clear": {
+      "deletedN": "`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`"
+    },
+    "poll": {
+      "missingTitle": "'Informe o título da enquete.'"
+    }
+  },
+  "help": {
+    "help": {
+      "longDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.\n\nDigite ,,,${serverPrefix}help [comando1] [comando2],,, para obter ajuda de um ou mais comandos em específico.`",
+      "shortDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.`",
+      "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Uso**: ${command.usage}\n`",
+      "alias": "`\n**Alias**: ${aliases}`",
+      "botPermissions": "`\n**Permissões do bot**: ${botPermissions}`",
+      "userPermissions": "`\n**Permissões do usuário**: ${userPermissions}`",
+      "embedTitle": "'ME AJUDA!'",
+      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.alias.length > 0 ? `\nAlias: ${alias}` : '')"
+    }
+  },
+  "mod": {
+    "giverole": {
+      "missingUser": "'Informe o @membro.'",
+      "missingRole": "'Informe um cargo.'",
+      "invalidUser": "'Usuário inválido.'",
+      "invalidRole": "`Cargo ,,,${role},,, não encontrado.`",
+      "nonEditableRole": "`A Role ,,,${role},,, é muito potente.`",
+      "success": "`Cargos adicionados ao usuário <@!${user}>.`"
+    },
+    "rmrole": {
+      "missingUser": "'Informe o @membro.'",
+      "missingRole": "'Informe um cargo.'",
+      "invalidUser": "'Usuário inválido.'",
+      "invalidRole": "`Cargo ,,,${role},,, não encontrado.`",
+      "nonEditableRole": "`A Role ,,,${role},,, é muito potente.`",
+      "success": "'Cargos removidos.'"
+    },
+    "userinfo": {
+      "missingUser": "'Informe o @membro.'",
+      "invalidUser": "'Usuário inválido.'",
+      "username#tag": "'usuário#tag'",
+      "uuid": "'UUID'",
+      "roles": "'Cargos'",
+      "joined": "'Entrou'",
+      "bot": "'Bot'",
+      "yes": "'Sim'",
+      "no": "'Não'"
+    }
+  },
+  "music": {
+    "queueEmpty": "'Tá limpo vei.'",
+    "join": {
+      "embedTitle": "'Salve salve Yodinha!'",
+      "embedDescription": "'Conectado a um canal de voz'",
+      "voiceChannel": "'Canal de voz'",
+      "textChannel": "'Canal de texto'"
+    },
+    "leave": {
+      "success": "'Sai Minerva filha da puta.'"
+    },
+    "search": {
+      "noArgs": "'Sem meus argumentos eu não consigo.'",
+      "embedTitle": "'Achei isso aqui lek'"
+    },
+    "videoinfo": {
+      "invalidURL": "'URL inválida.'",
+      "error": "'Eu não consigo clicar velho.'",
+      "embedTitle": "'Informações do vídeo'",
+      "channel": "'Canal'",
+      "duration": "'Duração'",
+      "description": "'Descrição'",
+      "views": "'👁‍ Views'",
+      "likes": "'👍 Likes'",
+      "dislikes": "'👎 Dislikes'"
+    },
+    "play": {
+      "noLink": "'Sem meu link eu não consigo.'",
+      "nothingFound": "'Achei nada lesk.'",
+      "youtubeMix": "'Coé lek YouTube Mix é mole.'",
+      "error": "'Eu não consigo clicar velho.'",
+      "playingOne": "`**${songTitle}** tá na fila, posição ${position}.`",
+      "playingMany": "`${n} músicas na fila.`",
+      "searchingYT": "'Procurando no YouTube...'",
+      "errorEmbedTitle": "'Eu não consigo clicar velho.'",
+      "errorEmbedDescription": "`Erro: ${e.message}\n\nVídeo: **${song.title}** (${song.url})`"
+    },
+    "nowplaying": {
+      "embedTitle": "'Que porra de música é essa que tá tocando caraio!'",
+      "channel": "'Canal'",
+      "queuePos": "'Posição na fila'",
+      "duration": "'Duração'"
+    },
+    "pause": {
+      "alreadyPaused": "'Já tá pausado lek.'",
+      "success": "'Vai gankar quem caralho.'"
+    },
+    "resume": {
+      "alreadyPlaying": "'Já tá tocando lek.'",
+      "success": "'Solta o filha da puta pra eu da um tiro na cabeça dele.'"
+    },
+    "seek": {
+      "noTime": "'Sem meu tempo eu não consigo.'"
+    },
+    "stop": {
+      "success": "'Caralho filha da puta morre logo.'"
+    },
+    "skip": {
+      "success": "'Pode passar jovi.'"
+    },
+    "loop": {
+      "successOn": "'Ah Yoda vai toma no cu caraio 2 vezes seguidas.'",
+      "successOff": "'Tu cancelou o auto ataque vei.'"
+    },
+    "shuffle": {
+      "successOn": "'Tu vai jogar igual um Deus brother, igual o Faker... Opa.'",
+      "successOff": "'Voltamos ao assunto, quer jogar igual o Faker...'"
+    },
+    "remove": {
+      "success": "'Cospe esse filha da puta porra.'"
+    },
+    "volume": {
+      "volume": "`Volume: ${volume}`",
+      "success": "'Aumenta essa porra aí.'"
+    },
+    "queue": {
+      "embedTitle": "'Fila tá assim lek'"
+    }
+  },
+  "server": {
+    "prefix": {
+      "prefix": "`Prefixo: ,,,${prefix},,,.`",
+      "success": "`Prefixo alterado para ,,,${prefix},,,.`"
+    },
+    "lang": {
+      "lang": "`Idioma: ,,,${lang},,,.`",
+      "unknownLang": "'Não falo em língua estranha.'",
+      "success": "`Idioma alterado para ,,,${lang},,,.`"
+    }
+  }
 }

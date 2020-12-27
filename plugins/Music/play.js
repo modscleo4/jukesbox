@@ -41,7 +41,7 @@ import Song from "../../lib/Song.js";
 import ServerQueue from "../../lib/ServerQueue.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import nowplaying from "./nowplaying.js";
-import getLocalizedString from "../../lang/lang.js";
+import i18n from "../../lang/lang.js";
 
 const scdl = _scdl.default;
 
@@ -57,6 +57,7 @@ const spotifyAPI = new SpotifyWebAPI({
  * @return {Promise<*>}
  */
 async function playSong(message) {
+    const sc = serverConfig.get(message.guild.id);
     const serverQueue = queue.get(message.guild.id);
 
     if (!serverQueue) {
@@ -72,14 +73,14 @@ async function playSong(message) {
     }
 
     if (serverQueue.song.findOnYT) {
-        const msg = await message.channel.send('Procurando no YouTube...');
+        const msg = await message.channel.send(i18n('music.play.searchingYT', sc?.lang));
         const found = await findOnYT(serverQueue.song);
         await msg.delete().catch(() => {
 
         });
 
         if (!found) {
-            serverQueue.toDelete = await message.channel.send('Achei nada lesk.');
+            serverQueue.toDelete = await message.channel.send(i18n('music.play.nothingFound', sc?.lang));
             serverQueue.songs.shift();
             return await playSong(message);
         }
@@ -114,10 +115,10 @@ async function playSong(message) {
         console.error(e);
 
         await message.channel.send(new MessageEmbed({
-            title: 'Eu não consigo clicar velho.',
+            title: i18n('music.play.errorEmbedTitle', sc?.lang),
             author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
             timestamp: new Date(),
-            description: `Erro: ${e.message}\n\nVídeo: **${serverQueue.song.title}** (${serverQueue.song.url})`,
+            description: i18n('music.play.errorEmbedDescription', sc?.lang, {e, song: serverQueue.song}),
         }));
 
         serverQueue.songs.shift();
@@ -126,7 +127,7 @@ async function playSong(message) {
 
     if (!serverQueue.connection.dispatcher) {
         await message.channel.send(new MessageEmbed({
-            title: 'Eu não consigo clicar velho.',
+            title: i18n('music.play.errorEmbedTitle', sc?.lang),
             author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
             timestamp: new Date(),
         }));
@@ -215,12 +216,10 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const voiceChannel = message.member.voice.channel;
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
         const serverQueue = queue.get(message.guild.id);
 
-        if (!voiceChannel) {
-            return await message.channel.send(`Tá solo né filha da puta.`);
-        }
+        await this.checkVoiceChannel(message);
 
         await this.checkPermissions(message);
 
@@ -244,7 +243,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return await message.channel.send('Sem meu link eu não consigo.');
+            return await message.channel.send(i18n('music.play.noLink', sc?.lang));
         }
 
         const songs = [];
@@ -257,14 +256,14 @@ export default new Command({
         }))[0] ?? {url: null}).url;
 
         if (!url) {
-            return await message.channel.send('Achei nada lesk.');
+            return await message.channel.send(i18n('music.play.nothingFound', sc?.lang));
         }
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
             if (url.match(/([&?])list=[^&#]+/gmu)) {
                 const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
                 if (!playlistId.startsWith('PL')) {
-                    return await message.channel.send('Coé lek YouTube Mix é mole.');
+                    return await message.channel.send(i18n('music.play.youtubeMix', sc?.lang));
                 }
 
                 const plsongs = await getPlaylistItems(playlistId, {
@@ -275,7 +274,7 @@ export default new Command({
                 });
 
                 if (!plsongs) {
-                    return await message.channel.send('Eu não consigo clicar velho.');
+                    return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
                 const songsInfo = await videoInfo(plsongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey}).catch(e => {
@@ -284,7 +283,7 @@ export default new Command({
                 });
 
                 if (!songsInfo) {
-                    return await message.channel.send('Eu não consigo clicar velho.');
+                    return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
                 songsInfo.forEach(songInfo => {
@@ -322,7 +321,7 @@ export default new Command({
                 }))[0];
 
                 if (!songInfo) {
-                    return await message.channel.send('Eu não consigo clicar velho.');
+                    return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
                 const song = new Song({
@@ -359,7 +358,7 @@ export default new Command({
             });
 
             if (!songInfo) {
-                return await message.channel.send('Eu não consigo clicar velho.');
+                return await message.channel.send(i18n('music.play.error', sc?.lang));
             }
 
             const song = new Song({
@@ -379,11 +378,11 @@ export default new Command({
             const playlistId = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups.PlaylistId;
             const plsongs = (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
                 console.error(e);
-                return [];
+                return null;
             }));
 
             if (!plsongs) {
-                return await message.channel.send('Eu não consigo clicar velho.');
+                return await message.channel.send(i18n('music.play.error', sc?.lang));
             }
 
             plsongs.forEach(plSong => {
@@ -398,17 +397,16 @@ export default new Command({
                 songs.push(song);
             });
         } else {
-            return await message.channel.send('Eu não consigo clicar velho.');
+            return await message.channel.send(i18n('music.play.error', sc?.lang));
         }
 
         if (!serverQueue) {
-            const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
             const q = new ServerQueue({songs, volume: sc.volume});
 
             queue.set(message.guild.id, q);
 
             try {
-                q.connection = await voiceChannel.join();
+                q.connection = await message.member.voice.channel.join();
                 q.connection.on('disconnect', async () => {
                     await q.deletePending();
                     queue.delete(message.guild.id);
@@ -418,15 +416,15 @@ export default new Command({
             } catch (err) {
                 console.error(err);
                 queue.delete(message.guild.id);
-                return await message.channel.send('Eu não consigo clicar velho.');
+                return await message.channel.send(i18n('music.play.error', sc?.lang));
             }
         } else {
             serverQueue.songs = serverQueue.songs.concat(songs);
             if (songs.length === 1) {
-                return await message.channel.send(`**${songs[0].title}** tá na fila, posição ${serverQueue.songs.length}.`);
+                return await message.channel.send(i18n('music.play.playingOne', sc?.lang, {songTitle: songs[0].title, position: serverQueue.songs.length}));
             }
 
-            return await message.channel.send(`${songs.length} músicas na fila.`);
+            return await message.channel.send(i18n('music.play.playingMany', sc?.lang, {n: songs.length}));
         }
     },
 });

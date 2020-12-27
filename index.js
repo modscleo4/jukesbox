@@ -26,7 +26,8 @@ import {adminID, database_url, prefix, token} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
-import getLocalizedString from "./lang/lang.js";
+import i18n from "./lang/lang.js";
+import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
@@ -93,21 +94,25 @@ client.on('message', async message => {
 
         // DM User if the bot cannot send Messages in the Text Channel
         if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-            return await message.author.send(getLocalizedString('permission.SEND_MESSAGES', sc?.lang ?? 'pt_BR'));
+            return await message.author.send(i18n('permission.SEND_MESSAGES', sc?.lang));
         }
 
         await command.fn(message, args).catch(async e => {
             if (e instanceof InsufficientBotPermissionsError) {
-                return await message.channel.send(getLocalizedString('insufficientBotPermissions', sc?.lang ?? 'pt_BR', {permission: e.message}));
+                return await message.channel.send(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
             }
 
             if (e instanceof InsufficientUserPermissionsError) {
-                return await message.channel.send(getLocalizedString('insufficientUserPermissions', sc?.lang ?? 'pt_BR', {permission: e.message}));
+                return await message.channel.send(i18n('insufficientUserPermissions', sc?.lang, {permission: e.message}));
+            }
+
+            if (e instanceof NoVoiceChannelError) {
+                return await message.channel.send(i18n('noVoiceChannel', sc?.lang));
             }
 
             console.error(e);
             adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
-            await message.channel.send(getLocalizedString('unhandledException', sc?.lang ?? 'pt_BR')).catch(() => {
+            await message.channel.send(i18n('unhandledException', sc?.lang)).catch(() => {
 
             });
         });
@@ -126,7 +131,7 @@ process.on('SIGTERM', async () => {
             type: 'CUSTOM_STATUS',
         },
 
-        status: 'invisible',
+        status: 'dnd',
     });
 
     console.log(`Atualizando.`);

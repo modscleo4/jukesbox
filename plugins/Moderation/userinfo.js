@@ -24,7 +24,8 @@ import {MessageEmbed} from "discord.js";
 
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 
 export default new Command({
@@ -41,15 +42,17 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         if (!args[0].match(/\d+/gm)) {
-            return await message.channel.send('Informe o @membro.');
+            return await message.channel.send(i18n('mod.userinfo.misingUser', sc?.lang));
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
         const guildMember = message.guild.member(userID);
 
         if (!guildMember) {
-            return await message.channel.send('Usuário inválido.');
+            return await message.channel.send(i18n('mod.userinfo.invalidUser', sc?.lang));
         }
 
         return await message.channel.send(new MessageEmbed({
@@ -59,11 +62,11 @@ export default new Command({
             timestamp: new Date(),
             thumbnail: {url: guildMember.user.avatarURL()},
             fields: [
-                {name: 'username#tag', value: guildMember.user.tag, inline: true},
-                {name: 'ID', value: guildMember.id, inline: true},
-                {name: 'Cargos', value: guildMember.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
+                {name: i18n('mod.userinfo.username#tag', sc?.lang), value: guildMember.user.tag, inline: true},
+                {name: i18n('mod.userinfo.uuid', sc?.lang), value: guildMember.id, inline: true},
+                {name: i18n('mod.userinfo.roles', sc?.lang), value: guildMember.roles.cache.map(r => `\`${r.name}\``).join(' '), inline: false},
                 {
-                    name: 'Entrou',
+                    name: i18n('mod.userinfo.joined', sc?.lang),
                     value: new Intl.DateTimeFormat('pt-br', {
                         year: "numeric",
                         month: "numeric",
@@ -73,7 +76,7 @@ export default new Command({
                     }).format(guildMember.joinedAt),
                     inline: true
                 },
-                {name: 'Bot', value: guildMember.user.bot ? 'Sim' : 'Não', inline: true}
+                {name: i18n('mod.userinfo.bot', sc?.lang), value: guildMember.user.bot ? i18n('mod.userinfo.yes', sc?.lang) : i18n('mod.userinfo.no', sc?.lang), inline: true}
             ],
         }));
     },

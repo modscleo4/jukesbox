@@ -23,7 +23,8 @@
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -39,14 +40,15 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send('Tá limpo vei.');
+            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         if (args.length === 0) {
-            return await message.channel.send('Sem meu tempo eu não consigo.');
+            return await message.channel.send(i18n('music.pause.noTime', sc?.lang));
         }
 
         let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;

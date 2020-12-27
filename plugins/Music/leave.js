@@ -23,7 +23,8 @@
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -40,12 +41,10 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
-        const voiceChannel = message.member.voice.channel;
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
-        if (!voiceChannel) {
-            return await message.channel.send(`Tá solo né filha da puta.`);
-        }
+        await this.checkVoiceChannel(message);
 
         if (serverQueue) {
             serverQueue.songs = [];
@@ -53,7 +52,7 @@ export default new Command({
             serverQueue.playing = false;
         }
 
-        voiceChannel.leave();
-        await message.channel.send('Sai Minerva filha da puta.');
+        message.member.voice.channel.leave();
+        await message.channel.send(i18n('music.leave.success', sc?.lang));
     },
 });

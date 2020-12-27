@@ -26,7 +26,7 @@ import {serverConfig} from "../../global.js";
 import {prefix} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -45,10 +45,7 @@ export default new Command({
         const sc = serverConfig.get(message.guild.id);
         const serverPrefix = sc?.prefix ?? prefix;
 
-        const description = `
-O prefixo deste servidor é \`${serverPrefix}\`.
-
-Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou mais comandos em específico.`;
+        const description = i18n('help.help.longDescription', sc?.lang, {serverPrefix});
 
         const commands = message.client.commands;
         const aliases = message.client.aliases;
@@ -56,28 +53,23 @@ Digite \`${serverPrefix}help [comando1] [comando2]\` para obter ajuda de um ou m
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
                 if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(message.author.id))) {
-                    return await message.channel.send(`Comando \`${args[i]}\` não encontrado.`);
+                    return await message.channel.send(i18n('help.help.commandNotFound', sc?.lang, {command: args[i]}));
                 }
             }
 
-            let desc = `
-O prefixo deste servidor é \`${serverPrefix}\`.`;
+            let desc = i18n('help.help.shortDescription', sc?.lang, {serverPrefix});
             for (let i = 0; i < args.length; i++) {
                 const command = commands[args[i]] ?? commands[aliases[args[i]]];
 
-                desc += `
+                desc += i18n('help.help.detailedHelp', sc?.lang, {serverPrefix, command, sc, cmd: args[i] in aliases ? aliases[args[i]] : args[i]});
 
-\`${serverPrefix}${args[i] in aliases ? aliases[args[i]] : args[i]}\`
-${command.description[sc?.lang ?? 'pt_BR']}
-**Uso**: ${command.usage}\n`;
-
-                command.alias.length > 0 && (desc += `\n**Alias**: ${command.alias.map(a => `\`${a}\``).join(', ')}`);
-                command.botPermissions && (desc += `\n**Permissões do bot**: ${[...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}`);
-                command.userPermissions && (desc += `\n**Permissões do usuário**: ${[...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}`);
+                command.alias.length > 0 && (desc += i18n('help.help.alias', sc?.lang, {aliases: command.alias.map(a => `\`${a}\``).join(', ')}));
+                command.botPermissions && (desc += i18n('help.help.botPermissions', sc?.lang, {botPermissions: [...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
+                command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, {userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
             }
 
             return await message.channel.send(new MessageEmbed({
-                title: 'ME AJUDA!',
+                title: i18n('help.help.embedTitle', sc?.lang),
                 description: desc,
                 author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
                 timestamp: new Date(),
@@ -96,7 +88,7 @@ ${command.description[sc?.lang ?? 'pt_BR']}
                     continue;
                 }
 
-                c.value += `**${serverPrefix}${cmd}**: ` + command.description[sc?.lang ?? 'pt_BR'] + (command.alias.length > 0 ? `\nAlias: ${command.alias.map(a => `\`${a}\``).join(', ')}` : '') + '\n';
+                c.value += i18n('help.help.shortHelp', sc?.lang, {serverPrefix, cmd, command, sc, alias: command.alias.map(a => `,,,${a},,,`).join(', ')}) + '\n';
             }
 
             if (c.value.length > 0) {
@@ -109,7 +101,7 @@ ${command.description[sc?.lang ?? 'pt_BR']}
         });
 
         return await message.channel.send(new MessageEmbed({
-            title: 'ME AJUDA!',
+            title: i18n('help.help.embedTitle', sc?.lang),
             description,
             author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
             timestamp: new Date(),

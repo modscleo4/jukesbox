@@ -23,7 +23,8 @@
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 
 export default new Command({
@@ -39,23 +40,21 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
-        const voiceChannel = message.member.voice.channel;
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
-        if (!voiceChannel) {
-            return await message.channel.send('Tá solo né filha da puta.');
-        }
+        await this.checkVoiceChannel(message);
 
         if (!serverQueue) {
-            return await message.channel.send('Tá limpo vei.');
+            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         if (serverQueue.playing) {
-            return await message.channel.send('Já tá tocando lek.');
+            return await message.channel.send(i18n('music.resume.alreadyPlaying', sc?.lang));
         }
 
         serverQueue.connection.dispatcher.resume();
         serverQueue.playing = true;
-        return await message.channel.send(`Solta o filha da puta pra eu da um tiro na cabeça dele.`);
+        return await message.channel.send(i18n('music.resume.success', sc?.lang));
     },
 });

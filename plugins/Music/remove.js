@@ -24,7 +24,8 @@ import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import skip from "./skip.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -40,10 +41,11 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send('Tá limpo vei.');
+            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         let toRemove = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
@@ -57,6 +59,6 @@ export default new Command({
 
         serverQueue.songs.splice(toRemove, 1);
 
-        return await message.channel.send('Cospe esse filha da puta porra.');
+        return await message.channel.send(i18n('music.remove.success', sc?.lang));
     },
 });

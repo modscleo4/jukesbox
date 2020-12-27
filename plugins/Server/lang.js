@@ -23,9 +23,9 @@
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
-import {database_url, prefix as Prefix} from "../../config.js";
+import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
-import getLocalizedString, {langs} from "../../lang/lang.js";
+import i18n, {langs} from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -34,7 +34,7 @@ export default new Command({
     },
     usage: 'lang [lang_COUNTRY]',
 
-    botPermissions: {
+    userPermissions: {
         server: ['MANAGE_GUILD'],
     },
 
@@ -45,22 +45,22 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix: Prefix});
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
 
         if (args.length === 0) {
-            return await message.channel.send(`Qual o idioma lek?`);
+            return await message.channel.send(i18n('server.lang.lang', sc?.lang, {lang: sc.lang}));
         }
 
         await this.checkPermissions(message);
 
         if (!(args[0] in langs)) {
-            return await message.channel.send('Não falo em língua estranha.');
+            return await message.channel.send(i18n('server.lang.unknownLang', sc?.lang));
         }
 
         sc.lang = args[0];
         serverConfig.set(message.guild.id, sc);
         await sc.save(database_url);
 
-        return await message.channel.send(`Idioma alterado para \`${args[0]}\`.`);
+        return await message.channel.send(i18n('server.lang.success', sc?.lang, {lang: args[0]}));
     },
 });

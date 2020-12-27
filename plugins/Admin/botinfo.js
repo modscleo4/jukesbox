@@ -22,12 +22,12 @@
 
 import {MessageEmbed} from "discord.js";
 
-import {startupTime, queue} from "../../global.js";
+import {startupTime, queue, serverConfig} from "../../global.js";
 import {adminID} from "../../config.js";
 import {pageEmbed} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -44,23 +44,25 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         const subcommands = {
             async servers() {
                 const servers = message.client.guilds.cache.map(g => ({
                     name: g.name,
-                    value: `ID: ${g.id}`,
+                    value: i18n('admin.botinfo.serverID', sc?.lang, {id: g.id}),
                 }));
 
-                return await pageEmbed(message, {title: 'Servidores', content: servers});
+                return await pageEmbed(message, {title: i18n('admin.botinfo.servers', sc?.lang), content: servers});
             },
 
             async voicechannels() {
                 const voiceChannels = message.client.voice.connections.map(g => ({
                     name: g.channel.name,
-                    value: `Servidor: ${g.channel.guild.name}`,
+                    value: i18n('admin.botinfo.serverName', sc?.lang, {server: g.channel.guild.name}),
                 }));
 
-                return await pageEmbed(message, {title: 'Canais de voz', content: voiceChannels});
+                return await pageEmbed(message, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
             },
         };
 
@@ -73,15 +75,15 @@ export default new Command({
             author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
             timestamp: new Date(),
             fields: [
-                {name: 'Servidores', value: message.client.guilds.cache.size, inline: true},
-                {name: 'Canais de voz', value: message.client.voice.connections.size, inline: true},
-                {name: 'Uptime', value: `${((Date.now() - startupTime) / 1000).toFixed(0)} s`, inline: true},
-                {name: 'UID', value: message.client.user.id, inline: false},
-                {name: 'Servidor', value: message.guild.region, inline: true},
-                {name: 'Ping', value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
-                {name: 'Tocando em', value: `${queue.size} servidor(es)`, inline: true},
-                {name: 'RAM', value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
-                {name: 'Plataforma', value: process.platform, inline: true},
+                {name: i18n('admin.botinfo.servers', sc?.lang), value: message.client.guilds.cache.size, inline: true},
+                {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: message.client.voice.connections.size, inline: true},
+                {name: i18n('admin.botinfo.uptime', sc?.lang), value: `${((Date.now() - startupTime) / 1000).toFixed(0)} s`, inline: true},
+                {name: i18n('admin.botinfo.uuid', sc?.lang), value: message.client.user.id, inline: false},
+                {name: i18n('admin.botinfo.server', sc?.lang), value: message.guild.region, inline: true},
+                {name: i18n('admin.botinfo.ping', sc?.lang), value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},
+                {name: i18n('admin.botinfo.playingIn', sc?.lang), value: i18n('admin.botinfo.nServers', sc?.lang, {n: queue.size}), inline: true},
+                {name: i18n('admin.botinfo.ram', sc?.lang), value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
+                {name: i18n('admin.botinfo.platform', sc?.lang), value: process.platform, inline: true},
             ],
         }));
     }

@@ -22,7 +22,8 @@
 
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -45,6 +46,8 @@ export default new Command({
      * @param {string[]} args
      */
     async fn(message, args) {
+        const sc = serverConfig.get(message.guild.id);
+
         await this.checkPermissions(message);
 
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
@@ -56,10 +59,7 @@ export default new Command({
                 await message.channel.bulkDelete(100);
             }
         }).then(async () => {
-            await message.channel.send(`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`).then(async m => await m.delete({timeout: 1000}));
-        }).catch(async e => {
-            console.error(e);
-            await message.channel.send('Deu ruim aqui lek.');
+            await message.channel.send(i18n('chat.clear.deletedN', sc?.lang, {n})).then(async m => await m.delete({timeout: 1000}));
         });
     }
 });

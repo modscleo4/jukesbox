@@ -23,7 +23,8 @@
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
-import getLocalizedString from "../../lang/lang.js";
+import {serverConfig} from "../../global.js";
+import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
@@ -38,18 +39,19 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message) {
+        const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send('Tá limpo vei.');
+            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         serverQueue.shuffle = !serverQueue.shuffle;
 
         if (serverQueue.shuffle) {
-            return await message.channel.send(`Tu vai jogar igual um Deus brother, igual o Faker... Opa.`);
+            return await message.channel.send(i18n('music.shuffle.successOn', sc?.lang));
         } else {
-            return await message.channel.send(`Voltamos ao assunto, quer jogar igual o Faker...`);
+            return await message.channel.send(i18n('music.shuffle.successOff', sc?.lang));
         }
     },
 });
