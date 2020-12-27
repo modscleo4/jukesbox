@@ -1,169 +1,169 @@
 {
-    "permission": {
-        "SEND_MESSAGES": "`I need the ,,,SEND_MESSAGES,,, Permission on the Text Channel.`"
+  "permission": {
+    "SEND_MESSAGES": "`I need the ,,,SEND_MESSAGES,,, Permission on the Text Channel.`"
+  },
+  "unhandledException": "'Something went wrong...'",
+  "insufficientBotPermissions": "`I need the ,,,${permission},,, Permission to run this Command.`",
+  "insufficientUserPermissions": "`You need the ,,,${permission},,, Permission to run this Command.`",
+  "noVoiceChannel": "'Join a Voice Channel first.'",
+  "admin": {
+    "botinfo": {
+      "serverID": "`ID: ${id}`",
+      "serverName": "`Server: ${server}`",
+      "id": "ID",
+      "servers": "'Servers'",
+      "voiceChannels": "'Voice Channels'",
+      "uptime": "'Uptime'",
+      "uuid": "'UUID'",
+      "server": "'Server'",
+      "ping": "'Ping'",
+      "playingIn": "'Playing in'",
+      "ram": "'RAM'",
+      "platform": "'Platform'",
+      "nServers": "`${n} server(s)`"
     },
-    "unhandledException": "'Something went wrong...'",
-    "insufficientBotPermissions": "`I need the ,,,${permission},,, Permission to run this Command.`",
-    "insufficientUserPermissions": "`You need the ,,,${permission},,, Permission to run this Command.`",
-    "noVoiceChannel": "'Join a Voice Channel first.'",
-    "admin": {
-        "botinfo": {
-            "serverID": "`ID: ${id}`",
-            "serverName": "`Server: ${server}`",
-            "id": "ID",
-            "servers": "'Servers'",
-            "voiceChannels": "'Voice Channels'",
-            "uptime": "'Uptime'",
-            "uuid": "'UUID'",
-            "server": "'Server'",
-            "ping": "'Ping'",
-            "playingIn": "'Playing in'",
-            "ram": "'RAM'",
-            "platform": "'Platform'",
-            "nServers": "`${n} server(s)`"
-        },
-        "restart": {
-            "restarting": "'F'"
-        }
-    },
-    "chat": {
-        "clear": {
-            "deletedN": "`I deleted ${n} message${n > 1 ? 's' : ''}.`"
-        },
-        "poll": {
-            "missingTitle": "'Type the poll title with `/title{[title]}`.'"
-        }
-    },
-    "help": {
-        "help": {
-            "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [comando1] [comando2],,, to get help about one or more specific commands.`",
-            "shortDescription": "`The server prefix is ,,,${serverPrefix},,,.`",
-            "commandNotFound": "`Command ,,,${command},,, not found.`",
-            "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Usage**: ${command.usage}\n`",
-            "alias": "`\n**Alias**: ${aliases}`",
-            "botPermissions": "`\n**Bot Permissions**: ${botPermissions}`",
-            "userPermissions": "`\n**User Permissions**: ${userPermissions}`",
-            "embedTitle": "'Help'",
-            "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.alias.length > 0 ? `\nAlias: ${alias}` : '')"
-        }
-    },
-    "mod": {
-        "giverole": {
-            "missingUser": "'Inform the @member.'",
-            "missingRole": "'Inform a Role.'",
-            "invalidUser": "'Invalid User.'",
-            "invalidRole": "`Role ,,,${role},,, not found.`",
-            "nonEditableRole": "`I can't edit the Role ,,,${role},,,.`",
-            "success": "`The User <@!${user}> now has the provided Roles.`"
-        },
-        "rmrole": {
-            "missingUser": "'Inform the @member.'",
-            "missingRole": "'Inform a Role.'",
-            "invalidUser": "'Invalid User.'",
-            "invalidRole": "`Role ,,,${role},,, not found.`",
-            "nonEditableRole": "`I can't edit the Role ,,,${role},,,.`",
-            "success": "`The User <@!${user}> now doesn't have the provided Roles.`"
-        },
-        "userinfo": {
-            "missingUser": "'Inform the @member.'",
-            "invalidUser": "'Invalid User.'",
-            "username#tag": "'username#tag'",
-            "uuid": "'UUID'",
-            "roles": "'Roles'",
-            "joined": "'Joined at'",
-            "bot": "'Bot'",
-            "yes": "'Yes'",
-            "no": "'No'"
-        }
-    },
-    "music": {
-        "queueEmpty": "'The queue is empty.'",
-        "join": {
-            "embedTitle": "'Joined the Voice Channel'",
-            "embedDescription": "'I Connected to the following Voice Channel'",
-            "voiceChannel": "'Voice Channel'",
-            "textChannel": "'Text Channel'"
-        },
-        "leave": {
-            "success": "'I left the Voice Channel.'"
-        },
-        "search": {
-            "noArgs": "'Type the query string first.'",
-            "embedTitle": "'I found this on YouTube'"
-        },
-        "videoinfo": {
-            "invalidURL": "'Invalid URL.'",
-            "error": "'An error occoured.'",
-            "embedTitle": "'Video info'",
-            "channel": "'Channel'",
-            "duration": "'Duration'",
-            "description": "'Description'",
-            "views": "'👁‍ Views'",
-            "likes": "'👍 Likes'",
-            "dislikes": "'👎 Dislikes'"
-        },
-        "play": {
-            "noLink": "'Type the link first.'",
-            "nothingFound": "'I didn't find anything on YouTube.'",
-            "youtubeMix": "'I can't play YouTube Mix.'",
-            "error": "'An error occoured.'",
-            "playingOne": "`**${songTitle}** added to the queue, position ${position}.`",
-            "playingMany": "`${n} musics in queue.`",
-            "searchingYT": "'Searching on YouTube...'",
-            "errorEmbedTitle": "'An error occoured.'",
-            "errorEmbedDescription": "`Error: ${e.message}\n\nVideo: **${song.title}** (${song.url})`"
-        },
-        "nowplaying": {
-            "embedTitle": "'Currently playing:'",
-            "channel": "'Channel'",
-            "queuePos": "'Queue position'",
-            "duration": "'Duration'"
-        },
-        "pause": {
-            "alreadyPaused": "'The player is already paused.'",
-            "success": "'Successfully paused the player.'"
-        },
-        "resume": {
-            "alreadyPlaying": "'The player is already playing.'",
-            "success": "'Successfully resumed the player.'"
-        },
-        "seek": {
-            "noTime": "'Please provide the timestamp in seconds first.'"
-        },
-        "stop": {
-            "success": "'Successfully stopped the player and cleared the queue.'"
-        },
-        "skip": {
-            "success": "'Song skipped.'"
-        },
-        "loop": {
-            "successOn": "'Looping the current song.'",
-            "successOff": "'No longer looping the current song.'"
-        },
-        "shuffle": {
-            "successOn": "'Shuffled the queue.'",
-            "successOff": "'no longer playing the queue on shuffle.'"
-        },
-        "remove": {
-            "success": "'Successfully removed the song from the queue.'"
-        },
-        "volume": {
-            "volume": "`Volume: ${volume}`",
-            "success": "'Volume updated.'"
-        },
-        "queue": {
-            "embedTitle": "'Current queue'"
-        }
-    },
-    "server": {
-        "prefix": {
-            "prefix": "`Prefix: ,,,${prefix},,,.`",
-            "success": "`Prefix changed to ,,,${prefix},,,.`"
-        },
-        "lang": {
-            "lang": "`Language: ,,,${lang},,,.`",
-            "unknownLang": "'I'm currently not translated to this language.'",
-            "success": "`Language updated to ,,,${lang},,,.`"
-        }
+    "restart": {
+      "restarting": "'F'"
     }
+  },
+  "chat": {
+    "clear": {
+      "deletedN": "`I deleted ${n} message${n > 1 ? 's' : ''}.`"
+    },
+    "poll": {
+      "missingTitle": "'Type the poll title with `/title{[title]}`.'"
+    }
+  },
+  "help": {
+    "help": {
+      "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [comando1] [comando2],,, to get help about one or more specific commands.`",
+      "shortDescription": "`The server prefix is ,,,${serverPrefix},,,.`",
+      "commandNotFound": "`Command ,,,${command},,, not found.`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Usage**: ${command.usage}\n`",
+      "alias": "`\n**Alias**: ${aliases}`",
+      "botPermissions": "`\n**Bot Permissions**: ${botPermissions}`",
+      "userPermissions": "`\n**User Permissions**: ${userPermissions}`",
+      "embedTitle": "'Help'",
+      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.alias.length > 0 ? `\nAlias: ${alias}` : '')"
+    }
+  },
+  "mod": {
+    "giverole": {
+      "missingUser": "'Inform the @member.'",
+      "missingRole": "'Inform a Role.'",
+      "invalidUser": "'Invalid User.'",
+      "invalidRole": "`Role ,,,${role},,, not found.`",
+      "nonEditableRole": "`I can't edit the Role ,,,${role},,,.`",
+      "success": "`The User <@!${user}> now has the provided Roles.`"
+    },
+    "rmrole": {
+      "missingUser": "'Inform the @member.'",
+      "missingRole": "'Inform a Role.'",
+      "invalidUser": "'Invalid User.'",
+      "invalidRole": "`Role ,,,${role},,, not found.`",
+      "nonEditableRole": "`I can't edit the Role ,,,${role},,,.`",
+      "success": "`The User <@!${user}> now doesn't have the provided Roles.`"
+    },
+    "userinfo": {
+      "missingUser": "'Inform the @member.'",
+      "invalidUser": "'Invalid User.'",
+      "username#tag": "'username#tag'",
+      "uuid": "'UUID'",
+      "roles": "'Roles'",
+      "joined": "'Joined at'",
+      "bot": "'Bot'",
+      "yes": "'Yes'",
+      "no": "'No'"
+    }
+  },
+  "music": {
+    "queueEmpty": "'The queue is empty.'",
+    "join": {
+      "embedTitle": "'Joined the Voice Channel'",
+      "embedDescription": "'I Connected to the following Voice Channel'",
+      "voiceChannel": "'Voice Channel'",
+      "textChannel": "'Text Channel'"
+    },
+    "leave": {
+      "success": "'I left the Voice Channel.'"
+    },
+    "search": {
+      "noArgs": "'Type the query string first.'",
+      "embedTitle": "'I found this on YouTube'"
+    },
+    "videoinfo": {
+      "invalidURL": "'Invalid URL.'",
+      "error": "'An error occoured.'",
+      "embedTitle": "'Video info'",
+      "channel": "'Channel'",
+      "duration": "'Duration'",
+      "description": "'Description'",
+      "views": "'👁‍ Views'",
+      "likes": "'👍 Likes'",
+      "dislikes": "'👎 Dislikes'"
+    },
+    "play": {
+      "noLink": "'Type the link first.'",
+      "nothingFound": "'I didn't find anything on YouTube.'",
+      "youtubeMix": "'I can't play YouTube Mix.'",
+      "error": "'An error occoured.'",
+      "playingOne": "`**${songTitle}** added to the queue, position ${position}.`",
+      "playingMany": "`${n} musics in queue.`",
+      "searchingYT": "'Searching on YouTube...'",
+      "errorEmbedTitle": "'An error occoured.'",
+      "errorEmbedDescription": "`Error: ${e.message}\n\nVideo: **${song.title}** (${song.url})`"
+    },
+    "nowplaying": {
+      "embedTitle": "'Currently playing:'",
+      "channel": "'Channel'",
+      "queuePos": "'Queue position'",
+      "duration": "'Duration'"
+    },
+    "pause": {
+      "alreadyPaused": "'The player is already paused.'",
+      "success": "'Successfully paused the player.'"
+    },
+    "resume": {
+      "alreadyPlaying": "'The player is already playing.'",
+      "success": "'Successfully resumed the player.'"
+    },
+    "seek": {
+      "noTime": "'Please provide the timestamp in seconds first.'"
+    },
+    "stop": {
+      "success": "'Successfully stopped the player and cleared the queue.'"
+    },
+    "skip": {
+      "success": "'Song skipped.'"
+    },
+    "loop": {
+      "successOn": "'Looping the current song.'",
+      "successOff": "'No longer looping the current song.'"
+    },
+    "shuffle": {
+      "successOn": "'Shuffled the queue.'",
+      "successOff": "'no longer playing the queue on shuffle.'"
+    },
+    "remove": {
+      "success": "'Successfully removed the song from the queue.'"
+    },
+    "volume": {
+      "volume": "`Volume: ${volume}`",
+      "success": "'Volume updated.'"
+    },
+    "queue": {
+      "embedTitle": "'Current queue'"
+    }
+  },
+  "server": {
+    "prefix": {
+      "prefix": "`Prefix: ,,,${prefix},,,.`",
+      "success": "`Prefix changed to ,,,${prefix},,,.`"
+    },
+    "lang": {
+      "lang": "`Language: ,,,${lang},,,.`",
+      "unknownLang": "'I'm currently not translated to this language.'",
+      "success": "`Language updated to ,,,${lang},,,.`"
+    }
+  }
 }
