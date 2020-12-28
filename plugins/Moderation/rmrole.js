@@ -76,6 +76,6 @@ export default new Command({
         }
 
         await guildMember.roles.remove(roles);
-        await message.channel.send(i18n('mod.rmrole.success', sc?.lang));
+        await message.channel.send(i18n('mod.rmrole.success', sc?.lang, {user: guildMember.user.id}));
     },
 });

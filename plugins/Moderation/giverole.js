@@ -76,6 +76,6 @@ export default new Command({
         }
 
         await guildMember.roles.add(roles);
-        await message.channel.send(i18n('mod.giverole.success', sc?.lang, {user: guildMember.displayName}));
+        await message.channel.send(i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id}));
     },
 });

@@ -33,7 +33,7 @@ export default new Command({
     },
     usage: 'leave',
 
-    alias: ['leave'],
+    alias: ['exit'],
 
     /**
      *

@@ -26,8 +26,8 @@ import {adminID, database_url, prefix, token} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
-import i18n from "./lang/lang.js";
 import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
+import i18n from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);

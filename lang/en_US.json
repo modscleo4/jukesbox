@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/modscleo4/jukesbox/master/lang/lang.schema.json",
   "permission": {
     "SEND_MESSAGES": "`I need the ,,,SEND_MESSAGES,,, Permission on the Text Channel.`"
   },
@@ -39,7 +40,7 @@
       "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [comando1] [comando2],,, to get help about one or more specific commands.`",
       "shortDescription": "`The server prefix is ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Usage**: ${command.usage}\n`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Usage**: ,,,${command.usage},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Bot Permissions**: ${botPermissions}`",
       "userPermissions": "`\n**User Permissions**: ${userPermissions}`",

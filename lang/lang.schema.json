@@ -1,0 +1,676 @@
+{
+  "$id": "https://raw.githubusercontent.com/modscleo4/jukesbox/master/lang/lang.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JSON schema for the Jukes Box lang file",
+  "type": "object",
+  "definitions": {
+    "entry": {
+      "type": "string",
+      "description": "String entry"
+    }
+  },
+  "properties": {
+    "permission": {
+      "type": "object",
+      "properties": {
+        "SEND_MESSAGES": {
+          "$ref": "#/definitions/entry"
+        }
+      },
+      "required": [
+        "SEND_MESSAGES"
+      ]
+    },
+    "insufficientBotPermissions": {
+      "$ref": "#/definitions/entry"
+    },
+    "insufficientUserPermissions": {
+      "$ref": "#/definitions/entry"
+    },
+    "noVoiceChannel": {
+      "$ref": "#/definitions/entry"
+    },
+    "admin": {
+      "type": "object",
+      "properties": {
+        "botinfo": {
+          "type": "object",
+          "properties": {
+            "serverID": {
+              "$ref": "#/definitions/entry"
+            },
+            "serverName": {
+              "$ref": "#/definitions/entry"
+            },
+            "id": {
+              "$ref": "#/definitions/entry"
+            },
+            "servers": {
+              "$ref": "#/definitions/entry"
+            },
+            "voiceChannels": {
+              "$ref": "#/definitions/entry"
+            },
+            "uptime": {
+              "$ref": "#/definitions/entry"
+            },
+            "uuid": {
+              "$ref": "#/definitions/entry"
+            },
+            "server": {
+              "$ref": "#/definitions/entry"
+            },
+            "ping": {
+              "$ref": "#/definitions/entry"
+            },
+            "playingIn": {
+              "$ref": "#/definitions/entry"
+            },
+            "ram": {
+              "$ref": "#/definitions/entry"
+            },
+            "platform": {
+              "$ref": "#/definitions/entry"
+            },
+            "nServers": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "serverID",
+            "serverName",
+            "id",
+            "servers",
+            "voiceChannels",
+            "uptime",
+            "uuid",
+            "server",
+            "ping",
+            "playingIn",
+            "ram",
+            "platform",
+            "nServers"
+          ]
+        },
+        "restart": {
+          "type": "object",
+          "properties": {
+            "restarting": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "restarting"
+          ]
+        }
+      }
+    },
+    "chat": {
+      "type": "object",
+      "properties": {
+        "clear": {
+          "type": "object",
+          "properties": {
+            "deletedN": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "deletedN"
+          ]
+        },
+        "poll": {
+          "type": "object",
+          "properties": {
+            "missingTitle": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "missingTitle"
+          ]
+        }
+      },
+      "required": [
+        "clear",
+        "poll"
+      ]
+    },
+    "help": {
+      "type": "object",
+      "properties": {
+        "help": {
+          "type": "object",
+          "properties": {
+            "longDescription": {
+              "$ref": "#/definitions/entry"
+            },
+            "shortDescription": {
+              "$ref": "#/definitions/entry"
+            },
+            "commandNotFound": {
+              "$ref": "#/definitions/entry"
+            },
+            "detailedHelp": {
+              "$ref": "#/definitions/entry"
+            },
+            "alias": {
+              "$ref": "#/definitions/entry"
+            },
+            "botPermissions": {
+              "$ref": "#/definitions/entry"
+            },
+            "userPermissions": {
+              "$ref": "#/definitions/entry"
+            },
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "shortHelp": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "longDescription",
+            "shortDescription",
+            "commandNotFound",
+            "detailedHelp",
+            "alias",
+            "botPermissions",
+            "userPermissions",
+            "embedTitle",
+            "shortHelp"
+          ]
+        }
+      },
+      "required": [
+        "help"
+      ]
+    },
+    "mod": {
+      "type": "object",
+      "properties": {
+        "giverole": {
+          "type": "object",
+          "properties": {
+            "missingUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "missingRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "nonEditableRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "missingUser",
+            "missingRole",
+            "invalidUser",
+            "invalidRole",
+            "nonEditableRole",
+            "success"
+          ]
+        },
+        "rmrole": {
+          "type": "object",
+          "properties": {
+            "missingUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "missingRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "nonEditableRole": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "missingUser",
+            "missingRole",
+            "invalidUser",
+            "invalidRole",
+            "nonEditableRole",
+            "success"
+          ]
+        },
+        "userinfo": {
+          "type": "object",
+          "properties": {
+            "missingUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidUser": {
+              "$ref": "#/definitions/entry"
+            },
+            "username#tag": {
+              "$ref": "#/definitions/entry"
+            },
+            "uuid": {
+              "$ref": "#/definitions/entry"
+            },
+            "roles": {
+              "$ref": "#/definitions/entry"
+            },
+            "joined": {
+              "$ref": "#/definitions/entry"
+            },
+            "bot": {
+              "$ref": "#/definitions/entry"
+            },
+            "yes": {
+              "$ref": "#/definitions/entry"
+            },
+            "no": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "missingUser",
+            "invalidUser",
+            "username#tag",
+            "uuid",
+            "roles",
+            "joined",
+            "bot",
+            "yes",
+            "no"
+          ]
+        }
+      },
+      "required": [
+        "giverole",
+        "rmrole",
+        "userinfo"
+      ]
+    },
+    "music": {
+      "type": "object",
+      "properties": {
+        "queueEmpty": {
+          "$ref": "#/definitions/entry"
+        },
+        "join": {
+          "type": "object",
+          "properties": {
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "embedDescription": {
+              "$ref": "#/definitions/entry"
+            },
+            "voiceChannel": {
+              "$ref": "#/definitions/entry"
+            },
+            "textChannel": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "embedTitle",
+            "embedDescription",
+            "voiceChannel",
+            "textChannel"
+          ]
+        },
+        "leave": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
+        },
+        "search": {
+          "type": "object",
+          "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noArgs",
+            "embedTitle"
+          ]
+        },
+        "videoinfo": {
+          "type": "object",
+          "properties": {
+            "invalidURL": {
+              "$ref": "#/definitions/entry"
+            },
+            "error": {
+              "$ref": "#/definitions/entry"
+            },
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "channel": {
+              "$ref": "#/definitions/entry"
+            },
+            "duration": {
+              "$ref": "#/definitions/entry"
+            },
+            "description": {
+              "$ref": "#/definitions/entry"
+            },
+            "views": {
+              "$ref": "#/definitions/entry"
+            },
+            "likes": {
+              "$ref": "#/definitions/entry"
+            },
+            "dislikes": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "invalidURL",
+            "error",
+            "embedTitle",
+            "channel",
+            "duration",
+            "description",
+            "views",
+            "likes",
+            "dislikes"
+          ]
+        },
+        "play": {
+          "type": "object",
+          "properties": {
+            "noLink": {
+              "$ref": "#/definitions/entry"
+            },
+            "nothingFound": {
+              "$ref": "#/definitions/entry"
+            },
+            "youtubeMix": {
+              "$ref": "#/definitions/entry"
+            },
+            "error": {
+              "$ref": "#/definitions/entry"
+            },
+            "playingOne": {
+              "$ref": "#/definitions/entry"
+            },
+            "playingMany": {
+              "$ref": "#/definitions/entry"
+            },
+            "searchingYT": {
+              "$ref": "#/definitions/entry"
+            },
+            "errorEmbedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "errorEmbedDescription": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noLink",
+            "nothingFound",
+            "youtubeMix",
+            "error",
+            "playingOne",
+            "playingMany",
+            "searchingYT",
+            "errorEmbedTitle",
+            "errorEmbedDescription"
+          ]
+        },
+        "nowplaying": {
+          "type": "object",
+          "properties": {
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "channel": {
+              "$ref": "#/definitions/entry"
+            },
+            "queuePos": {
+              "$ref": "#/definitions/entry"
+            },
+            "duration": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "embedTitle",
+            "channel",
+            "queuePos",
+            "duration"
+          ]
+        },
+        "pause": {
+          "type": "object",
+          "properties": {
+            "alreadyPaused": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "alreadyPaused",
+            "success"
+          ]
+        },
+        "resume": {
+          "type": "object",
+          "properties": {
+            "alreadyPlaying": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "alreadyPlaying",
+            "success"
+          ]
+        },
+        "seek": {
+          "type": "object",
+          "properties": {
+            "noTime": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noTime"
+          ]
+        },
+        "stop": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
+        },
+        "skip": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
+        },
+        "loop": {
+          "type": "object",
+          "properties": {
+            "successOn": {
+              "$ref": "#/definitions/entry"
+            },
+            "successOff": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "successOn",
+            "successOff"
+          ]
+        },
+        "shuffle": {
+          "type": "object",
+          "properties": {
+            "successOn": {
+              "$ref": "#/definitions/entry"
+            },
+            "successOff": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "successOn",
+            "successOff"
+          ]
+        },
+        "remove": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
+        },
+        "volume": {
+          "type": "object",
+          "properties": {
+            "volume": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "volume",
+            "success"
+          ]
+        },
+        "queue": {
+          "type": "object",
+          "properties": {
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "embedTitle"
+          ]
+        }
+      },
+      "required": [
+        "queueEmpty",
+        "join",
+        "leave",
+        "search",
+        "videoinfo",
+        "play",
+        "nowplaying",
+        "pause",
+        "resume",
+        "seek",
+        "stop",
+        "skip",
+        "loop",
+        "shuffle",
+        "remove",
+        "volume",
+        "queue"
+      ]
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "prefix": {
+          "type": "object",
+          "properties": {
+            "prefix": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "prefix",
+            "success"
+          ]
+        },
+        "lang": {
+          "type": "object",
+          "properties": {
+            "lang": {
+              "$ref": "#/definitions/entry"
+            },
+            "unknownLang": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "lang",
+            "unknownLang",
+            "success"
+          ]
+        }
+      },
+      "required": [
+        "prefix",
+        "lang"
+      ]
+    }
+  },
+  "required": [
+    "permission",
+    "insufficientBotPermissions",
+    "insufficientUserPermissions",
+    "noVoiceChannel",
+    "admin",
+    "chat",
+    "help",
+    "mod",
+    "music",
+    "server"
+  ]
+}
