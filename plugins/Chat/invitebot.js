@@ -40,6 +40,6 @@ export default new Command({
      */
     async fn(message) {
         const sc = serverConfig.get(message.guild.id);
-        return await message.channel.send(i18n('chat.invitebot.link', sc?.lang, {link: 'https://discord.com/api/oauth2/authorize?client_id=716828755003310091&permissions=3271680&scope=bot'}));
+        return await message.channel.send(i18n('chat.invitebot.link', sc?.lang, {link: `https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&permissions=3271680&scope=bot`}));
     },
 });
