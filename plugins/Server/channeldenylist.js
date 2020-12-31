@@ -49,7 +49,7 @@ export default new Command({
 
         await this.checkPermissions(message);
 
-        if (!sc.channelDenies[message.channel.id]) {
+        if (!sc.channelDenies[message.channel.id]?.size) {
             return await message.channel.send(i18n('server.channeldenylist.noBlocked', sc?.lang));
         }
 
