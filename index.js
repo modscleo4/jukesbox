@@ -27,6 +27,7 @@ import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
 import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
+import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
 import i18n from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
@@ -97,6 +98,10 @@ client.on('message', async message => {
             return await message.author.send(i18n('permission.SEND_MESSAGES', sc?.lang));
         }
 
+        if (sc?.channelDenies[message.channel.id]?.has(client.aliases[cmd] ?? cmd)) {
+            return await message.channel.send(i18n('commandRestricted', sc?.lang));
+        }
+
         await command.fn(message, args).catch(async e => {
             if (e instanceof InsufficientBotPermissionsError) {
                 return await message.channel.send(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
@@ -108,6 +113,10 @@ client.on('message', async message => {
 
             if (e instanceof NoVoiceChannelError) {
                 return await message.channel.send(i18n('noVoiceChannel', sc?.lang));
+            }
+
+            if (e instanceof SameVoiceChannelError) {
+                return await message.channel.send(i18n('sameVoiceChannel', sc?.lang));
             }
 
             console.error(e);

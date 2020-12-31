@@ -6,7 +6,16 @@
   "definitions": {
     "entry": {
       "type": "string",
-      "description": "String entry"
+      "description": "String entry",
+      "default": "MISSING STRING ENTRY"
+    },
+    "category": {
+      "type": "object",
+      "description": "Command category"
+    },
+    "command": {
+      "type": "object",
+      "description": "Command"
     }
   },
   "properties": {
@@ -21,6 +30,9 @@
         "SEND_MESSAGES"
       ]
     },
+    "unhandledException": {
+      "$ref": "#/definitions/entry"
+    },
     "insufficientBotPermissions": {
       "$ref": "#/definitions/entry"
     },
@@ -30,11 +42,17 @@
     "noVoiceChannel": {
       "$ref": "#/definitions/entry"
     },
+    "sameVoiceChannel": {
+      "$ref": "#/definitions/entry"
+    },
+    "commandRestricted": {
+      "$ref": "#/definitions/entry"
+    },
     "admin": {
-      "type": "object",
+      "$ref": "#/definitions/category",
       "properties": {
         "botinfo": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "serverID": {
               "$ref": "#/definitions/entry"
@@ -93,7 +111,7 @@
           ]
         },
         "restart": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "restarting": {
               "$ref": "#/definitions/entry"
@@ -103,13 +121,17 @@
             "restarting"
           ]
         }
-      }
+      },
+      "required": [
+        "botinfo",
+        "restart"
+      ]
     },
     "chat": {
-      "type": "object",
+      "$ref": "#/definitions/command",
       "properties": {
         "clear": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "deletedN": {
               "$ref": "#/definitions/entry"
@@ -120,7 +142,7 @@
           ]
         },
         "poll": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "missingTitle": {
               "$ref": "#/definitions/entry"
@@ -129,18 +151,30 @@
           "required": [
             "missingTitle"
           ]
+        },
+        "invitebot": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "link": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "link"
+          ]
         }
       },
       "required": [
         "clear",
-        "poll"
+        "poll",
+        "invitebot"
       ]
     },
     "help": {
-      "type": "object",
+      "$ref": "#/definitions/category",
       "properties": {
         "help": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "longDescription": {
               "$ref": "#/definitions/entry"
@@ -188,10 +222,10 @@
       ]
     },
     "mod": {
-      "type": "object",
+      "$ref": "#/definitions/category",
       "properties": {
         "giverole": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "missingUser": {
               "$ref": "#/definitions/entry"
@@ -222,7 +256,7 @@
           ]
         },
         "rmrole": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "missingUser": {
               "$ref": "#/definitions/entry"
@@ -253,7 +287,7 @@
           ]
         },
         "userinfo": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "missingUser": {
               "$ref": "#/definitions/entry"
@@ -303,13 +337,13 @@
       ]
     },
     "music": {
-      "type": "object",
+      "$ref": "#/definitions/category",
       "properties": {
         "queueEmpty": {
           "$ref": "#/definitions/entry"
         },
         "join": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "embedTitle": {
               "$ref": "#/definitions/entry"
@@ -332,7 +366,7 @@
           ]
         },
         "leave": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "success": {
               "$ref": "#/definitions/entry"
@@ -343,7 +377,7 @@
           ]
         },
         "search": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "noArgs": {
               "$ref": "#/definitions/entry"
@@ -358,7 +392,7 @@
           ]
         },
         "videoinfo": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "invalidURL": {
               "$ref": "#/definitions/entry"
@@ -401,7 +435,7 @@
           ]
         },
         "play": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "noLink": {
               "$ref": "#/definitions/entry"
@@ -444,7 +478,7 @@
           ]
         },
         "nowplaying": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "embedTitle": {
               "$ref": "#/definitions/entry"
@@ -467,7 +501,7 @@
           ]
         },
         "pause": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "alreadyPaused": {
               "$ref": "#/definitions/entry"
@@ -482,7 +516,7 @@
           ]
         },
         "resume": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "alreadyPlaying": {
               "$ref": "#/definitions/entry"
@@ -497,7 +531,7 @@
           ]
         },
         "seek": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "noTime": {
               "$ref": "#/definitions/entry"
@@ -508,7 +542,7 @@
           ]
         },
         "stop": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "success": {
               "$ref": "#/definitions/entry"
@@ -519,7 +553,7 @@
           ]
         },
         "skip": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "success": {
               "$ref": "#/definitions/entry"
@@ -530,7 +564,7 @@
           ]
         },
         "loop": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "successOn": {
               "$ref": "#/definitions/entry"
@@ -545,7 +579,7 @@
           ]
         },
         "shuffle": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "successOn": {
               "$ref": "#/definitions/entry"
@@ -560,7 +594,7 @@
           ]
         },
         "remove": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "success": {
               "$ref": "#/definitions/entry"
@@ -571,7 +605,7 @@
           ]
         },
         "volume": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "volume": {
               "$ref": "#/definitions/entry"
@@ -586,7 +620,7 @@
           ]
         },
         "queue": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "embedTitle": {
               "$ref": "#/definitions/entry"
@@ -618,10 +652,10 @@
       ]
     },
     "server": {
-      "type": "object",
+      "$ref": "#/definitions/category",
       "properties": {
         "prefix": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "prefix": {
               "$ref": "#/definitions/entry"
@@ -636,7 +670,7 @@
           ]
         },
         "lang": {
-          "type": "object",
+          "$ref": "#/definitions/command",
           "properties": {
             "lang": {
               "$ref": "#/definitions/entry"
@@ -653,16 +687,73 @@
             "unknownLang",
             "success"
           ]
+        },
+        "channeldeny": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
+            "commandNotFound": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "lang",
+            "unknownLang",
+            "success"
+          ]
+        },
+        "channelallow": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
+            "commandNotFound": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "lang",
+            "unknownLang",
+            "success"
+          ]
+        },
+        "channeldenylist": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noBlocked": {
+              "$ref": "#/definitions/entry"
+            },
+            "list": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noBlocked",
+            "list"
+          ]
         }
       },
       "required": [
         "prefix",
-        "lang"
+        "lang",
+        "channeldeny",
+        "channelallow",
+        "channeldenylist"
       ]
     }
   },
   "required": [
     "permission",
+    "unhandledException",
     "insufficientBotPermissions",
     "insufficientUserPermissions",
     "noVoiceChannel",

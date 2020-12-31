@@ -22,3 +22,4 @@
 
 export {default as clear} from "./clear.js";
 export {default as poll} from "./poll.js";
+export {default as invitebot} from "./invitebot.js";

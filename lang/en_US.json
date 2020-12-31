@@ -7,6 +7,8 @@
   "insufficientBotPermissions": "`I need the ,,,${permission},,, Permission to run this Command.`",
   "insufficientUserPermissions": "`You need the ,,,${permission},,, Permission to run this Command.`",
   "noVoiceChannel": "'Join a Voice Channel first.'",
+  "sameVoiceChannel": "'You need to be in the same Voice Channel to run this command.'",
+  "commandRestricted": "':no_entry_sign: command blocked on this Text Channel.'",
   "admin": {
     "botinfo": {
       "serverID": "`ID: ${id}`",
@@ -33,6 +35,9 @@
     },
     "poll": {
       "missingTitle": "'Type the poll title with `/title{[title]}`.'"
+    },
+    "invitebot": {
+      "link": "`Add Jukes Box to a new server: ${link}`"
     }
   },
   "help": {
@@ -165,6 +170,20 @@
       "lang": "`Language: ,,,${lang},,,.`",
       "unknownLang": "'I'm currently not translated to this language.'",
       "success": "`Language updated to ,,,${lang},,,.`"
+    },
+    "channeldeny": {
+      "noArgs": "No Command provided.",
+      "commandNotFound": "`Command ,,,${command},,, not found.`",
+      "success": "`${n} Command(s) are now blocked on this Text Channel.`"
+    },
+    "channelallow": {
+      "noArgs": "'No Command provided.'",
+      "commandNotFound": "`Command ,,,${command},,, not found.`",
+      "success": "`${n} Command(s) are now allowed on this Text Channel.`"
+    },
+    "channeldenylist": {
+      "noBlocked": "'No Command is blocked on this Text Channel.'",
+      "list": "`Blocked commands: ${cmds.join(' ')}`"
     }
   }
 }

@@ -7,6 +7,8 @@
   "insufficientBotPermissions": "`ME AJUDA. (,,,${permission},,,)`",
   "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`",
   "noVoiceChannel": "'Tá solo né filha da puta.'",
+  "sameVoiceChannel": "'Tu nem ta aqui vei.'",
+  "commandRestricted": "':no_entry_sign: comando bloqueado neste Canal de Texto.'",
   "admin": {
     "botinfo": {
       "serverID": "`ID: ${id}`",
@@ -33,6 +35,9 @@
     },
     "poll": {
       "missingTitle": "'Informe o título da enquete.'"
+    },
+    "invitebot": {
+      "link": "`Convide o Jukera pra rapaziada: ${link}`"
     }
   },
   "help": {
@@ -165,6 +170,20 @@
       "lang": "`Idioma: ,,,${lang},,,.`",
       "unknownLang": "'Não falo em língua estranha.'",
       "success": "`Idioma alterado para ,,,${lang},,,.`"
+    },
+    "channeldeny": {
+      "noArgs": "'Nenhum comando informado.'",
+      "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
+      "success": "`${n} Comando(s) estão agora bloqueado(s) no Canal de Texto.`"
+    },
+    "channelallow": {
+      "noArgs": "'Nenhum comando informado.'",
+      "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
+      "success": "`${n} Comando(s) estão agora permitido(s) no Canal de Texto.`"
+    },
+    "channeldenylist": {
+      "noBlocked": "'Nenhum comando foi bloqueado neste Canal de Texto.'",
+      "list": "`Comandos bloqueados: ${cmds.join(' ')}`"
     }
   }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Music plugin (seek command)
+ * @file Chat plugin (invitebot command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
@@ -28,35 +28,18 @@ import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Seeks on a specific timestamp of the song. Format is in `seconds`.',
-        pt_BR: 'Altera a posição da música. Formato em `segundos`.',
+        en_US: 'The link to invite the bot to another server.',
+        pt_BR: 'Envia o link para adicionar o bot a outro servidor.',
     },
-    usage: 'seek [s]',
+    usage: 'invitebot',
 
     /**
      *
      * @param {Message} message
-     * @param {string[]} args
      * @return {Promise<*>}
      */
-    async fn(message, args) {
+    async fn(message) {
         const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
-
-        if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
-        }
-
-        if (args.length === 0) {
-            return await message.channel.send(i18n('music.pause.noTime', sc?.lang));
-        }
-
-        let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
-        if (s > serverQueue.song.duration) {
-            s = serverQueue.song.duration;
-        }
-
-        serverQueue.seek = s;
-        serverQueue.connection.dispatcher.end();
+        return await message.channel.send(i18n('chat.invitebot.link', sc?.lang, {link: 'https://discord.com/api/oauth2/authorize?client_id=716828755003310091&permissions=3271680&scope=bot'}));
     },
 });

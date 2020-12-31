@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Music plugin (seek command)
+ * @file Server configuration plugin (channelallow command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
+import {database_url, prefix} from "../../config.js";
+import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Seeks on a specific timestamp of the song. Format is in `seconds`.',
-        pt_BR: 'Altera a posição da música. Formato em `segundos`.',
+        en_US: 'Shows the blocked Commands on the current Text Channel.',
+        pt_BR: 'Mostra os comandos bloqueados no Canal de Texto atual.',
     },
-    usage: 'seek [s]',
+    usage: 'channeldenylist',
+
+    userPermissions: {
+        text: ['MANAGE_CHANNELS'],
+    },
 
     /**
      *
@@ -40,23 +45,14 @@ export default new Command({
      * @return {Promise<*>}
      */
     async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
 
-        if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+        await this.checkPermissions(message);
+
+        if (!sc.channelDenies[message.channel.id]) {
+            return await message.channel.send(i18n('server.channeldenylist.noBlocked', sc?.lang));
         }
 
-        if (args.length === 0) {
-            return await message.channel.send(i18n('music.pause.noTime', sc?.lang));
-        }
-
-        let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
-        if (s > serverQueue.song.duration) {
-            s = serverQueue.song.duration;
-        }
-
-        serverQueue.seek = s;
-        serverQueue.connection.dispatcher.end();
+        return await message.channel.send(i18n('server.channeldenylist.list', sc?.lang, {cmds: Array.from(sc.channelDenies[message.channel.id]).map(c => `\`${c}\``)}));
     },
 });

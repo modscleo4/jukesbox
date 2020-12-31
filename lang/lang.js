@@ -29,12 +29,12 @@ export const langs = {
 }
 
 /**
- * 
+ *
  * @param {Object<string, Object<string, Object<string, string>>|string>} obj
  * @param {string} path
- * 
+ *
  * @return {string|undefined}
- * 
+ *
  * @see https://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
  */
 function resolve(obj, path) {
