@@ -53,6 +53,10 @@ export default new Command({
 
         await this.checkPermissions(message);
 
+        if (args.includes('channelallow')) {
+            return await message.channel.send(i18n('server.channeldeny.cannotBlock', sc?.lang));
+        }
+
         const commands = message.client.commands;
 
         for (let i = 0; i < args.length; i++) {

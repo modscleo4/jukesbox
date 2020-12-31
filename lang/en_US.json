@@ -173,13 +173,14 @@
     },
     "channeldeny": {
       "noArgs": "No Command provided.",
+      "cannotBlock": "'Cannot block this command (,,,channelallow,,,).'",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "success": "`${n} Command(s) are now blocked on this Text Channel.`"
+      "success": "`${n} Command(s) is(are) now blocked on this Text Channel.`"
     },
     "channelallow": {
       "noArgs": "'No Command provided.'",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "success": "`${n} Command(s) are now allowed on this Text Channel.`"
+      "success": "`${n} Command(s) is(are) now allowed on this Text Channel.`"
     },
     "channeldenylist": {
       "noBlocked": "'No Command is blocked on this Text Channel.'",

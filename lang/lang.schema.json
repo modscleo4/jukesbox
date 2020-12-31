@@ -694,6 +694,9 @@
             "noArgs": {
               "$ref": "#/definitions/entry"
             },
+            "cannotBlock": {
+              "$ref": "#/definitions/entry"
+            },
             "commandNotFound": {
               "$ref": "#/definitions/entry"
             },
@@ -702,8 +705,9 @@
             }
           },
           "required": [
-            "lang",
-            "unknownLang",
+            "noArgs",
+            "cannotBlock",
+            "commandNotFound",
             "success"
           ]
         },
@@ -721,8 +725,8 @@
             }
           },
           "required": [
-            "lang",
-            "unknownLang",
+            "noArgs",
+            "commandNotFound",
             "success"
           ]
         },
