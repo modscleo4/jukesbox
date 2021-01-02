@@ -38,6 +38,7 @@ export default new Command({
     usage: 'search [/playlist] [q]',
 
     botPermissions: {
+        text: ['EMBED_LINKS'],
         voice: ['CONNECT', 'SPEAK'],
     },
 

@@ -34,6 +34,10 @@ export default new Command({
     },
     usage: 'poll /title{[title]} [n1] [n2] ... [n10]',
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -42,6 +46,8 @@ export default new Command({
      */
     async fn(message, args) {
         const sc = serverConfig.get(message.guild.id);
+
+        await this.checkPermissions(message);
 
         const titleI = args.findIndex(a => /\/title{[^}]+}/gmi.test(a));
         if (titleI === -1) {

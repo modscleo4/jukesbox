@@ -35,6 +35,7 @@ export default new Command({
     usage: 'join',
 
     botPermissions: {
+        text: ['EMBED_LINKS'],
         voice: ['CONNECT', 'SPEAK'],
     },
 

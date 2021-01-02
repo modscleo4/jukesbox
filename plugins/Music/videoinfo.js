@@ -36,6 +36,10 @@ export default new Command({
     },
     usage: 'videoinfo [youtube_url]',
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -44,6 +48,8 @@ export default new Command({
      */
     async fn(message, args) {
         const sc = serverConfig.get(message.guild.id);
+
+        await this.checkPermissions(message);
 
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
             return await message.channel.send(i18n('music.videoinfo.invalidURL', sc?.lang));

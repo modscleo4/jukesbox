@@ -136,7 +136,7 @@ async function playSong(message) {
         await playSong(message);
     }
 
-    serverQueue.seek = null;
+    serverQueue.seek = undefined;
     serverQueue.toDelete = await nowplaying.fn(message, ['']);
 }
 
@@ -206,6 +206,7 @@ export default new Command({
     alias: ['p'],
 
     botPermissions: {
+        text: ['EMBED_LINKS'],
         voice: ['CONNECT', 'SPEAK'],
     },
 

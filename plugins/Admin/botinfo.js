@@ -37,6 +37,10 @@ export default new Command({
     usage: 'botinfo [servers] [voicechannels]',
     only: [adminID],
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -65,6 +69,8 @@ export default new Command({
                 return await pageEmbed(message, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
             },
         };
+
+        await this.checkPermissions(message);
 
         if (args[0] && args[0] in subcommands) {
             return await subcommands[args[0]]();

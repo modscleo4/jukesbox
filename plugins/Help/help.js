@@ -35,6 +35,10 @@ export default new Command({
     },
     usage: 'help [command1] [command2]...',
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -44,6 +48,8 @@ export default new Command({
     async fn(message, args) {
         const sc = serverConfig.get(message.guild.id);
         const serverPrefix = sc?.prefix ?? prefix;
+
+        await this.checkPermissions(message);
 
         const description = i18n('help.help.longDescription', sc?.lang, {serverPrefix});
 
@@ -78,7 +84,7 @@ export default new Command({
 
         const cmds = [];
         Object.keys(message.client.categoriesCommands).forEach((cat, i, arr) => {
-            const category = {...message.client.categoriesCommands[cat]}
+            const category = {...message.client.categoriesCommands[cat]};
             const c = {name: cat, value: '', inline: false};
 
             for (const cmd in category) {

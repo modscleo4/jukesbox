@@ -38,6 +38,10 @@ export default new Command({
 
     alias: ['np'],
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -46,6 +50,8 @@ export default new Command({
     async fn(message) {
         const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
+
+        await this.checkPermissions(message);
 
         if (!serverQueue) {
             return await message.channel.send(i18n('music.queueEmpty', sc?.lang));

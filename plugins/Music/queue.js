@@ -34,6 +34,10 @@ export default new Command({
     },
     usage: 'queue',
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -43,12 +47,14 @@ export default new Command({
         const sc = serverConfig.get(message.guild.id);
         const serverQueue = queue.get(message.guild.id);
 
+        await this.checkPermissions(message);
+
         if (!serverQueue) {
             return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
         const songs = serverQueue.songs.map((s, i) => {
-            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader}
+            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader};
         });
 
         return await pageEmbed(message, {title: i18n('music.queue.embedTitle', sc?.lang), content: songs});

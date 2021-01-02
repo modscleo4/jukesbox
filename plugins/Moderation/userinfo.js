@@ -35,6 +35,10 @@ export default new Command({
     },
     usage: 'userinfo [@member]',
 
+    botPermissions: {
+        text: ['EMBED_LINKS'],
+    },
+
     /**
      *
      * @param {Message} message
@@ -43,6 +47,8 @@ export default new Command({
      */
     async fn(message, args) {
         const sc = serverConfig.get(message.guild.id);
+
+        await this.checkPermissions(message);
 
         if (!args[0].match(/\d+/gm)) {
             return await message.channel.send(i18n('mod.userinfo.misingUser', sc?.lang));
