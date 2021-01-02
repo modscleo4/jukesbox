@@ -26,15 +26,17 @@
   "type": "module",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "@types/pg": "^7.14.7",
-    "@types/spotify-web-api-node": "^4.0.2",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "googleapis": "^66.0.0",
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.2",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.2.1"
+    "ytdl-core": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^7.14.7",
+    "@types/spotify-web-api-node": "^4.0.2"
   },
   "engines": {
     "node": "14.x",
