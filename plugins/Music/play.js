@@ -99,7 +99,7 @@ async function playSong(message) {
     }).on('finish', async () => {
         serverQueue.playing = false;
 
-        if (serverQueue.seek === null) {
+        if (serverQueue.seek === undefined) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
