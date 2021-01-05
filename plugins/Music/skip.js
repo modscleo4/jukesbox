@@ -33,10 +33,11 @@ export default new Command({
     },
     usage: 'skip [n]',
 
-    alias: ['next'],
+    aliases: ['next'],
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @param {string[]} args
      * @return {Promise<*>}

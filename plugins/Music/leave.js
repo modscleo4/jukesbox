@@ -33,10 +33,11 @@ export default new Command({
     },
     usage: 'leave',
 
-    alias: ['exit'],
+    aliases: ['exit'],
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @return {Promise<*>}
      */

@@ -42,15 +42,15 @@
   },
   "help": {
     "help": {
-      "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [comando1] [comando2],,, to get help about one or more specific commands.`",
+      "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [command1] [command2],,, to get help about one or more specific commands.`",
       "shortDescription": "`The server prefix is ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Usage**: ,,,${command.usage},,,\n`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,\n${command.description[sc?.lang]}\n**Usage**: ,,,${command.usage},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Bot Permissions**: ${botPermissions}`",
       "userPermissions": "`\n**User Permissions**: ${userPermissions}`",
       "embedTitle": "'Help'",
-      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.alias.length > 0 ? `\nAlias: ${alias}` : '')"
+      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.aliases.length > 0 ? `\nAlias: ${aliases}` : '')"
     }
   },
   "mod": {

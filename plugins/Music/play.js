@@ -90,7 +90,7 @@ async function playSong(message) {
 
     serverQueue.playing = true;
 
-    serverQueue.song.stream = isAsync(serverQueue.song.fn) ? await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options) : serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
+    serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
     serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.seek,
@@ -203,7 +203,7 @@ export default new Command({
     },
     usage: 'play [/playlist] [youtube_url|q]',
 
-    alias: ['p'],
+    aliases: ['p'],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -212,6 +212,7 @@ export default new Command({
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @param {string[]} args
      * @return {Promise<*>}

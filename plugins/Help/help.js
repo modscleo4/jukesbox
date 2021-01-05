@@ -41,6 +41,7 @@ export default new Command({
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @param {string[]} args
      * @return {Promise<*>}
@@ -69,7 +70,7 @@ export default new Command({
 
                 desc += i18n('help.help.detailedHelp', sc?.lang, {serverPrefix, command, sc, cmd: args[i] in aliases ? aliases[args[i]] : args[i]});
 
-                command.alias.length > 0 && (desc += i18n('help.help.alias', sc?.lang, {aliases: command.alias.map(a => `\`${a}\``).join(', ')}));
+                command.aliases.length > 0 && (desc += i18n('help.help.alias', sc?.lang, {aliases: command.aliases.map(a => `\`${a}\``).join(', ')}));
                 command.botPermissions && (desc += i18n('help.help.botPermissions', sc?.lang, {botPermissions: [...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
                 command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, {userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
             }
@@ -94,7 +95,7 @@ export default new Command({
                     continue;
                 }
 
-                c.value += i18n('help.help.shortHelp', sc?.lang, {serverPrefix, cmd, command, sc, alias: command.alias.map(a => `,,,${a},,,`).join(', ')}) + '\n';
+                c.value += i18n('help.help.shortHelp', sc?.lang, {serverPrefix, cmd, command, sc, aliases: command.aliases.map(a => `,,,${a},,,`).join(', ')}) + '\n';
             }
 
             if (c.value.length > 0) {

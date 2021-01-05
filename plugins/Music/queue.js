@@ -40,6 +40,7 @@ export default new Command({
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @return {Promise<*>}
      */

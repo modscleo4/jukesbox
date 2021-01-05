@@ -33,10 +33,11 @@ export default new Command({
     },
     usage: 'loop',
 
-    alias: ['repeat'],
+    aliases: ['repeat'],
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @return {Promise<*>}
      */

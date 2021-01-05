@@ -45,12 +45,12 @@
       "longDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.\n\nDigite ,,,${serverPrefix}help [comando1] [comando2],,, para obter ajuda de um ou mais comandos em específico.`",
       "shortDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,  =========================\n${command.description[sc?.lang]}\n**Uso**: ,,,${command.usage},,,\n`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,\n${command.description[sc?.lang]}\n**Uso**: ,,,${command.usage},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Permissões do bot**: ${botPermissions}`",
       "userPermissions": "`\n**Permissões do usuário**: ${userPermissions}`",
       "embedTitle": "'ME AJUDA!'",
-      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.alias.length > 0 ? `\nAlias: ${alias}` : '')"
+      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.aliases.length > 0 ? `\nAlias: ${aliases}` : '')"
     }
   },
   "mod": {

@@ -36,7 +36,7 @@ export default new Command({
     },
     usage: 'nowplaying',
 
-    alias: ['np'],
+    aliases: ['np'],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -44,6 +44,7 @@ export default new Command({
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @return {Promise<*>}
      */

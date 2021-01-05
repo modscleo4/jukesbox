@@ -44,6 +44,7 @@ export default new Command({
 
     /**
      *
+     * @this {Command}
      * @param {Message} message
      * @param {string[]} args
      * @return {Promise<*>}
