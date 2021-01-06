@@ -54,11 +54,21 @@ export default new Command({
 
         await this.checkPermissions(message);
 
+        const categoriesCommands = message.client.categoriesCommands;
         const commands = message.client.commands;
 
         for (let i = 0; i < args.length; i++) {
-            if (!(args[i] in commands) || (commands[args[i]].only && !commands[args[i]].only.includes(message.author.id))) {
-                return await message.channel.send(i18n('server.channelallow.commandNotFound', sc?.lang, {command: args[i]}));
+            if (args[i].match(/category\/\w+/gmiu)) {
+                const {category} = /category\/(?<category>\w+)/gmiu.exec(args[i]).groups;
+
+                if (!(category in categoriesCommands)) {
+                    return await message.channel.send(i18n('server.channeldeny.categoryNotFound', sc?.lang, {category}));
+                }
+
+                args[i] = Object.keys(categoriesCommands[category]);
+                args = args.flat();
+            } else if (!(args[i] in commands) || (commands[args[i]].only && !commands[args[i]].only.includes(message.author.id))) {
+                return await message.channel.send(i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]}));
             }
         }
 

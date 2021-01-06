@@ -697,6 +697,9 @@
             "cannotBlock": {
               "$ref": "#/definitions/entry"
             },
+            "categoryNotFound": {
+              "$ref": "#/definitions/entry"
+            },
             "commandNotFound": {
               "$ref": "#/definitions/entry"
             },
@@ -715,6 +718,9 @@
           "$ref": "#/definitions/command",
           "properties": {
             "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
+            "categoryNotFound": {
               "$ref": "#/definitions/entry"
             },
             "commandNotFound": {

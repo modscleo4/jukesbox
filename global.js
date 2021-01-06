@@ -36,6 +36,10 @@ export const startupTime = Date.now();
  */
 export let serverConfig = new Map();
 
+/**
+ *
+ * @param {Map<string, ServerConfig>} sc
+ */
 export function setServerConfig(sc) {
     serverConfig = sc;
 }

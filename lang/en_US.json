@@ -174,11 +174,13 @@
     "channeldeny": {
       "noArgs": "No Command provided.",
       "cannotBlock": "'Cannot block this command (,,,channelallow,,,).'",
+      "categoryNotFound": "`Category ,,,${category},,, not found.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
       "success": "`${n} Command(s) is(are) now blocked on this Text Channel.`"
     },
     "channelallow": {
       "noArgs": "'No Command provided.'",
+      "categoryNotFound": "`Category ,,,${category},,, not found.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
       "success": "`${n} Command(s) is(are) now allowed on this Text Channel.`"
     },

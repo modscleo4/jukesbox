@@ -174,11 +174,13 @@
     "channeldeny": {
       "noArgs": "'Nenhum comando informado.'",
       "cannotBlock": "'Não é possível bloquear este comando (,,,channelallow,,,).'",
+      "categoryNotFound": "`Categoria ,,,${category},,, não encontrada.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
       "success": "`${n} Comando(s) está(ão) agora bloqueado(s) no Canal de Texto.`"
     },
     "channelallow": {
       "noArgs": "'Nenhum comando informado.'",
+      "categoryNotFound": "`Categoria ,,,${category},,, não encontrada.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
       "success": "`${n} Comando(s) está(ão) agora permitido(s) no Canal de Texto.`"
     },
