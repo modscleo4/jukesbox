@@ -23,7 +23,7 @@
       "playingIn": "'Tocando em'",
       "ram": "'RAM'",
       "platform": "'Plataforma'",
-      "nServers": "`${n} servidor(es)`"
+      "nServers": "`${n} servidor${n > 1 ? 'es' : ''}`"
     },
     "restart": {
       "restarting": "'F'"
@@ -176,13 +176,13 @@
       "cannotBlock": "'Não é possível bloquear este comando (,,,channelallow,,,).'",
       "categoryNotFound": "`Categoria ,,,${category},,, não encontrada.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "success": "`${n} Comando(s) está(ão) agora bloqueado(s) no Canal de Texto.`"
+      "success": "`${n} Comando${n > 1 ? 's' : ''} est${n > 1 ? 'ão' : 'á'} agora bloqueado${n > 1 ? 's' : ''} no Canal de Texto.`"
     },
     "channelallow": {
       "noArgs": "'Nenhum comando informado.'",
       "categoryNotFound": "`Categoria ,,,${category},,, não encontrada.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "success": "`${n} Comando(s) está(ão) agora permitido(s) no Canal de Texto.`"
+      "success": "`${n} Comando${n > 1 ? 's' : ''} está${n > 1 ? 'ão' : 'á'} agora permitido${n > 1 ? 's' : ''} no Canal de Texto.`"
     },
     "channeldenylist": {
       "noBlocked": "'Nenhum comando foi bloqueado neste Canal de Texto.'",

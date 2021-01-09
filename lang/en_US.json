@@ -23,7 +23,7 @@
       "playingIn": "'Playing in'",
       "ram": "'RAM'",
       "platform": "'Platform'",
-      "nServers": "`${n} server(s)`"
+      "nServers": "`${n} server${n > 1 's' : ''}`"
     },
     "restart": {
       "restarting": "'F'"
@@ -114,7 +114,7 @@
       "youtubeMix": "'I can't play YouTube Mix.'",
       "error": "'An error occoured.'",
       "playingOne": "`**${songTitle}** added to the queue, position ${position}.`",
-      "playingMany": "`${n} musics in queue.`",
+      "playingMany": "`${n} songs in queue.`",
       "searchingYT": "'Searching on YouTube...'",
       "errorEmbedTitle": "'An error occoured.'",
       "errorEmbedDescription": "`Error: ${e.message}\n\nVideo: **${song.title}** (${song.url})`"
@@ -176,13 +176,13 @@
       "cannotBlock": "'Cannot block this command (,,,channelallow,,,).'",
       "categoryNotFound": "`Category ,,,${category},,, not found.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "success": "`${n} Command(s) is(are) now blocked on this Text Channel.`"
+      "success": "`${n} Command${n > 1 ? 's' : ''} ${n > 1 ? 'are' : 'is'} now blocked on this Text Channel.`"
     },
     "channelallow": {
       "noArgs": "'No Command provided.'",
       "categoryNotFound": "`Category ,,,${category},,, not found.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "success": "`${n} Command(s) is(are) now allowed on this Text Channel.`"
+      "success": "`${n} Command${n > 1 ? 's' : ''} ${n > 1 ? 'are' : 'is'} now allowed on this Text Channel.`"
     },
     "channeldenylist": {
       "noBlocked": "'No Command is blocked on this Text Channel.'",

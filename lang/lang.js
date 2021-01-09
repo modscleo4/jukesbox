@@ -46,6 +46,8 @@ function resolve(obj, path) {
  * @param {string} key
  * @param {string} [lang='pt_BR']
  * @param {Object<string, *>} [params={}]
+ * @return {string}
+ * @throws {ReferenceError} If the key is invalid (not found)
  */
 export default function i18n(key, lang = 'pt_BR', params = {}) {
     const str = resolve(langs[lang], key);

@@ -65,8 +65,7 @@ export default new Command({
                     return await message.channel.send(i18n('server.channeldeny.categoryNotFound', sc?.lang, {category}));
                 }
 
-                args[i] = Object.keys(categoriesCommands[category]);
-                args = args.flat();
+                args.splice(i, 1, ...Object.keys(categoriesCommands[category]));
             } else if (!(args[i] in commands) || (commands[args[i]].only && !commands[args[i]].only.includes(message.author.id))) {
                 return await message.channel.send(i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]}));
             }

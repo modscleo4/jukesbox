@@ -29,8 +29,8 @@ import i18n, {langs} from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Changes the bot language.',
-        pt_BR: 'Altera o idioma do bot no servidor.',
+        en_US: 'Shows/changes the bot language.',
+        pt_BR: 'Mostra/altera o idioma do bot no servidor.',
     },
     usage: 'lang [lang_COUNTRY]',
 

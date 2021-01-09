@@ -32,7 +32,7 @@ import i18n from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
-console.log(`${serverConfig.size} configuração(ões) carregada(s).`);
+console.log(`${serverConfig.size} configuraç${serverConfig.size > 1 ? 'ões' : 'ão'} carregada${serverConfig.size > 1 ? 's' : ''}.`);
 
 const client = new Client();
 
@@ -72,13 +72,15 @@ client.on('message', async message => {
     if (message.content.startsWith(`<@!${client.user.id}>`)) {
         const command = client.commands.prefix;
 
-        await command.fn(message, []).catch(async e => {
+        try {
+            await command.fn(message, []);
+        } catch (e) {
             console.error(e);
-            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
+            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message} \n\n\`\`\`${e.stack}\`\`\``);
             await message.channel.send('Deu ruim aqui lek.').catch(() => {
 
             });
-        });
+        };
     } else if (message.content.startsWith(serverPrefix)) {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? ['']).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
@@ -98,11 +100,14 @@ client.on('message', async message => {
             return await message.author.send(i18n('permission.SEND_MESSAGES', sc?.lang));
         }
 
+        // Check if the Command is restricted in the current Text Channel
         if (sc?.channelDenies[message.channel.id]?.has(client.aliases[cmd] ?? cmd)) {
             return await message.channel.send(i18n('commandRestricted', sc?.lang));
         }
 
-        await command.fn(message, args).catch(async e => {
+        try {
+            await command.fn(message, args);
+        } catch (e) {
             if (e instanceof InsufficientBotPermissionsError) {
                 return await message.channel.send(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
             }
@@ -124,12 +129,12 @@ client.on('message', async message => {
             await message.channel.send(i18n('unhandledException', sc?.lang)).catch(() => {
 
             });
-        });
+        }
     }
 });
 
 client.loadCommands(await import('./plugins/index.js'));
-console.log(`${Object.keys(client.commands).length} comando(s) carregado(s).`);
+console.log(`${Object.keys(client.commands).length} comando${Object.keys(client.commands).length > 1 ? 's' : ''} carregado${Object.keys(client.commands).length > 1 ? 's' : ''}.`);
 
 await client.login(token);
 
