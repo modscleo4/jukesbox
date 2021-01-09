@@ -26,11 +26,11 @@ import pt_BR from "./pt_BR.json";
 export const langs = {
     en_US,
     pt_BR,
-}
+};
 
 /**
  *
- * @param {Object<string, Object<string, Object<string, string>>|string>} obj
+ * @param {Object<string, Object<string, Object<string, string>|string>|string>} obj
  * @param {string} path
  *
  * @return {string|undefined}

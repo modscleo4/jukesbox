@@ -7,7 +7,7 @@
   "insufficientBotPermissions": "`ME AJUDA. (,,,${permission},,,)`",
   "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`",
   "noVoiceChannel": "'Tá solo né filha da puta.'",
-  "sameVoiceChannel": "'Tu nem ta aqui vei.'",
+  "sameVoiceChannel": "'Tu nem tá aqui vei.'",
   "commandRestricted": "':no_entry_sign: comando bloqueado neste Canal de Texto.'",
   "admin": {
     "botinfo": {
@@ -45,12 +45,12 @@
       "longDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.\n\nDigite ,,,${serverPrefix}help [comando1] [comando2],,, para obter ajuda de um ou mais comandos em específico.`",
       "shortDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,\n${command.description[sc?.lang]}\n**Uso**: ,,,${command.usage},,,\n`",
+      "detailedHelp": "`\n\n,,,${serverPrefix}${cmd},,,\n${command.description[sc?.lang ?? 'pt_BR']}\n**Uso**: ,,,${command.usage},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Permissões do bot**: ${botPermissions}`",
       "userPermissions": "`\n**Permissões do usuário**: ${userPermissions}`",
       "embedTitle": "'ME AJUDA!'",
-      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang] + (command.aliases.length > 0 ? `\nAlias: ${aliases}` : '')"
+      "shortHelp": "`**${serverPrefix}${cmd}**: ` + command.description[sc?.lang ?? 'pt_BR'] + (command.aliases.length > 0 ? `\nAlias: ${aliases}` : '')"
     }
   },
   "mod": {

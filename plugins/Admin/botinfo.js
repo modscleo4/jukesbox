@@ -24,7 +24,7 @@ import {MessageEmbed} from "discord.js";
 
 import {startupTime, queue, serverConfig} from "../../global.js";
 import {adminID} from "../../config.js";
-import {pageEmbed} from "../../lib/utils.js";
+import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
@@ -84,7 +84,7 @@ export default new Command({
             fields: [
                 {name: i18n('admin.botinfo.servers', sc?.lang), value: message.client.guilds.cache.size, inline: true},
                 {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: message.client.voice.connections.size, inline: true},
-                {name: i18n('admin.botinfo.uptime', sc?.lang), value: `${((Date.now() - startupTime) / 1000).toFixed(0)} s`, inline: true},
+                {name: i18n('admin.botinfo.uptime', sc?.lang), value: parseMS(Date.now() - startupTime).toString(), inline: true},
                 {name: i18n('admin.botinfo.uuid', sc?.lang), value: message.client.user.id, inline: false},
                 {name: i18n('admin.botinfo.server', sc?.lang), value: message.guild.region, inline: true},
                 {name: i18n('admin.botinfo.ping', sc?.lang), value: `${message.client.ws.ping.toFixed(0)} ms`, inline: true},

@@ -137,7 +137,7 @@ async function playSong(message) {
     }
 
     serverQueue.seek = undefined;
-    serverQueue.toDelete = await nowplaying.fn(message, ['']);
+    serverQueue.toDelete = await nowplaying.fn(message);
 }
 
 /**
@@ -263,23 +263,23 @@ export default new Command({
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
             if (url.match(/([&?])list=[^&#]+/gmu)) {
-                const playlistId = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups.PlaylistId;
-                if (!playlistId.startsWith('PL')) {
+                const {PlaylistId} = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups;
+                if (!PlaylistId.startsWith('PL')) {
                     return await message.channel.send(i18n('music.play.youtubeMix', sc?.lang));
                 }
 
-                const plsongs = await getPlaylistItems(playlistId, {
+                const plSongs = await getPlaylistItems(PlaylistId, {
                     key: ytapikey,
                 }).catch(e => {
                     console.error(e);
                     return null;
                 });
 
-                if (!plsongs) {
+                if (!plSongs) {
                     return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
-                const songsInfo = await videoInfo(plsongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey}).catch(e => {
+                const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey}).catch(e => {
                     console.error(e);
                     return null;
                 });
@@ -377,17 +377,17 @@ export default new Command({
 
             songs.push(song);
         } else if (url.match(/spotify.com\/playlist\/[^?#]+/gmu)) {
-            const playlistId = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups.PlaylistId;
-            const plsongs = (await getSpotifyPlaylistItems(spotifyAPI, playlistId).catch(async e => {
+            const {PlaylistId} = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups;
+            const plSongs = (await getSpotifyPlaylistItems(spotifyAPI, PlaylistId).catch(async e => {
                 console.error(e);
                 return null;
             }));
 
-            if (!plsongs) {
+            if (!plSongs) {
                 return await message.channel.send(i18n('music.play.error', sc?.lang));
             }
 
-            plsongs.forEach(plSong => {
+            plSongs.forEach(plSong => {
                 const song = new Song({
                     title: plSong.name,
                     uploader: plSong.artists,
