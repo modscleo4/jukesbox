@@ -69,19 +69,7 @@ client.on('message', async message => {
     const sc = serverConfig.get(message.guild.id);
     const serverPrefix = sc?.prefix ?? prefix;
 
-    if (message.content.startsWith(`<@!${client.user.id}>`)) {
-        const command = client.commands.prefix;
-
-        try {
-            await command.fn(message, []);
-        } catch (e) {
-            console.error(e);
-            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message} \n\n\`\`\`${e.stack}\`\`\``);
-            await message.channel.send('Deu ruim aqui lek.').catch(() => {
-
-            });
-        };
-    } else if (message.content.startsWith(serverPrefix)) {
+    if (message.content.startsWith(serverPrefix)) {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? ['']).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 

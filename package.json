@@ -32,10 +32,10 @@
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.3",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.4.1"
+    "ytdl-core": "^4.4.3"
   },
   "devDependencies": {
-    "@types/pg": "^7.14.7",
+    "@types/pg": "^7.14.8",
     "@types/spotify-web-api-node": "^4.0.2"
   },
   "engines": {
