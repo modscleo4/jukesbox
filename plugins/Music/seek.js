@@ -52,12 +52,19 @@ export default new Command({
             return await message.channel.send(i18n('music.pause.noTime', sc?.lang));
         }
 
+        if (args[0].match(/^\+\d+$/)) {
+            args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
+        } else if (args[0].match(/^-\d+$/)) {
+            args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
+        }
+
         let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
         if (s > serverQueue.song.duration) {
             s = serverQueue.song.duration;
         }
 
         serverQueue.seek = s;
+        serverQueue.startTime = s;
         serverQueue.connection.dispatcher.end();
     },
 });

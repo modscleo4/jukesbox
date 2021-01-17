@@ -92,7 +92,7 @@ async function playSong(message) {
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    serverQueue.connection.play(serverQueue.song.stream, {
+    serverQueue.player = serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.seek,
         volume: serverQueue.volume / 100,
         highWaterMark,
@@ -101,6 +101,8 @@ async function playSong(message) {
 
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
         if (serverQueue.seek === undefined) {
+            serverQueue.startTime = 0;
+
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
