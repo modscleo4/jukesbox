@@ -25,3 +25,4 @@ export {default as lang} from "./lang.js";
 export {default as channeldeny} from "./channeldeny.js";
 export {default as channelallow} from "./channelallow.js";
 export {default as channeldenylist} from "./channeldenylist.js";
+export {default as resetconfig} from "./resetconfig.js";

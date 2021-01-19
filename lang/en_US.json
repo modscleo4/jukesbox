@@ -187,6 +187,9 @@
     "channeldenylist": {
       "noBlocked": "'No Command is blocked on this Text Channel.'",
       "list": "`Blocked commands: ${cmds.join(' ')}`"
+    },
+    "resetconfig": {
+      "success": "'Server configuration reset to default.'"
     }
   }
 }

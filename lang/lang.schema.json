@@ -750,6 +750,17 @@
             "noBlocked",
             "list"
           ]
+        },
+        "resetconfig": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
         }
       },
       "required": [
@@ -757,7 +768,8 @@
         "lang",
         "channeldeny",
         "channelallow",
-        "channeldenylist"
+        "channeldenylist",
+        "resetconfig"
       ]
     }
   },
