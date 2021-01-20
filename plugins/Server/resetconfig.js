@@ -29,10 +29,10 @@ import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Shows/changes the bot language.',
-        pt_BR: 'Mostra/altera o idioma do bot no servidor.',
+        en_US: 'Reset all Server configuration settings.',
+        pt_BR: 'Reseta todas as configurações do Servidor.',
     },
-    usage: 'lang [lang_COUNTRY]',
+    usage: 'resetconfig',
 
     userPermissions: {
         server: ['MANAGE_GUILD'],
