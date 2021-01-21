@@ -30,12 +30,12 @@
     "dotenv": "^8.2.0",
     "googleapis": "^67.0.0",
     "pg": "^8.5.1",
-    "soundcloud-downloader": "^0.2.3",
+    "soundcloud-downloader": "^0.2.4",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.4.3"
+    "ytdl-core": "^4.4.4"
   },
   "devDependencies": {
-    "@types/pg": "^7.14.8",
+    "@types/pg": "^7.14.9",
     "@types/spotify-web-api-node": "^5.0.0"
   },
   "engines": {
