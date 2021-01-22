@@ -54,6 +54,9 @@
         "botinfo": {
           "$ref": "#/definitions/command",
           "properties": {
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
             "serverID": {
               "$ref": "#/definitions/entry"
             },
@@ -95,6 +98,7 @@
             }
           },
           "required": [
+            "embedTitle",
             "serverID",
             "serverName",
             "id",
@@ -654,6 +658,69 @@
     "server": {
       "$ref": "#/definitions/category",
       "properties": {
+        "serverinfo": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "roles_embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "emojis_embedTitle": {
+              "$ref": "#/definitions/entry"
+            },
+            "owner": {
+              "$ref": "#/definitions/entry"
+            },
+            "id": {
+              "$ref": "#/definitions/entry"
+            },
+            "region": {
+              "$ref": "#/definitions/entry"
+            },
+            "members": {
+              "$ref": "#/definitions/entry"
+            },
+            "onlineMembers": {
+              "$ref": "#/definitions/entry"
+            },
+            "textChannels": {
+              "$ref": "#/definitions/entry"
+            },
+            "voiceChannels": {
+              "$ref": "#/definitions/entry"
+            },
+            "afkChannel": {
+              "$ref": "#/definitions/entry"
+            },
+            "noAfkChannel": {
+              "$ref": "#/definitions/entry"
+            },
+            "roles": {
+              "$ref": "#/definitions/entry"
+            },
+            "emojis": {
+              "$ref": "#/definitions/entry"
+            },
+            "createdAt": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "roles_embedTitle",
+            "emojis_embedTitle",
+            "owner",
+            "id",
+            "region",
+            "members",
+            "onlineMembers",
+            "textChannels",
+            "voiceChannels",
+            "afkChannel",
+            "noAfkChannel",
+            "roles",
+            "emojis",
+            "createdAt"
+          ]
+        },
         "prefix": {
           "$ref": "#/definitions/command",
           "properties": {
@@ -759,6 +826,21 @@
             }
           },
           "required": [
+            "success"
+          ]
+        },
+        "telemetry": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "telemetryLevel": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "telemetryLevel",
             "success"
           ]
         }

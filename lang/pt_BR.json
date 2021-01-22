@@ -11,6 +11,7 @@
   "commandRestricted": "':no_entry_sign: comando bloqueado neste Canal de Texto.'",
   "admin": {
     "botinfo": {
+      "embedTitle": "'Admin'",
       "serverID": "`ID: ${id}`",
       "serverName": "`Servidor: ${server}`",
       "id": "ID",
@@ -162,6 +163,22 @@
     }
   },
   "server": {
+    "serverinfo": {
+      "roles_embedTitle": "'Cargos de ${serverName}'",
+      "emojis_embedTitle": "'Emojis de ${serverName}'",
+      "owner": "'Dono'",
+      "id": "'ID'",
+      "region": "'Região'",
+      "members": "'Membros'",
+      "onlineMembers": "'Membros online'",
+      "textChannels": "'Canais de Texto'",
+      "voiceChannels": "'Canais de Voz'",
+      "afkChannel": "'Canal de AFK'",
+      "noAfkChannel": "'(Sem)'",
+      "roles": "'Cargos'",
+      "emojis": "'Emojis'",
+      "createdAt": "'Criado'"
+    },
     "prefix": {
       "prefix": "`Prefixo: ,,,${prefix},,,.`",
       "success": "`Prefixo alterado para ,,,${prefix},,,.`"
@@ -190,6 +207,10 @@
     },
     "resetconfig": {
       "success": "'Configurações do servidor resetadas.'"
+    },
+    "telemetry": {
+      "telemetryLevel": "`Configuração de telemetria atual: ${['Mínima', 'Completa'][telemetryLevel]}`",
+      "success": "'Configurações de telemetria alteradas.'"
     }
   }
 }

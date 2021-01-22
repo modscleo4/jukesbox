@@ -78,7 +78,7 @@ export default new Command({
         }
 
         return await message.channel.send(new MessageEmbed({
-            title: 'Admin',
+            title: i18n('admin.botinfo.embedTitle', sc?.lang),
             author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
             timestamp: new Date(),
             fields: [

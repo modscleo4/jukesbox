@@ -11,6 +11,7 @@
   "commandRestricted": "':no_entry_sign: command blocked on this Text Channel.'",
   "admin": {
     "botinfo": {
+      "embedTitle": "'Admin'",
       "serverID": "`ID: ${id}`",
       "serverName": "`Server: ${server}`",
       "id": "ID",
@@ -162,6 +163,22 @@
     }
   },
   "server": {
+    "serverinfo": {
+      "roles_embedTitle": "'Roles of ${serverName}'",
+      "emojis_embedTitle": "'Emojis of ${serverName}'",
+      "owner": "'Owner'",
+      "id": "'ID'",
+      "region": "'Region'",
+      "members": "'Members'",
+      "onlineMembers": "'Online Members'",
+      "textChannels": "'Text Channels'",
+      "voiceChannels": "'Voice Channels'",
+      "afkChannel": "'AFK Channel'",
+      "noAfkChannel": "(None)",
+      "roles": "'Roles'",
+      "emojis": "'Emojis'",
+      "createdAt": "'Created at'"
+    },
     "prefix": {
       "prefix": "`Prefix: ,,,${prefix},,,.`",
       "success": "`Prefix changed to ,,,${prefix},,,.`"
@@ -190,6 +207,10 @@
     },
     "resetconfig": {
       "success": "'Server configuration reset to default.'"
+    },
+    "telemetry": {
+      "telemetryLevel": "`Current Telemetry setting: ${['Minimal', 'Full'][telemetryLevel]}`",
+      "success": "'Telemetry Settings saved.'"
     }
   }
 }
