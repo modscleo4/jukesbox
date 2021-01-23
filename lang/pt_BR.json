@@ -164,8 +164,8 @@
   },
   "server": {
     "serverinfo": {
-      "roles_embedTitle": "'Cargos de ${serverName}'",
-      "emojis_embedTitle": "'Emojis de ${serverName}'",
+      "roles_embedTitle": "`Cargos de ${serverName}`",
+      "emojis_embedTitle": "`Emojis de ${serverName}`",
       "owner": "'Dono'",
       "id": "'ID'",
       "region": "'Região'",
