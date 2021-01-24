@@ -61,5 +61,11 @@ export default function i18n(key, lang = 'pt_BR', params = {}) {
         globalThis[k] = params[k];
     }
 
-    return eval(str).replace(/,,,/gmu, '`');
+    const ret = eval(str).replace(/,,,/gmu, '`');
+
+    for (const k in params) {
+        globalThis[k] = undefined;
+    }
+
+    return ret;
 }

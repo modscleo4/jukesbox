@@ -52,7 +52,9 @@ export default new Command({
 
         await this.checkPermissions(message);
 
-        await message.member.voice.channel.join();
+        const voiceConnection = await message.member.voice.channel.join();
+        await voiceConnection.voice.setSelfDeaf(true);
+
         return await message.channel.send(new MessageEmbed({
             title: i18n('music.join.embedTitle', sc?.lang),
             author: {name: message.author.username, iconURL: message.author.avatarURL()},

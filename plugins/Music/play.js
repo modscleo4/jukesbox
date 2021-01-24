@@ -412,6 +412,8 @@ export default new Command({
 
             try {
                 q.connection = await message.member.voice.channel.join();
+                await q.connection.voice.setSelfDeaf(true);
+
                 q.connection.on('disconnect', async () => {
                     await q.deletePending();
                     queue.delete(message.guild.id);
