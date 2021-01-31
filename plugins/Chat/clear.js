@@ -51,6 +51,10 @@ export default new Command({
 
         await this.checkPermissions(message);
 
+        if (!args[0]) {
+            return await message.channel.send(i18n('chat.clear.noArgs', sc?.lang));
+        }
+
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
 
         await message.delete().then(async () => {

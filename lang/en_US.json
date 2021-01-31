@@ -32,6 +32,7 @@
   },
   "chat": {
     "clear": {
+      "noArgs": "Provide the number of messages to delete.",
       "deletedN": "`I deleted ${n} message${n > 1 ? 's' : ''}.`"
     },
     "poll": {

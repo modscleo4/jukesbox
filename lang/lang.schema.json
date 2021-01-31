@@ -137,11 +137,15 @@
         "clear": {
           "$ref": "#/definitions/command",
           "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
             "deletedN": {
               "$ref": "#/definitions/entry"
             }
           },
           "required": [
+            "noArgs",
             "deletedN"
           ]
         },
