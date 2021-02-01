@@ -32,7 +32,7 @@
   },
   "chat": {
     "clear": {
-      "noArgs": "Tenho que apagar quantas vei?",
+      "noArgs": "'Tenho que apagar quantas vei?'",
       "deletedN": "`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`"
     },
     "poll": {
