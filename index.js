@@ -137,6 +137,7 @@ process.on('SIGTERM', async () => {
     });
 
     console.log(`Atualizando.`);
+    client.destroy();
 });
 
 process.on('unhandledRejection', async (e, promise) => {
