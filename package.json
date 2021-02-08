@@ -25,14 +25,19 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
+    "@discordjs/opus": "^0.4.0",
+    "bufferutil": "^4.0.3",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
+    "erlpack": "github:discord/erlpack",
     "googleapis": "^67.0.0",
+    "libsodium-wrappers": "^0.7.9",
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.4",
     "spotify-web-api-node": "^5.0.2",
-    "ytdl-core": "^4.4.5"
+    "utf-8-validate": "^5.0.4",
+    "ytdl-core": "^4.4.5",
+    "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
     "@types/pg": "^7.14.9",

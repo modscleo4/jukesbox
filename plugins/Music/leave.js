@@ -49,7 +49,7 @@ export default new Command({
 
         if (serverQueue) {
             serverQueue.songs = [];
-            serverQueue.connection.dispatcher.end();
+            serverQueue.connection?.dispatcher.end();
             serverQueue.playing = false;
         }
 

@@ -63,7 +63,8 @@ export default new Command({
             serverQueue.songs.shift();
         }
 
-        serverQueue.connection.dispatcher.end();
+        !serverQueue.playing && serverQueue.connection?.dispatcher.resume();
+        serverQueue.connection?.dispatcher.end();
 
         return await message.channel.send(i18n('music.skip.success', sc?.lang));
     },

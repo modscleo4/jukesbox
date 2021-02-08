@@ -50,7 +50,7 @@ export default new Command({
         }
 
         serverQueue.songs = [];
-        serverQueue.connection.dispatcher.end();
+        serverQueue.connection?.dispatcher.end();
         serverQueue.playing = false;
         return await message.channel.send(i18n('music.stop.success', sc?.lang));
     },
