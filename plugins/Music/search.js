@@ -22,7 +22,7 @@
 
 import {MessageEmbed} from "discord.js";
 
-import {ytapikey} from "../../config.js";
+import {ytapikeys} from "../../config.js";
 import {searchVideo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
@@ -80,11 +80,15 @@ export default new Command({
         }
 
         const results = await searchVideo(args.join(' '), {
-            key: ytapikey,
+            keys: ytapikeys,
             regionCode: 'us',
             type: kind,
             videoEmbeddable: kind === 'video' ? true : 'any',
         });
+
+        if (results.length === 0) {
+            return await message.channel.send(i18n('music.search.nothingFound', sc?.lang));
+        }
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 

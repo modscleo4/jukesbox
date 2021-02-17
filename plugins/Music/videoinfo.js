@@ -22,7 +22,7 @@
 
 import {MessageEmbed} from "discord.js";
 
-import {ytapikey} from "../../config.js";
+import {ytapikeys} from "../../config.js";
 import {cutUntil, isValidHttpURL, parseMS, videoInfo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
@@ -58,7 +58,7 @@ export default new Command({
 
         const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
         const songInfo = (await videoInfo(VideoId, {
-            key: ytapikey,
+            key: ytapikeys,
             part: ['id', 'snippet', 'contentDetails', 'statistics'],
         }).catch(e => {
             console.error(e);

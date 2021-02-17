@@ -26,7 +26,7 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue, serverConfig} from "../../global.js";
-import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikey} from "../../config.js";
+import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikeys} from "../../config.js";
 import {
     getPlaylistItems,
     getSpotifyPlaylistItems,
@@ -150,7 +150,7 @@ async function playSong(message) {
  */
 async function findOnYT(song) {
     const url = ((await searchVideo(`${song.uploader} - ${song.title} Provided to YouTube by`, {
-        key: ytapikey,
+        keys: ytapikeys,
         regionCode: 'us',
         type: 'video',
         part: ['id'],
@@ -165,7 +165,7 @@ async function findOnYT(song) {
     }
 
     const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
-    const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
+    const songInfo = (await videoInfo(VideoId, {keys: ytapikeys}).catch(e => {
         console.error(e);
         return [null];
     }))[0];
@@ -192,7 +192,7 @@ async function findOnYT(song) {
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
-                    Authorization: `Bearer ${ytapikey}`,
+                    Authorization: `Bearer ${ytapikeys[0]}`,
                 }
             },
         },
@@ -253,7 +253,7 @@ export default new Command({
 
         const songs = [];
         const url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
-            key: ytapikey,
+            keys: ytapikeys,
             regionCode: 'us',
             type: kind,
             part: ['id'],
@@ -272,7 +272,7 @@ export default new Command({
                 }
 
                 const plSongs = await getPlaylistItems(PlaylistId, {
-                    key: ytapikey,
+                    keys: ytapikeys,
                 }).catch(e => {
                     console.error(e);
                     return null;
@@ -282,7 +282,7 @@ export default new Command({
                     return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
-                const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {key: ytapikey}).catch(e => {
+                const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: ytapikeys}).catch(e => {
                     console.error(e);
                     return null;
                 });
@@ -310,7 +310,7 @@ export default new Command({
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
-                                    Authorization: `Bearer ${ytapikey}`,
+                                    Authorization: `Bearer ${ytapikeys[0]}`,
                                 }
                             },
                         },
@@ -320,7 +320,7 @@ export default new Command({
                 });
             } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
                 const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
-                const songInfo = (await videoInfo(VideoId, {key: ytapikey}).catch(e => {
+                const songInfo = (await videoInfo(VideoId, {keys: ytapikeys}).catch(e => {
                     console.error(e);
                     return [null];
                 }))[0];
@@ -348,7 +348,7 @@ export default new Command({
                         requestOptions: {
                             host: 'jukesbox.herokuapp.com',
                             headers: {
-                                Authorization: `Bearer ${ytapikey}`,
+                                Authorization: `Bearer ${ytapikeys[0]}`,
                             }
                         },
                     },
