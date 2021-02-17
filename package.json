@@ -40,7 +40,7 @@
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
-    "@types/pg": "^7.14.9",
+    "@types/pg": "^7.14.10",
     "@types/spotify-web-api-node": "^5.0.0"
   },
   "engines": {
