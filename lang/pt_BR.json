@@ -97,6 +97,7 @@
     },
     "search": {
       "noArgs": "'Sem meus argumentos eu não consigo.'",
+      "nothingFound": "'Achei nada lesk.'",
       "embedTitle": "'Achei isso aqui lek'"
     },
     "videoinfo": {

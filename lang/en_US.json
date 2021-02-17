@@ -97,6 +97,7 @@
     },
     "search": {
       "noArgs": "'Type the query string first.'",
+      "nothingFound": "'I didn't find anything on YouTube.'",
       "embedTitle": "'I found this on YouTube'"
     },
     "videoinfo": {

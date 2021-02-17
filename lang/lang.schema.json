@@ -390,6 +390,9 @@
             "noArgs": {
               "$ref": "#/definitions/entry"
             },
+            "nothingFound": {
+              "$ref": "#/definitions/entry"
+            },
             "embedTitle": {
               "$ref": "#/definitions/entry"
             }
