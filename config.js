@@ -24,13 +24,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const database_url = process.env.DATABASE_URL;
-export const prefix = process.env.PREFIX;
-export const highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
-export const dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
-export const token = process.env.TOKEN;
-export const ytapikeys = (process.env.YTAPIKEYS ?? '').split(';');
-export const scclientID = process.env.SCCLIENTID;
-export const spclientID = process.env.SPCLIENTID;
-export const spsecret = process.env.SPSECRET;
-export const adminID = process.env.ADMINID;
+export function reloadConfig() {
+    database_url = process.env.DATABASE_URL;
+    prefix = process.env.PREFIX;
+    highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
+    dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
+    token = process.env.TOKEN;
+    ytapikeys = (process.env.YTAPIKEYS ?? '').split(';');
+    scclientID = process.env.SCCLIENTID;
+    spclientID = process.env.SPCLIENTID;
+    spsecret = process.env.SPSECRET;
+    adminID = process.env.ADMINID;
+}
+
+export let database_url = process.env.DATABASE_URL;
+export let prefix = process.env.PREFIX;
+export let highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
+export let dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
+export let token = process.env.TOKEN;
+export let ytapikeys = (process.env.YTAPIKEYS ?? '').split(';');
+export let scclientID = process.env.SCCLIENTID;
+export let spclientID = process.env.SPCLIENTID;
+export let spsecret = process.env.SPSECRET;
+export let adminID = process.env.ADMINID;

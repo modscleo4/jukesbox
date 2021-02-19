@@ -28,6 +28,9 @@
     },
     "restart": {
       "restarting": "'F'"
+    },
+    "reload": {
+      "success": "'.env recarregado.'"
     }
   },
   "chat": {

@@ -124,11 +124,23 @@
           "required": [
             "restarting"
           ]
+        },
+        "reload": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
         }
       },
       "required": [
         "botinfo",
-        "restart"
+        "restart",
+        "reload"
       ]
     },
     "chat": {
