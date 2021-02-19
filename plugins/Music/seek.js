@@ -49,7 +49,7 @@ export default new Command({
         }
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('music.pause.noTime', sc?.lang));
+            return await message.channel.send(i18n('music.seek.noTime', sc?.lang));
         }
 
         if (args[0].match(/^\+\d+$/)) {
