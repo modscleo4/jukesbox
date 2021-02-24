@@ -9,6 +9,8 @@
   "noVoiceChannel": "'Join a Voice Channel first.'",
   "sameVoiceChannel": "'You need to be in the same Voice Channel to run this command.'",
   "commandRestricted": "':no_entry_sign: command blocked on this Text Channel.'",
+  "minimal": "'Minimal'",
+  "full": "'Full'",
   "admin": {
     "botinfo": {
       "embedTitle": "'Admin'",
@@ -182,7 +184,10 @@
       "noAfkChannel": "(None)",
       "roles": "'Roles'",
       "emojis": "'Emojis'",
-      "createdAt": "'Created at'"
+      "createdAt": "'Created at'",
+      "prefix": "'Prefix'",
+      "lang": "'Language'",
+      "telemetry": "'Telemetry'"
     },
     "prefix": {
       "prefix": "`Prefix: ,,,${prefix},,,.`",
@@ -214,7 +219,7 @@
       "success": "'Server configuration reset to default.'"
     },
     "telemetry": {
-      "telemetryLevel": "`Current Telemetry setting: ${['Minimal', 'Full'][telemetryLevel]}`",
+      "telemetryLevel": "`Current Telemetry setting: ${[minimal, full][telemetryLevel]}`",
       "success": "'Telemetry Settings saved.'"
     }
   }

@@ -9,6 +9,8 @@
   "noVoiceChannel": "'Tá solo né filha da puta.'",
   "sameVoiceChannel": "'Tu nem tá aqui vei.'",
   "commandRestricted": "':no_entry_sign: comando bloqueado neste Canal de Texto.'",
+  "minimal": "'Mínima'",
+  "full": "'Completa'",
   "admin": {
     "botinfo": {
       "embedTitle": "'Admin'",
@@ -182,7 +184,10 @@
       "noAfkChannel": "'(Sem)'",
       "roles": "'Cargos'",
       "emojis": "'Emojis'",
-      "createdAt": "'Criado'"
+      "createdAt": "'Criado'",
+      "prefix": "'Prefixo'",
+      "lang": "'Idioma'",
+      "telemetry": "'Telemetria'"
     },
     "prefix": {
       "prefix": "`Prefixo: ,,,${prefix},,,.`",
@@ -214,7 +219,7 @@
       "success": "'Configurações do servidor resetadas.'"
     },
     "telemetry": {
-      "telemetryLevel": "`Configuração de telemetria atual: ${['Mínima', 'Completa'][telemetryLevel]}`",
+      "telemetryLevel": "`Configuração de telemetria atual: ${[minimal, full][telemetryLevel]}`",
       "success": "'Configurações de telemetria alteradas.'"
     }
   }

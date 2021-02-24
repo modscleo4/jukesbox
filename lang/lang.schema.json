@@ -48,6 +48,12 @@
     "commandRestricted": {
       "$ref": "#/definitions/entry"
     },
+    "minimal": {
+      "$ref": "#/definitions/entry"
+    },
+    "full": {
+      "$ref": "#/definitions/entry"
+    },
     "admin": {
       "$ref": "#/definitions/category",
       "properties": {
@@ -721,6 +727,15 @@
             },
             "createdAt": {
               "$ref": "#/definitions/entry"
+            },
+            "prefix": {
+              "$ref": "#/definitions/entry"
+            },
+            "lang": {
+              "$ref": "#/definitions/entry"
+            },
+            "telemetry": {
+              "$ref": "#/definitions/entry"
             }
           },
           "required": [
@@ -737,7 +752,10 @@
             "noAfkChannel",
             "roles",
             "emojis",
-            "createdAt"
+            "createdAt",
+            "prefix",
+            "lang",
+            "telemetry"
           ]
         },
         "prefix": {
@@ -880,6 +898,10 @@
     "insufficientBotPermissions",
     "insufficientUserPermissions",
     "noVoiceChannel",
+    "sameVoiceChannel",
+    "commandRestricted",
+    "minimal",
+    "full",
     "admin",
     "chat",
     "help",

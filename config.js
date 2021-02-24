@@ -22,9 +22,20 @@
 
 import dotenv from "dotenv";
 
-dotenv.config();
+export let database_url;
+export let prefix;
+export let highWaterMark;
+export let dlChunkSize;
+export let token;
+export let ytapikeys;
+export let scclientID;
+export let spclientID;
+export let spsecret;
+export let adminID;
 
 export function reloadConfig() {
+    dotenv.config();
+
     database_url = process.env.DATABASE_URL;
     prefix = process.env.PREFIX;
     highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
@@ -37,13 +48,4 @@ export function reloadConfig() {
     adminID = process.env.ADMINID;
 }
 
-export let database_url = process.env.DATABASE_URL;
-export let prefix = process.env.PREFIX;
-export let highWaterMark = parseInt(process.env.HIGH_WATER_MARK || '4096');
-export let dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
-export let token = process.env.TOKEN;
-export let ytapikeys = (process.env.YTAPIKEYS ?? '').split(';');
-export let scclientID = process.env.SCCLIENTID;
-export let spclientID = process.env.SPCLIENTID;
-export let spsecret = process.env.SPSECRET;
-export let adminID = process.env.ADMINID;
+reloadConfig();

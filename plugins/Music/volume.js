@@ -55,10 +55,7 @@ export default new Command({
 
         await this.checkPermissions(message);
 
-        let volume = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
-        if (volume > 100) {
-            volume = 100;
-        }
+        const volume = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 100);
 
         if (serverQueue) {
             serverQueue.volume = volume;

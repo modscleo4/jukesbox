@@ -65,6 +65,8 @@ export default new Command({
             }
         }).then(async () => {
             await message.channel.send(i18n('chat.clear.deletedN', sc?.lang, {n})).then(async m => await m.delete({timeout: 1000}));
+        }).catch(e => {
+            
         });
     }
 });

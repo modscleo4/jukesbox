@@ -51,13 +51,14 @@ export default new Command({
         await this.checkPermissions(message);
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('server.telemetry.telemetryLevel', sc?.lang, {telemetryLevel: sc.telemetryLevel}));
+            return await message.channel.send(i18n('server.telemetry.telemetryLevel', sc?.lang, {
+                minimal: i18n('minimal', sc?.lang),
+                full: i18n('full', sc?.lang),
+                telemetryLevel: sc.telemetryLevel,
+            }));
         }
 
-        let telemetryLevel = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
-        if (telemetryLevel > 1) {
-            telemetryLevel = 1;
-        }
+        const telemetryLevel = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 1);
 
         sc.telemetryLevel = telemetryLevel;
         await sc.save(database_url);

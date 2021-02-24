@@ -30,13 +30,13 @@
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "erlpack": "^0.1.3",
-    "googleapis": "^67.0.0",
+    "googleapis": "^67.1.0",
     "libsodium-wrappers": "^0.7.9",
     "pg": "^8.5.1",
     "soundcloud-downloader": "^0.2.4",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.4",
-    "ytdl-core": "^4.4.5",
+    "ytdl-core": "^4.5.0",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {

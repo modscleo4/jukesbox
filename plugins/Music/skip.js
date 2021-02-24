@@ -52,9 +52,8 @@ export default new Command({
             return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
-        let skips = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
-        if (skips > serverQueue.songs.length) {
-            skips = serverQueue.songs.length;
+        const skips = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length);
+        if (skips === serverQueue.songs.length) {
             serverQueue.playing = false;
         }
 

@@ -92,17 +92,17 @@ async function playSong(message) {
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
+    serverQueue.startTime = serverQueue.song.seek ?? 0;
+
     serverQueue.player = serverQueue.connection.play(serverQueue.song.stream, {
-        seek: serverQueue.seek,
+        seek: serverQueue.song.seek,
         volume: serverQueue.volume / 100,
         highWaterMark,
     }).on('finish', async () => {
         serverQueue.playing = false;
 
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
-        if (serverQueue.seek === undefined) {
-            serverQueue.startTime = 0;
-
+        if (serverQueue.song.seek === undefined) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
@@ -139,7 +139,7 @@ async function playSong(message) {
         await playSong(message);
     }
 
-    serverQueue.seek = undefined;
+    serverQueue.song.seek = undefined;
     serverQueue.toDelete = await nowplaying.fn(message);
 }
 
@@ -266,7 +266,10 @@ export default new Command({
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
             if (url.match(/([&?])list=[^&#]+/gmu)) {
-                const {PlaylistId} = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url).groups;
+                const {PlaylistId} = /[&?]list=(?<PlaylistId>[^&#]+)/gmu.exec(url)?.groups ?? {};
+                const {Index} = /[&?]index=(?<Index>[^&#]+)/gmu.exec(url)?.groups ?? {};
+                const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
+
                 if (!PlaylistId.startsWith('PL')) {
                     return await message.channel.send(i18n('music.play.youtubeMix', sc?.lang));
                 }
@@ -291,7 +294,7 @@ export default new Command({
                     return await message.channel.send(i18n('music.play.error', sc?.lang));
                 }
 
-                songsInfo.forEach(songInfo => {
+                songsInfo.forEach((songInfo, i) => {
                     const song = new Song({
                         title: songInfo.snippet.title,
                         url: songInfo.url,
@@ -300,6 +303,7 @@ export default new Command({
                         duration: songInfo.duration,
                         from: 'yt',
                         addedBy: message.author,
+                        seek: (i + 1 === (parseInt(Index) || 1) && parseInt(T)) || undefined,
                         fn: ytdl,
                         options: {
                             filter: songInfo.duration === 0 ? null : 'audioonly',
@@ -319,7 +323,8 @@ export default new Command({
                     songs.push(song);
                 });
             } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-                const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
+                const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url)?.groups ?? {};
+                const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
                 const songInfo = (await videoInfo(VideoId, {keys: ytapikeys}).catch(e => {
                     console.error(e);
                     return [null];
@@ -337,6 +342,7 @@ export default new Command({
                     duration: songInfo.duration,
                     from: 'yt',
                     addedBy: message.author,
+                    seek: parseInt(T) || undefined,
                     fn: ytdl,
                     options: {
                         // If the song duration is 0s, it's a livestream
@@ -380,7 +386,7 @@ export default new Command({
 
             songs.push(song);
         } else if (url.match(/spotify.com\/playlist\/[^?#]+/gmu)) {
-            const {PlaylistId} = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url).groups;
+            const {PlaylistId} = /spotify.com\/playlist\/(?<PlaylistId>[^?#]+)/gmu.exec(url)?.groups ?? {};
             const plSongs = (await getSpotifyPlaylistItems(spotifyAPI, PlaylistId).catch(async e => {
                 console.error(e);
                 return null;
@@ -412,7 +418,7 @@ export default new Command({
 
             try {
                 q.connection = await message.member.voice.channel.join();
-                await q.connection.voice.setSelfDeaf(true);
+                await q.connection.voice?.setSelfDeaf(true);
 
                 q.connection.on('disconnect', async () => {
                     await q.deletePending();
@@ -428,7 +434,10 @@ export default new Command({
         } else {
             serverQueue.songs = serverQueue.songs.concat(songs);
             if (songs.length === 1) {
-                return await message.channel.send(i18n('music.play.playingOne', sc?.lang, {songTitle: songs[0].title, position: serverQueue.songs.length}));
+                return await message.channel.send(i18n('music.play.playingOne', sc?.lang, {
+                    songTitle: songs[0].title,
+                    position: serverQueue.songs.length
+                }));
             }
 
             return await message.channel.send(i18n('music.play.playingMany', sc?.lang, {n: songs.length}));

@@ -49,10 +49,7 @@ export default new Command({
             return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
         }
 
-        let toRemove = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1;
-        if (toRemove >= serverQueue.songs.length) {
-            toRemove = serverQueue.songs.length - 1;
-        }
+        const toRemove = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length - 1);
 
         if (toRemove === 0) {
             return await skip.fn(message, ['1']);

@@ -58,12 +58,9 @@ export default new Command({
             args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
         }
 
-        let s = (Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0;
-        if (s > serverQueue.song.duration) {
-            s = serverQueue.song.duration;
-        }
+        const s = Math.min((Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, serverQueue.song.duration);
 
-        serverQueue.seek = s;
+        serverQueue.song.seek = s;
         serverQueue.startTime = s;
         serverQueue.connection.dispatcher.end();
     },
