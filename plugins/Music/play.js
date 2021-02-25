@@ -102,7 +102,7 @@ async function playSong(message) {
         serverQueue.playing = false;
 
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
-        if (serverQueue.song.seek === undefined) {
+        if (serverQueue.song?.seek === undefined) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
