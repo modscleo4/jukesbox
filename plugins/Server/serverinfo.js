@@ -83,7 +83,7 @@ export default new Command({
             timestamp: new Date(),
             thumbnail: {url: message.guild.iconURL()},
             fields: [
-                {name: i18n('server.serverinfo.owner', sc?.lang), value: `<@!${message.guild.owner.id}>`, inline: true},
+                {name: i18n('server.serverinfo.owner', sc?.lang), value: `<@!${message.guild.ownerID}>`, inline: true},
                 {name: i18n('server.serverinfo.id', sc?.lang), value: message.guild.id, inline: true},
                 {name: i18n('server.serverinfo.region', sc?.lang), value: message.guild.region, inline: true},
                 {name: i18n('server.serverinfo.members', sc?.lang), value: message.guild.memberCount, inline: true},
