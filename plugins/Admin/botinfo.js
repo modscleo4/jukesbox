@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import {startupTime, queue, serverConfig} from "../../global.js";
-import {adminID} from "../../config.js";
+import * as config from "../../config.js";
 import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
@@ -35,7 +35,7 @@ export default new Command({
         pt_BR: 'Informações do bot.',
     },
     usage: 'botinfo [servers] [voicechannels]',
-    only: [adminID],
+    only: [config.adminID],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -68,6 +68,15 @@ export default new Command({
                 }));
 
                 return await pageEmbed(message, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
+            },
+
+            async env() {
+                const envVars = Object.keys(config).filter(k => typeof config[k] !== 'function').map(k => ({
+                    name: k,
+                    value: JSON.stringify(config[k], null, 2),
+                }));
+
+                return await pageEmbed(message, {title: i18n('admin.botinfo.envVars', sc?.lang), content: envVars});
             },
         };
 

@@ -19,6 +19,7 @@
       "id": "ID",
       "servers": "'Servidores'",
       "voiceChannels": "'Canais de voz'",
+      "envVars": "'Variáveis de ambiente'",
       "uptime": "'Uptime'",
       "uuid": "'UUID'",
       "server": "'Servidor'",
@@ -33,6 +34,9 @@
     },
     "reload": {
       "success": "'.env recarregado.'"
+    },
+    "eval": {
+      "noArgs": "'Manda o JS ai lek.'"
     }
   },
   "chat": {

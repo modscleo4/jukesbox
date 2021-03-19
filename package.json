@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "node --trace-warnings --experimental-json-modules ."
+    "start": "node --trace-warnings --experimental-json-modules --expose-gc ."
   },
   "keywords": [
     "discord",

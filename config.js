@@ -32,6 +32,7 @@ export let scclientID;
 export let spclientID;
 export let spsecret;
 export let adminID;
+export let production;
 
 export function reloadConfig() {
     dotenv.config();
@@ -46,6 +47,7 @@ export function reloadConfig() {
     spclientID = process.env.SPCLIENTID;
     spsecret = process.env.SPSECRET;
     adminID = process.env.ADMINID;
+    production = process.env.PRODUCTION === 'true';
 }
 
 reloadConfig();

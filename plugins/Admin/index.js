@@ -23,3 +23,4 @@
 export {default as botinfo} from "./botinfo.js";
 export {default as restart} from "./restart.js";
 export {default as reload} from "./reload.js";
+export {default as eval} from "./eval.js";

@@ -22,7 +22,7 @@
 
 import Client from "./lib/Client.js";
 import {setServerConfig} from "./global.js";
-import {adminID, database_url, prefix, token} from "./config.js";
+import {adminID, database_url, prefix, token, production} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
@@ -113,7 +113,7 @@ client.on('message', async message => {
             }
 
             console.error(e);
-            adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
+            production && adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
             await message.channel.send(i18n('unhandledException', sc?.lang)).catch(() => {
 
             });
@@ -137,10 +137,21 @@ process.on('SIGTERM', async () => {
     });
 
     console.log(`Atualizando.`);
+    client.removeAllListeners();
     client.destroy();
+
+    process.removeAllListeners();
 });
 
 process.on('unhandledRejection', async (e, promise) => {
     console.error(e);
-    adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
+    production && adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
 });
+
+setTimeout(() => {
+    client.users.cache.clear();
+    client.emojis.cache.clear();
+    client.channels.cache.clear();
+    client.guilds.cache.clear();
+    global.gc();
+}, 1000 * 60 * 60 * 24);

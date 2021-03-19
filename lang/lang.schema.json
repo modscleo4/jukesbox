@@ -78,6 +78,9 @@
             "voiceChannels": {
               "$ref": "#/definitions/entry"
             },
+            "envVars": {
+              "$ref": "#/definitions/entry"
+            },
             "uptime": {
               "$ref": "#/definitions/entry"
             },
@@ -110,6 +113,7 @@
             "id",
             "servers",
             "voiceChannels",
+            "envVars",
             "uptime",
             "uuid",
             "server",
@@ -141,12 +145,24 @@
           "required": [
             "success"
           ]
+        },
+        "eval": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noArgs"
+          ]
         }
       },
       "required": [
         "botinfo",
         "restart",
-        "reload"
+        "reload",
+        "eval"
       ]
     },
     "chat": {
