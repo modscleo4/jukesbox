@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Admin plugin (reload command)
+ * @file Admin plugin (clearcache command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-import {adminID, reloadConfig} from "../../config.js";
+import {adminID, token} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
@@ -28,10 +28,10 @@ import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Reloads the bot .env.',
-        pt_BR: 'Recarrega o .env do bot.',
+        en_US: 'Clears Discord.js cache.',
+        pt_BR: 'Limpa o cache do Discord.js.',
     },
-    usage: 'reload',
+    usage: 'clearcache',
     only: [adminID],
 
     /**
@@ -43,7 +43,8 @@ export default new Command({
     async fn(message) {
         const sc = serverConfig.get(message.guild.id);
 
-        reloadConfig();
-        await message.channel.send(i18n('admin.reload.success', sc?.lang));
+        message.client.clearCache();
+
+        await message.channel.send(i18n('admin.clearcache.success', sc?.lang));
     },
 });

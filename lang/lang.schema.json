@@ -156,13 +156,25 @@
           "required": [
             "noArgs"
           ]
+        },
+        "clearcache": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
         }
       },
       "required": [
         "botinfo",
         "restart",
         "reload",
-        "eval"
+        "eval",
+        "clearcache"
       ]
     },
     "chat": {

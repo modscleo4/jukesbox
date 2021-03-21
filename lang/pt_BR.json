@@ -37,6 +37,9 @@
     },
     "eval": {
       "noArgs": "'Manda o JS ai lek.'"
+    },
+    "clearcache": {
+      "success": "'Cache do Discord.js limpo.'"
     }
   },
   "chat": {

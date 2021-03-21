@@ -149,9 +149,5 @@ process.on('unhandledRejection', async (e, promise) => {
 });
 
 setTimeout(() => {
-    client.users.cache.clear();
-    client.emojis.cache.clear();
-    client.channels.cache.clear();
-    client.guilds.cache.clear();
-    global.gc();
+    client.clearCache();
 }, 1000 * 60 * 60 * 24);

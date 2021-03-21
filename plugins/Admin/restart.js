@@ -44,6 +44,6 @@ export default new Command({
         const sc = serverConfig.get(message.guild.id);
 
         await message.channel.send(i18n('admin.restart.restarting', sc?.lang));
-        process.exit(0);
+        process.exit(1);
     },
 });

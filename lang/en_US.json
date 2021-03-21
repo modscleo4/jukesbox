@@ -37,6 +37,9 @@
     },
     "eval": {
       "noArgs": "'No JS supplied.'"
+    },
+    "clearcache": {
+      "success": "'Discord.js cache cleared.'"
     }
   },
   "chat": {
