@@ -22,7 +22,7 @@
 
 import Client from "./lib/Client.js";
 import {setServerConfig} from "./global.js";
-import {adminID, database_url, prefix, token, production} from "./config.js";
+import {adminID, database_url, prefix, token, production, periodicallyClearCache} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
@@ -149,5 +149,9 @@ process.on('unhandledRejection', async (e, promise) => {
 });
 
 setTimeout(() => {
+    if (!periodicallyClearCache) {
+        return;
+    }
+
     client.clearCache();
 }, 1000 * 60 * 60 * 24);

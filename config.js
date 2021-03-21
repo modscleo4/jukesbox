@@ -33,6 +33,7 @@ export let spclientID;
 export let spsecret;
 export let adminID;
 export let production;
+export let periodicallyClearCache;
 
 export function reloadConfig() {
     dotenv.config();
@@ -48,6 +49,7 @@ export function reloadConfig() {
     spsecret = process.env.SPSECRET;
     adminID = process.env.ADMINID;
     production = process.env.PRODUCTION === 'true';
+    periodicallyClearCache = process.env.PERIODICALLY_CLEAR_CACHE === 'true';
 }
 
 reloadConfig();
