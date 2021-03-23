@@ -148,10 +148,10 @@ process.on('unhandledRejection', async (e, promise) => {
     production && adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
 });
 
-setTimeout(() => {
+setTimeout(async () => {
     if (!periodicallyClearCache) {
         return;
     }
 
-    client.clearCache();
+    await client.clearCache();
 }, 1000 * 60 * 60 * 24);
