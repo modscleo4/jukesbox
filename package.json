@@ -30,9 +30,9 @@
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "erlpack": "^0.1.3",
-    "googleapis": "^70.0.0",
+    "googleapis": "^72.0.0",
     "libsodium-wrappers": "^0.7.9",
-    "pg": "^8.5.1",
+    "pg": "^8.6.0",
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.4",
@@ -44,7 +44,7 @@
     "@types/spotify-web-api-node": "^5.0.2"
   },
   "engines": {
-    "node": "14.x",
+    "node": "16.x",
     "npm": "7.x"
   }
 }
