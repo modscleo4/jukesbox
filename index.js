@@ -28,6 +28,7 @@ import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissions
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
 import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
 import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
+import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
 import i18n from "./lang/lang.js";
 
 const serverConfig = await loadServerConfig(database_url);
@@ -110,6 +111,10 @@ client.on('message', async message => {
 
             if (e instanceof SameVoiceChannelError) {
                 return await message.channel.send(i18n('sameVoiceChannel', sc?.lang));
+            }
+
+            if (e instanceof FullVoiceChannelError) {
+                return await message.channel.send(i18n('fullVoiceChannel', sc?.lang));
             }
 
             console.error(e);

@@ -8,6 +8,7 @@
   "insufficientUserPermissions": "`You need the ,,,${permission},,, Permission to run this Command.`",
   "noVoiceChannel": "'Join a Voice Channel first.'",
   "sameVoiceChannel": "'You need to be in the same Voice Channel to run this command.'",
+  "fullVoiceChannel": "'The Voice Channel is full. (Give me the ,,,MOVE_MEMBERS,,, permission in the server so I can join anyway).'",
   "commandRestricted": "':no_entry_sign: command blocked on this Text Channel.'",
   "minimal": "'Minimal'",
   "full": "'Full'",

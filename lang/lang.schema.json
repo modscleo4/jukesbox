@@ -45,6 +45,9 @@
     "sameVoiceChannel": {
       "$ref": "#/definitions/entry"
     },
+    "fullVoiceChannel": {
+      "$ref": "#/definitions/entry"
+    },
     "commandRestricted": {
       "$ref": "#/definitions/entry"
     },

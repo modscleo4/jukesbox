@@ -8,6 +8,7 @@
   "insufficientUserPermissions": "`Coé rapaz tá doidão? (,,,${permission},,,)`",
   "noVoiceChannel": "'Tá solo né filha da puta.'",
   "sameVoiceChannel": "'Tu nem tá aqui vei.'",
+  "fullVoiceChannel": "'Tá cheio vei. (Me dê a permissão ,,,MOVE_MEMBERS,,, no servidor para eu entrar mesmo assim).'",
   "commandRestricted": "':no_entry_sign: comando bloqueado neste Canal de Texto.'",
   "minimal": "'Mínima'",
   "full": "'Completa'",
