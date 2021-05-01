@@ -30,7 +30,7 @@
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "erlpack": "^0.1.3",
-    "googleapis": "^72.0.0",
+    "googleapis": "^73.0.0",
     "libsodium-wrappers": "^0.7.9",
     "pg": "^8.6.0",
     "soundcloud-downloader": "^1.0.0",
@@ -45,6 +45,6 @@
   },
   "engines": {
     "node": "^14.x",
-    "npm": "7.x"
+    "npm": "^7.x"
   }
 }
