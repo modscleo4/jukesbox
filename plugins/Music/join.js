@@ -32,7 +32,6 @@ export default new Command({
         en_US: 'Joins the current Voice Channel.',
         pt_BR: 'Entra no canal de voz.',
     },
-    usage: 'join',
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -43,27 +42,27 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
-        const voiceConnection = await message.member.voice.channel.join();
+        const voiceConnection = await member.voice.channel.join();
         await voiceConnection.voice?.setSelfDeaf(true);
 
-        return await message.channel.send(new MessageEmbed({
+        return new MessageEmbed({
             title: i18n('music.join.embedTitle', sc?.lang),
-            author: {name: message.author.username, iconURL: message.author.avatarURL()},
+            author: {name: author.username, iconURL: author.avatarURL()},
             timestamp: new Date(),
             description: i18n('music.join.embedDescription', sc?.lang),
             fields: [
-                {name: i18n('music.join.voiceChannel', sc?.lang), value: message.member.voice.channel.name, inline: true},
-                {name: i18n('music.join.textChannel', sc?.lang), value: message.channel.name, inline: true}
+                {name: i18n('music.join.voiceChannel', sc?.lang), value: member.voice.channel.name, inline: true},
+                {name: i18n('music.join.textChannel', sc?.lang), value: channel.name, inline: true}
             ],
-        }));
+        });
     },
 });

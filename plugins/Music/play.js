@@ -36,7 +36,7 @@ import {
     videoInfo
 } from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import Song from "../../lib/Song.js";
 import ServerQueue from "../../lib/ServerQueue.js";
 import ServerConfig from "../../lib/ServerConfig.js";
@@ -54,11 +54,11 @@ const spotifyAPI = new SpotifyWebAPI({
 /**
  *
  * @param {Message} message
- * @return {Promise<*>}
+ * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
  */
-async function playSong(message) {
-    const sc = serverConfig.get(message.guild.id);
-    const serverQueue = queue.get(message.guild.id);
+async function playSong({client, guild, channel, author, member, sendMessage}) {
+    const sc = serverConfig.get(guild.id);
+    const serverQueue = queue.get(guild.id);
 
     if (!serverQueue) {
         return;
@@ -68,21 +68,21 @@ async function playSong(message) {
 
     if (serverQueue.songs.length === 0) {
         serverQueue.connection.removeAllListeners('disconnect');
-        queue.delete(message.guild.id);
+        queue.delete(guild.id);
         return;
     }
 
     if (serverQueue.song.findOnYT) {
-        const msg = await message.channel.send(i18n('music.play.searchingYT', sc?.lang));
+        const msg = await sendMessage(i18n('music.play.searchingYT', sc?.lang));
         const found = await findOnYT(serverQueue.song);
         await msg.delete().catch(() => {
 
         });
 
         if (!found) {
-            serverQueue.toDelete = await message.channel.send(i18n('music.play.nothingFound', sc?.lang));
+            serverQueue.toDelete = await sendMessage(i18n('music.play.nothingFound', sc?.lang));
             serverQueue.songs.shift();
-            return await playSong(message);
+            return await playSong({client, guild, channel, author, member, sendMessage});
         }
 
         serverQueue.song = found;
@@ -113,34 +113,34 @@ async function playSong(message) {
             }
         }
 
-        await playSong(message);
+        await playSong({client, guild, channel, author, member, sendMessage});
     }).on('error', async e => {
         console.error(e);
 
-        await message.channel.send(new MessageEmbed({
+        await sendMessage(new MessageEmbed({
             title: i18n('music.play.errorEmbedTitle', sc?.lang),
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: client.user.username, iconURL: client.user.avatarURL()},
             timestamp: new Date(),
             description: i18n('music.play.errorEmbedDescription', sc?.lang, {e, song: serverQueue.song}),
         }));
 
         serverQueue.songs.shift();
-        await playSong(message);
+        await playSong({client, guild, channel, author, member, sendMessage});
     });
 
     if (!serverQueue.connection.dispatcher) {
-        await message.channel.send(new MessageEmbed({
+        await sendMessage(new MessageEmbed({
             title: i18n('music.play.errorEmbedTitle', sc?.lang),
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: client.user.username, iconURL: client.user.avatarURL()},
             timestamp: new Date(),
         }));
 
         serverQueue.songs.shift();
-        await playSong(message);
+        await playSong({client, guild, channel, author, member, sendMessage});
     }
 
     serverQueue.song.seek = undefined;
-    serverQueue.toDelete = await nowplaying.fn(message);
+    serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member}, []));
 }
 
 /**
@@ -204,7 +204,30 @@ export default new Command({
         en_US: 'Adds a music/playlist in the queue. Use `/playlist` to search for playlists.',
         pt_BR: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
     },
-    usage: 'play [/playlist] [youtube_url|q]',
+    options: [
+        {
+            name: 'mode',
+            description: 'Query Search Mode',
+            type: OptionType.STRING,
+            choices: [
+                {
+                    name: 'Video Search Mode',
+                    value: '/video',
+                },
+                {
+                    name: 'Playlist Search Mode',
+                    value: '/playlist',
+                },
+            ],
+            required: true,
+        },
+        {
+            name: 'youtube_url',
+            description: 'YouTube URL or Query String',
+            type: OptionType.STRING,
+            required: true,
+        }
+    ],
 
     aliases: ['p'],
 
@@ -218,15 +241,15 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         /**
          * @type {'video'|'playlist'}
@@ -248,7 +271,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return await message.channel.send(i18n('music.play.noLink', sc?.lang));
+            return i18n('music.play.noLink', sc?.lang);
         }
 
         const songs = [];
@@ -261,7 +284,7 @@ export default new Command({
         }))[0] ?? {url: null}).url;
 
         if (!url) {
-            return await message.channel.send(i18n('music.play.nothingFound', sc?.lang));
+            return i18n('music.play.nothingFound', sc?.lang);
         }
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
@@ -271,7 +294,7 @@ export default new Command({
                 const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
 
                 if (!PlaylistId.startsWith('PL')) {
-                    return await message.channel.send(i18n('music.play.youtubeMix', sc?.lang));
+                    return i18n('music.play.youtubeMix', sc?.lang);
                 }
 
                 const plSongs = await getPlaylistItems(PlaylistId, {
@@ -282,7 +305,7 @@ export default new Command({
                 });
 
                 if (!plSongs) {
-                    return await message.channel.send(i18n('music.play.error', sc?.lang));
+                    return i18n('music.play.error', sc?.lang);
                 }
 
                 const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: ytapikeys}).catch(e => {
@@ -291,7 +314,7 @@ export default new Command({
                 });
 
                 if (!songsInfo) {
-                    return await message.channel.send(i18n('music.play.error', sc?.lang));
+                    return i18n('music.play.error', sc?.lang);
                 }
 
                 songsInfo.forEach((songInfo, i) => {
@@ -302,7 +325,7 @@ export default new Command({
                         thumbnail: songInfo.snippet.thumbnails.high.url,
                         duration: songInfo.duration,
                         from: 'yt',
-                        addedBy: message.author,
+                        addedBy: author,
                         seek: (i + 1 === (parseInt(Index) || 1) && parseInt(T)) || undefined,
                         fn: ytdl,
                         options: {
@@ -331,7 +354,7 @@ export default new Command({
                 }))[0];
 
                 if (!songInfo) {
-                    return await message.channel.send(i18n('music.play.error', sc?.lang));
+                    return i18n('music.play.error', sc?.lang);
                 }
 
                 const song = new Song({
@@ -341,7 +364,7 @@ export default new Command({
                     thumbnail: songInfo.snippet.thumbnails.high.url,
                     duration: songInfo.duration,
                     from: 'yt',
-                    addedBy: message.author,
+                    addedBy: author,
                     seek: parseInt(T) || undefined,
                     fn: ytdl,
                     options: {
@@ -369,7 +392,7 @@ export default new Command({
             });
 
             if (!songInfo) {
-                return await message.channel.send(i18n('music.play.error', sc?.lang));
+                return i18n('music.play.error', sc?.lang);
             }
 
             const song = new Song({
@@ -379,7 +402,7 @@ export default new Command({
                 thumbnail: songInfo.artwork_url,
                 duration: songInfo.duration / 1000,
                 from: 'sc',
-                addedBy: message.author,
+                addedBy: author,
                 fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
                 options: scclientID,
             });
@@ -393,7 +416,7 @@ export default new Command({
             }));
 
             if (!plSongs) {
-                return await message.channel.send(i18n('music.play.error', sc?.lang));
+                return i18n('music.play.error', sc?.lang);
             }
 
             plSongs.forEach(plSong => {
@@ -402,45 +425,45 @@ export default new Command({
                     uploader: plSong.artists,
                     findOnYT: true,
                     from: 'sp',
-                    addedBy: message.author,
+                    addedBy: author,
                 });
 
                 songs.push(song);
             });
         } else {
-            return await message.channel.send(i18n('music.play.error', sc?.lang));
+            return i18n('music.play.error', sc?.lang);
         }
 
         if (!serverQueue) {
             const q = new ServerQueue({songs, volume: sc.volume});
 
-            queue.set(message.guild.id, q);
+            queue.set(guild.id, q);
 
             try {
-                q.connection = await message.member.voice.channel.join();
+                q.connection = await member.voice.channel.join();
                 await q.connection.voice?.setSelfDeaf(true);
 
                 q.connection.on('disconnect', async () => {
                     await q.deletePending();
-                    queue.delete(message.guild.id);
+                    queue.delete(guild.id);
                 });
 
-                await playSong(message);
+                await playSong({client, guild, channel, author, member, sendMessage});
             } catch (err) {
                 console.error(err);
-                queue.delete(message.guild.id);
-                return await message.channel.send(i18n('music.play.error', sc?.lang));
+                queue.delete(guild.id);
+                return i18n('music.play.error', sc?.lang);
             }
         } else {
             serverQueue.songs = serverQueue.songs.concat(songs);
             if (songs.length === 1) {
-                return await message.channel.send(i18n('music.play.playingOne', sc?.lang, {
+                return i18n('music.play.playingOne', sc?.lang, {
                     songTitle: songs[0].title,
                     position: serverQueue.songs.length
-                }));
+                });
             }
 
-            return await message.channel.send(i18n('music.play.playingMany', sc?.lang, {n: songs.length}));
+            return i18n('music.play.playingMany', sc?.lang, {n: songs.length});
         }
     },
 });

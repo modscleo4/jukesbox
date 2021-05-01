@@ -31,20 +31,20 @@ export default new Command({
         en_US: 'Clears Discord.js cache.',
         pt_BR: 'Limpa o cache do Discord.js.',
     },
-    usage: 'clearcache',
+
     only: [adminID],
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
 
-        message.client.clearCache();
+        client.clearCache();
 
-        await message.channel.send(i18n('admin.clearcache.success', sc?.lang));
+        return i18n('admin.clearcache.success', sc?.lang);
     },
 });

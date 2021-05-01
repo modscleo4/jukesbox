@@ -41,6 +41,9 @@
     },
     "clearcache": {
       "success": "'Cache do Discord.js limpo.'"
+    },
+    "registercommands": {
+      "success": "'Comandos registrados.'"
     }
   },
   "chat": {
@@ -49,7 +52,8 @@
       "deletedN": "`Apaguei ${n} mensage${n > 1 ? 'ns' : 'm'}.`"
     },
     "poll": {
-      "missingTitle": "'Informe o título da enquete.'"
+      "missingTitle": "'Informe o título da enquete.'",
+      "missingOptions": "'Informe ao menos 2 opções.'"
     },
     "invitebot": {
       "link": "`Convide o Jukera pra rapaziada: ${link}`"
@@ -60,7 +64,7 @@
       "longDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.\n\nDigite ,,,${serverPrefix}help [comando1] [comando2],,, para obter ajuda de um ou mais comandos em específico.`",
       "shortDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Uso**: ,,,${command.usage},,,\n`",
+      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Uso**: ,,,${cmd + ' ' + command.options.map(o => '[' + o.name + ']').join(' ')},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Permissões do bot**: ${botPermissions}`",
       "userPermissions": "`\n**Permissões do usuário**: ${userPermissions}`",

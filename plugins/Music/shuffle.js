@@ -31,28 +31,28 @@ export default new Command({
         en_US: 'Toggles the Shuffle mode.',
         pt_BR: 'Liga/desliga o modo Aleatório.',
     },
-    usage: 'shuffle',
+
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         serverQueue.shuffle = !serverQueue.shuffle;
 
         if (serverQueue.shuffle) {
-            return await message.channel.send(i18n('music.shuffle.successOn', sc?.lang));
+            return i18n('music.shuffle.successOn', sc?.lang);
         } else {
-            return await message.channel.send(i18n('music.shuffle.successOff', sc?.lang));
+            return i18n('music.shuffle.successOff', sc?.lang);
         }
     },
 });

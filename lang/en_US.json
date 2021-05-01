@@ -41,6 +41,9 @@
     },
     "clearcache": {
       "success": "'Discord.js cache cleared.'"
+    },
+    "registercommands": {
+      "success": "'Commands registered.'"
     }
   },
   "chat": {
@@ -49,7 +52,8 @@
       "deletedN": "`I deleted ${n} message${n > 1 ? 's' : ''}.`"
     },
     "poll": {
-      "missingTitle": "'Type the poll title with `/title{[title]}`.'"
+      "missingTitle": "'Type the poll title.'",
+      "missingOptions": "'Type at least 2 options.'"
     },
     "invitebot": {
       "link": "`Add Jukes Box to a new server: ${link}`"
@@ -60,7 +64,7 @@
       "longDescription": "`The server prefix is ,,,${serverPrefix},,,.\n\nType ,,,${serverPrefix}help [command1] [command2],,, to get help about one or more specific commands.`",
       "shortDescription": "`The server prefix is ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Command ,,,${command},,, not found.`",
-      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Usage**: ,,,${command.usage},,,\n`",
+      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Usage**: ,,,${cmd + ' ' + command.options.map(o => '[' + o.name + ']').join(' ')},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Bot Permissions**: ${botPermissions}`",
       "userPermissions": "`\n**User Permissions**: ${userPermissions}`",

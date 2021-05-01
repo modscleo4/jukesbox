@@ -31,19 +31,22 @@ export default new Command({
         en_US: 'Restarts the bot.',
         pt_BR: 'Reinicia o bot.',
     },
-    usage: 'restart',
+
     only: [adminID],
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
 
-        await message.channel.send(i18n('admin.restart.restarting', sc?.lang));
-        process.exit(1);
+        setTimeout(() => {
+            process.exit(1);
+        }, 1000);
+
+        return i18n('admin.restart.restarting', sc?.lang);
     },
 });

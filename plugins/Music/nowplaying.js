@@ -34,7 +34,6 @@ export default new Command({
         en_US: 'Shows the current song.',
         pt_BR: 'Mostra a música que está tocando.',
     },
-    usage: 'nowplaying',
 
     aliases: ['np'],
 
@@ -46,19 +45,19 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
-        return await message.channel.send(new MessageEmbed({
+        return new MessageEmbed({
             title: i18n('music.nowplaying.embedTitle', sc?.lang),
             url: serverQueue.song.url,
             author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
@@ -71,6 +70,6 @@ export default new Command({
                 {name: i18n('music.nowplaying.queuePos', sc?.lang), value: serverQueue.position + 1, inline: true},
                 {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.player.streamTime + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
             ],
-        }));
+        });
     },
 });

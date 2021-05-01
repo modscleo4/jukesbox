@@ -22,7 +22,7 @@
 
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -31,25 +31,32 @@ export default new Command({
         en_US: 'Seeks on a specific timestamp of the song. Format is in `seconds`.',
         pt_BR: 'Altera a posição da música. Formato em `segundos`.',
     },
-    usage: 'seek [s]',
+    options: [
+        {
+            name: 's',
+            description: 'Seconds timestamp.',
+            type: OptionType.INTEGER,
+            required: true,
+        }
+    ],
 
     /**
      *
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('music.seek.noTime', sc?.lang));
+            return i18n('music.seek.noTime', sc?.lang);
         }
 
         if (args[0].match(/^\+\d+$/)) {
@@ -62,6 +69,6 @@ export default new Command({
 
         serverQueue.song.seek = s;
         serverQueue.startTime = s;
-        serverQueue.connection.dispatcher.end();
+        serverQueue.connection.dispatcher?.end();
     },
 });

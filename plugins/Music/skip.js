@@ -22,7 +22,7 @@
 
 import {queue} from "../../global.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -31,7 +31,13 @@ export default new Command({
         en_US: 'Skip `n` songs.',
         pt_BR: 'Pula `n` músicas.',
     },
-    usage: 'skip [n]',
+    options: [
+        {
+            name: 'n',
+            description: 'Number of songs to skip.',
+            type: OptionType.INTEGER,
+        }
+    ],
 
     aliases: ['next'],
 
@@ -40,16 +46,16 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         const skips = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length);
@@ -62,9 +68,9 @@ export default new Command({
             serverQueue.songs.shift();
         }
 
-        !serverQueue.playing && serverQueue.connection?.dispatcher.resume();
-        serverQueue.connection?.dispatcher.end();
+        !serverQueue.playing && serverQueue.connection?.dispatcher?.resume();
+        serverQueue.connection?.dispatcher?.end();
 
-        return await message.channel.send(i18n('music.skip.success', sc?.lang));
+        return i18n('music.skip.success', sc?.lang);
     },
 });

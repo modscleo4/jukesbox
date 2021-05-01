@@ -170,6 +170,17 @@
           "required": [
             "success"
           ]
+        },
+        "registercommands": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "success"
+          ]
         }
       },
       "required": [
@@ -177,7 +188,8 @@
         "restart",
         "reload",
         "eval",
-        "clearcache"
+        "clearcache",
+        "registercommands"
       ]
     },
     "chat": {
@@ -203,10 +215,14 @@
           "properties": {
             "missingTitle": {
               "$ref": "#/definitions/entry"
+            },
+            "missingOptions": {
+              "$ref": "#/definitions/entry"
             }
           },
           "required": [
-            "missingTitle"
+            "missingTitle",
+            "missingOptions"
           ]
         },
         "invitebot": {

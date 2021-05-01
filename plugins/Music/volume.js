@@ -23,7 +23,7 @@
 import {queue, serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 
@@ -32,7 +32,13 @@ export default new Command({
         en_US: 'Shows/changes the volume (0-100).',
         pt_BR: 'Mostra/altera o volume (0-100).',
     },
-    usage: 'volume [v]',
+    options: [
+        {
+            name: 'n',
+            description: 'Volume.',
+            type: OptionType.INTEGER,
+        }
+    ],
 
     userPermissions: {
         server: ['MANAGE_GUILD'],
@@ -43,29 +49,29 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const serverQueue = queue.get(message.guild.id);
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
+    async fn({client, guild, channel, author, member}, args) {
+        const serverQueue = queue.get(guild.id);
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('music.volume.volume', sc?.lang, {volume: sc.volume}));
+            return i18n('music.volume.volume', sc?.lang, {volume: sc.volume});
         }
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         const volume = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 100);
 
         if (serverQueue) {
             serverQueue.volume = volume;
-            serverQueue.connection.dispatcher.setVolume(serverQueue.volume / 100);
+            serverQueue.connection.dispatcher?.setVolume(serverQueue.volume / 100);
         }
 
         sc.volume = volume;
-        serverConfig.set(message.guild.id, sc);
+        serverConfig.set(guild.id, sc);
         await sc.save(database_url);
 
-        return await message.channel.send(i18n('music.volume.success', sc?.lang));
+        return i18n('music.volume.success', sc?.lang);
     },
 });

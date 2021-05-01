@@ -25,7 +25,7 @@ import {MessageEmbed} from "discord.js";
 import {ytapikeys} from "../../config.js";
 import {cutUntil, isValidHttpURL, parseMS, videoInfo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -34,7 +34,14 @@ export default new Command({
         en_US: 'Shows YouTube video information.',
         pt_BR: 'Mostra informações de um vídeo do YouTube',
     },
-    usage: 'videoinfo [youtube_url]',
+    options: [
+        {
+            name: 'url',
+            description: 'YouTube video URL.',
+            type: OptionType.STRING,
+            required: true,
+        }
+    ],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -45,20 +52,20 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-            return await message.channel.send(i18n('music.videoinfo.invalidURL', sc?.lang));
+            return i18n('music.videoinfo.invalidURL', sc?.lang);
         }
 
         const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
         const songInfo = (await videoInfo(VideoId, {
-            key: ytapikeys,
+            keys: ytapikeys,
             part: ['id', 'snippet', 'contentDetails', 'statistics'],
         }).catch(e => {
             console.error(e);
@@ -66,13 +73,13 @@ export default new Command({
         }))[0];
 
         if (!songInfo) {
-            return await message.channel.send(i18n('music.videoinfo.error', sc?.lang));
+            return i18n('music.videoinfo.error', sc?.lang);
         }
 
-        return await message.channel.send(new MessageEmbed({
+        return new MessageEmbed({
             title: i18n('music.videoinfo.embedTitle', sc?.lang),
             url: songInfo.url,
-            author: {name: message.author.username, iconURL: message.author.avatarURL()},
+            author: {name: author.username, iconURL: author.avatarURL()},
             timestamp: new Date(),
             thumbnail: {url: songInfo.snippet.thumbnails.high.url},
             description: songInfo.snippet.title,
@@ -84,6 +91,6 @@ export default new Command({
                 {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
                 {name: i18n('music.videoinfo.dislikes', sc?.lang), value: songInfo.statistics.dislikeCount, inline: true},
             ],
-        }));
+        });
     },
 });

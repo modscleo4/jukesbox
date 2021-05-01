@@ -21,7 +21,7 @@
 'use strict';
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -30,7 +30,65 @@ export default new Command({
         en_US: 'Give one or more roles to a `@member`.',
         pt_BR: 'Adiciona um ou mais cargos a um `@membro`.',
     },
-    usage: 'giverole [@member] [role1] [role2]...',
+    options: [
+        {
+            name: 'user',
+            description: 'Target User',
+            type: OptionType.USER,
+            required: true,
+        },
+        {
+            name: 'role_1',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+            required: true,
+        },
+        {
+            name: 'role_2',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_3',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_4',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_5',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_6',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_7',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_8',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_9',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+        {
+            name: 'role_10',
+            description: 'Target Role',
+            type: OptionType.ROLE,
+        },
+    ],
 
     botPermissions: {
         server: ['MANAGE_ROLES'],
@@ -45,38 +103,38 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]?.match(/\d+/gm)) {
-            return await message.channel.send(i18n('mod.giverole.missingUser', sc?.lang));
+            return i18n('mod.giverole.missingUser', sc?.lang);
         }
 
         if (args.length < 2) {
-            return await message.channel.send(i18n('mod.giverole.missingRole', sc?.lang));
+            return i18n('mod.giverole.missingRole', sc?.lang);
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
-        const guildMember = message.guild.member(userID);
-        const roles = args.map(r => message.guild.roles.cache.find(g => g.name === r));
+        const guildMember = await guild.members.fetch(userID);
+        const roles = args.map(r => guild.roles.cache.find(g => g.name === r || g.id === r));
 
         if (!guildMember) {
-            return await message.channel.send(i18n('mod.giverole.invalidUser', sc?.lang));
+            return i18n('mod.giverole.invalidUser', sc?.lang);
         }
 
         if (roles.includes(undefined)) {
-            return await message.channel.send(i18n('mod.giverole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]}));
+            return i18n('mod.giverole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]});
         }
 
         if (roles.find(r => !r.editable)) {
-            return message.channel.send(i18n('mod.giverole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name}));
+            return i18n('mod.giverole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name});
         }
 
         await guildMember.roles.add(roles);
-        await message.channel.send(i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id}));
+        return i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id});
     },
 });

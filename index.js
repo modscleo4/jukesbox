@@ -30,6 +30,7 @@ import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
 import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
 import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
 import i18n from "./lang/lang.js";
+import {MessageEmbed, WebhookClient} from "discord.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
@@ -55,6 +56,118 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
             oldState.channel.leave();
         }
+    }
+});
+
+client.ws.on('INTERACTION_CREATE', async interaction => {
+    const guild = await client.guilds.fetch(interaction.guild_id);
+    const channel = await client.channels.fetch(interaction.channel_id);
+    const author = await client.users.fetch(interaction.member.user.id);
+    const member = await guild.members.fetch(author);
+
+    async function sendMessage(msgData) {
+        if (!msgData) {
+            return;
+        }
+
+        let data = msgData;
+
+        if (typeof msgData === 'string') {
+            //
+        } else if (msgData instanceof MessageEmbed) {
+            //
+        } else if (typeof msgData === 'object') {
+            if (msgData.type === 1) {
+                //
+                return;
+            } else {
+                data = msgData.embed;
+
+                //
+            }
+        }
+
+        const msg = await (new WebhookClient(client.user.id, interaction.token).send(data));
+        const message = await channel.messages.fetch(msg.id);
+
+        if (msgData.reactions) {
+            msgData.reactions.map(async r => await message.react(r).catch(() => {
+
+            }));
+
+            if (msgData.onReact) {
+                await message.awaitReactions((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : true, {
+                    max: 1,
+                    time: 60000,
+                    errors: ['time'],
+                }).then(async (collected) => await msgData.onReact(collected, message)).catch(() => {
+
+                });
+            }
+
+            if (msgData.deleteAfter && !message.deleted) {
+                return await message.delete().catch(() => {
+
+                });
+            }
+        }
+
+        return message;
+    }
+
+    const sc = serverConfig.get(interaction.guild_id);
+
+    switch (interaction.type) {
+        case 1:
+            client.api.interactions(interaction.id, interaction.token).callback.post({
+                data: {
+                    type: 1,
+                },
+            });
+
+            break;
+
+        case 2:
+            const response = client.api.interactions(interaction.id, interaction.token).callback.post({
+                data: {
+                    type: 5,
+                },
+            });
+
+            const command = client.commands[interaction.data.name];
+            const args = interaction.data.options?.map(o => o.value) ?? [];
+
+            try {
+                await sendMessage(await command.fn({client, guild, channel, author, member, sendMessage}, args));
+            } catch (e) {
+                if (e instanceof InsufficientBotPermissionsError) {
+                    return await sendMessage(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
+                }
+
+                if (e instanceof InsufficientUserPermissionsError) {
+                    return await sendMessage(i18n('insufficientUserPermissions', sc?.lang, {permission: e.message}));
+                }
+
+                if (e instanceof NoVoiceChannelError) {
+                    return await sendMessage(i18n('noVoiceChannel', sc?.lang));
+                }
+
+                if (e instanceof SameVoiceChannelError) {
+                    return await sendMessage(i18n('sameVoiceChannel', sc?.lang));
+                }
+
+                if (e instanceof FullVoiceChannelError) {
+                    return await sendMessage(i18n('fullVoiceChannel', sc?.lang));
+                }
+
+                console.error(e);
+                production && adminID && await (await client.users.fetch(adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
+                await sendMessage(i18n('unhandledException', sc?.lang)).catch(() => {
+
+                });
+            }
+
+            break;
     }
 });
 
@@ -95,7 +208,51 @@ client.on('message', async message => {
         }
 
         try {
-            await command.fn(message, args);
+            message.sendMessage = async (data) => message.channel.send(data);
+
+            const msgData = await command.fn(message, args);
+
+            let msg;
+
+            if (typeof msgData === 'string') {
+                msg = await message.channel.send(msgData);
+            } else if (msgData instanceof MessageEmbed) {
+                msg = await message.channel.send(msgData);
+            } else if (typeof msgData === 'object') {
+                if (msgData.type === 1) {
+
+                } else {
+                    msg = await message.channel.send(msgData.embed);
+
+                    if (msgData.reactions) {
+                        msgData.reactions.map(async r => await msg.react(r).catch(() => {
+
+                        }));
+
+                        if (msgData.onReact) {
+                            await msg.awaitReactions((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : true, {
+                                max: 1,
+                                time: 60000,
+                                errors: ['time'],
+                            }).then(async (collected) => await msgData.onReact(collected, msg)).catch(() => {
+
+                            });
+                        }
+
+                        if (msgData.deleteAfter && !msg.deleted) {
+                            return await msg.delete().catch(() => {
+
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (command.deleteMessage) {
+                await msg?.delete().catch(() => {
+
+                });
+            }
         } catch (e) {
             if (e instanceof InsufficientBotPermissionsError) {
                 return await message.channel.send(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
@@ -153,7 +310,7 @@ process.on('unhandledRejection', async (e, promise) => {
     production && adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
 });
 
-setTimeout(async () => {
+setInterval(async () => {
     if (!periodicallyClearCache) {
         return;
     }

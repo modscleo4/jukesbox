@@ -21,7 +21,7 @@
 'use strict';
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -30,7 +30,16 @@ export default new Command({
         en_US: 'Deletes `n` messages from the current channel.',
         pt_BR: 'Apaga `n` mensagens do canal atual.',
     },
-    usage: 'clear [n]...',
+    options: [
+        {
+            name: 'n',
+            description: 'Number of messages to delete.',
+            type: OptionType.INTEGER,
+            required: true,
+        }
+    ],
+
+    deleteMessage: true,
 
     botPermissions: {
         text: ['MANAGE_MESSAGES'],
@@ -45,28 +54,31 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]) {
-            return await message.channel.send(i18n('chat.clear.noArgs', sc?.lang));
+            return i18n('chat.clear.noArgs', sc?.lang);
         }
 
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
 
-        await message.delete().then(async () => {
-            n % 100 > 0 && await message.channel.bulkDelete(n % 100);
+        await (async () => {
+            n % 100 > 0 && await channel.bulkDelete(n % 100);
 
             for (let i = 0; i < Math.floor(n / 100); i++) {
-                await message.channel.bulkDelete(100);
+                await channel.bulkDelete(100).catch(e => {
+
+                });
             }
-        }).then(async () => {
-            await message.channel.send(i18n('chat.clear.deletedN', sc?.lang, {n})).then(async m => await m.delete({timeout: 1000}));
-        }).catch(e => {
-            
+        })().catch(e => {
+
         });
+
+        return i18n('chat.clear.deletedN', sc?.lang, {n});
     }
 });

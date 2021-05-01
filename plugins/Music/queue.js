@@ -32,7 +32,6 @@ export default new Command({
         en_US: 'Displays the current queue.',
         pt_BR: 'Mostra a fila.',
     },
-    usage: 'queue',
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -42,22 +41,22 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         const songs = serverQueue.songs.map((s, i) => {
             return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader};
         });
 
-        return await pageEmbed(message, {title: i18n('music.queue.embedTitle', sc?.lang), content: songs});
+        return await pageEmbed({client, author}, {title: i18n('music.queue.embedTitle', sc?.lang), content: songs});
     },
 });

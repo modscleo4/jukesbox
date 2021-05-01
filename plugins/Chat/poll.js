@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -32,7 +32,68 @@ export default new Command({
         en_US: 'Create a poll (max. of 10 items). They must be between `""`.',
         pt_BR: 'Cria uma enquete (máx. de 10 itens). Os itens devem estar entre `""`',
     },
-    usage: 'poll /title{[title]} [n1] [n2] ... [n10]',
+    options: [
+        {
+            name: 'title',
+            description: 'Poll Title',
+            type: OptionType.STRING,
+            required: true,
+        },
+        {
+            name: 'option_1',
+            description: 'Option 1',
+            type: OptionType.STRING,
+            required: true,
+        },
+        {
+            name: 'option_2',
+            description: 'Option 2',
+            type: OptionType.STRING,
+            required: true,
+        },
+        {
+            name: 'option_3',
+            description: 'Option 3',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_4',
+            description: 'Option 4',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_5',
+            description: 'Option 5',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_6',
+            description: 'Option 6',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_7',
+            description: 'Option 7',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_8',
+            description: 'Option 8',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_9',
+            description: 'Option 9',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'option_10',
+            description: 'Option 10',
+            type: OptionType.STRING,
+        },
+    ],
+
+    deleteMessage: true,
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -43,35 +104,34 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
-        const titleI = args.findIndex(a => /\/title{[^}]+}/gmi.test(a));
-        if (titleI === -1) {
-            return await message.channel.send(i18n('chat.poll.missingTitle', sc?.lang));
+        if (args.length < 0) {
+            return i18n('chat.poll.missingTitle', sc?.lang);
         }
 
-        const title = /\/title{(?<Title>[^}]+)}/gmi.exec(args[titleI]).groups.Title;
-        args.splice(titleI, 1);
+        if (args.length < 3) {
+            return i18n('chat.poll.missingOptions', sc?.lang);
+        }
+
+        const title = args.splice(0, 1)[0];
         args = args.map(a => a.replace(/"/gmi, ''));
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, args.length);
 
-        const msg = await message.channel.send(new MessageEmbed({
-            title,
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
-            timestamp: new Date(),
-            description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
-        }));
-
-        await message.delete().catch(() => {
-
-        });
-
-        reactions.map(async r => await msg.react(r));
+        return {
+            embed: new MessageEmbed({
+                title,
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                timestamp: new Date(),
+                description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
+            }),
+            reactions,
+        };
     },
 });

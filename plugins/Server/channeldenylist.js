@@ -32,7 +32,6 @@ export default new Command({
         en_US: 'Shows the blocked Commands on the current Text Channel.',
         pt_BR: 'Mostra os comandos bloqueados no Canal de Texto atual.',
     },
-    usage: 'channeldenylist',
 
     userPermissions: {
         text: ['MANAGE_CHANNELS'],
@@ -43,17 +42,17 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
-        if (!sc.channelDenies[message.channel.id]?.size) {
-            return await message.channel.send(i18n('server.channeldenylist.noBlocked', sc?.lang));
+        if (!sc.channelDenies[channel.id]?.size) {
+            return i18n('server.channeldenylist.noBlocked', sc?.lang);
         }
 
-        return await message.channel.send(i18n('server.channeldenylist.list', sc?.lang, {cmds: Array.from(sc.channelDenies[message.channel.id]).map(c => `\`${c}\``)}));
+        return i18n('server.channeldenylist.list', sc?.lang, {cmds: Array.from(sc.channelDenies[channel.id]).map(c => `\`${c}\``)});
     },
 });

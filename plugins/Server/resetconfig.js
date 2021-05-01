@@ -32,7 +32,6 @@ export default new Command({
         en_US: 'Reset all Server configuration settings.',
         pt_BR: 'Reseta todas as configurações do Servidor.',
     },
-    usage: 'resetconfig',
 
     userPermissions: {
         server: ['MANAGE_GUILD'],
@@ -42,16 +41,16 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         await sc.delete(database_url);
-        serverConfig.delete(message.guild.id);
+        serverConfig.delete(guild.id);
 
-        return await message.channel.send(i18n('server.resetconfig.success', sc?.lang));
+        return i18n('server.resetconfig.success', sc?.lang);
     },
 });

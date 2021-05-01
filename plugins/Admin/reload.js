@@ -31,19 +31,19 @@ export default new Command({
         en_US: 'Reloads the bot .env.',
         pt_BR: 'Recarrega o .env do bot.',
     },
-    usage: 'reload',
+
     only: [adminID],
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
 
         reloadConfig();
-        await message.channel.send(i18n('admin.reload.success', sc?.lang));
+        return i18n('admin.reload.success', sc?.lang);
     },
 });

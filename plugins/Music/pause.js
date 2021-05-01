@@ -31,30 +31,29 @@ export default new Command({
         en_US: 'Pauses the playback.',
         pt_BR: 'Pausa a música.',
     },
-    usage: 'pause',
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         if (!serverQueue.playing) {
-            return await message.channel.send(i18n('music.pause.alreadyPaused', sc?.lang));
+            return i18n('music.pause.alreadyPaused', sc?.lang);
         }
 
-        serverQueue.connection.dispatcher.pause();
+        serverQueue.connection.dispatcher?.pause();
         serverQueue.playing = false;
-        return await message.channel.send(i18n('music.pause.success', sc?.lang));
+        return i18n('music.pause.success', sc?.lang);
     },
 });

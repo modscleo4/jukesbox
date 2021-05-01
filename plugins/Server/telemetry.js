@@ -21,7 +21,7 @@
 'use strict';
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
@@ -32,7 +32,23 @@ export default new Command({
         en_US: 'Set the Telemetry level (0- Minimal, 1- Full).',
         pt_BR: 'Configura o nível de telemetria (0- Mínima, 1- Completa).',
     },
-    usage: 'telemetry [level]',
+    options: [
+        {
+            name: 'n',
+            description: 'Number of messages to delete.',
+            type: OptionType.INTEGER,
+            choices: [
+                {
+                    name: 'Basic',
+                    value: 0,
+                },
+                {
+                    name: 'Full',
+                    value: 1,
+                },
+            ]
+        }
+    ],
 
     userPermissions: {
         server: ['MANAGE_GUILD'],
@@ -43,27 +59,27 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {String[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('server.telemetry.telemetryLevel', sc?.lang, {
+            return await i18n('server.telemetry.telemetryLevel', sc?.lang, {
                 minimal: i18n('minimal', sc?.lang),
                 full: i18n('full', sc?.lang),
                 telemetryLevel: sc.telemetryLevel,
-            }));
+            });
         }
 
         const telemetryLevel = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 1);
 
         sc.telemetryLevel = telemetryLevel;
         await sc.save(database_url);
-        serverConfig.delete(message.guild.id);
+        serverConfig.delete(guild.id);
 
-        return await message.channel.send(i18n('server.telemetry.success', sc?.lang));
+        return i18n('server.telemetry.success', sc?.lang);
     },
 });

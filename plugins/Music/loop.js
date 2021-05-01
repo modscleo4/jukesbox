@@ -31,7 +31,6 @@ export default new Command({
         en_US: 'Toggle the Loop mode (for the current song).',
         pt_BR: 'Liga ou desliga o modo Repetição (para a música atual).',
     },
-    usage: 'loop',
 
     aliases: ['repeat'],
 
@@ -39,22 +38,22 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         serverQueue.loop = !serverQueue.loop;
 
         if (serverQueue.loop) {
-            return await message.channel.send(i18n('music.loop.successOn', sc?.lang));
+            return i18n('music.loop.successOn', sc?.lang);
         } else {
-            return await message.channel.send(i18n('music.loop.successOff', sc?.lang));
+            return i18n('music.loop.successOff', sc?.lang);
         }
     },
 });

@@ -25,7 +25,7 @@ import {MessageEmbed} from "discord.js";
 import {serverConfig} from "../../global.js";
 import {prefix} from "../../config.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 
 export default new Command({
@@ -33,7 +33,13 @@ export default new Command({
         en_US: 'Show the commands.',
         pt_BR: 'Mostra os comandos.',
     },
-    usage: 'help [command1] [command2]...',
+    options: [
+        {
+            name: 'cmd',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        }
+    ],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -44,23 +50,23 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
         const serverPrefix = sc?.prefix ?? prefix;
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         const description = i18n('help.help.longDescription', sc?.lang, {serverPrefix});
 
-        const commands = message.client.commands;
-        const aliases = message.client.aliases;
+        const commands = client.commands;
+        const aliases = client.aliases;
 
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
-                if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(message.author.id))) {
-                    return await message.channel.send(i18n('help.help.commandNotFound', sc?.lang, {command: args[i]}));
+                if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(author.id))) {
+                    return i18n('help.help.commandNotFound', sc?.lang, {command: args[i]});
                 }
             }
 
@@ -75,23 +81,23 @@ export default new Command({
                 command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, {userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
             }
 
-            return await message.channel.send(new MessageEmbed({
+            return new MessageEmbed({
                 title: i18n('help.help.embedTitle', sc?.lang),
                 description: desc,
-                author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
                 timestamp: new Date(),
-            }));
+            });
         }
 
         const cmds = [];
-        Object.keys(message.client.categoriesCommands).forEach((cat, i, arr) => {
-            const category = {...message.client.categoriesCommands[cat]};
+        Object.keys(client.categoriesCommands).forEach((cat, i, arr) => {
+            const category = {...client.categoriesCommands[cat]};
             const c = {name: cat, value: '', inline: false};
 
             for (const cmd in category) {
                 const command = category[cmd];
 
-                if (command.only && !command.only.includes(message.author.id)) {
+                if (command.only && !command.only.includes(author.id)) {
                     continue;
                 }
 
@@ -107,12 +113,12 @@ export default new Command({
             }
         });
 
-        return await message.channel.send(new MessageEmbed({
+        return new MessageEmbed({
             title: i18n('help.help.embedTitle', sc?.lang),
             description,
-            author: {name: message.client.user.username, iconURL: message.client.user.avatarURL()},
+            author: {name: client.user.username, iconURL: client.user.avatarURL()},
             timestamp: new Date(),
             fields: cmds,
-        }));
+        });
     }
 });

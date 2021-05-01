@@ -31,16 +31,16 @@ export default new Command({
         en_US: 'The link to invite the bot to another server.',
         pt_BR: 'Envia o link para adicionar o bot a outro servidor.',
     },
-    usage: 'invitebot',
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        return await message.channel.send(i18n('chat.invitebot.link', sc?.lang, {link: `https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&permissions=3271680&scope=bot`}));
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+
+        return i18n('chat.invitebot.link', sc?.lang, {link: `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3271680&scope=bot`});
     },
 });

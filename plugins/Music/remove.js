@@ -32,31 +32,31 @@ export default new Command({
         en_US: 'Removes a song from the queue.',
         pt_BR: 'Remove uma música da fila.',
     },
-    usage: 'remove',
+
 
     /**
      *
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         const toRemove = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length - 1);
 
         if (toRemove === 0) {
-            return await skip.fn(message, ['1']);
+            return await skip.fn({client, guild, channel, author, member}, ['1']);
         }
 
         serverQueue.songs.splice(toRemove, 1);
 
-        return await message.channel.send(i18n('music.remove.success', sc?.lang));
+        return i18n('music.remove.success', sc?.lang);
     },
 });

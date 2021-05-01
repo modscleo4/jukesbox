@@ -21,7 +21,7 @@
 'use strict';
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
@@ -32,7 +32,23 @@ export default new Command({
         en_US: 'Shows/changes the bot language.',
         pt_BR: 'Mostra/altera o idioma do bot no servidor.',
     },
-    usage: 'lang [lang_COUNTRY]',
+    options: [
+        {
+            name: 'lang',
+            description: 'Language to set.',
+            type: OptionType.STRING,
+            choices: [
+                {
+                    name: 'Portuguese (Brazil)',
+                    value: 'pt_BR',
+                },
+                {
+                    name: 'English (United States)',
+                    value: 'en_US',
+                },
+            ],
+        }
+    ],
 
     userPermissions: {
         server: ['MANAGE_GUILD'],
@@ -43,25 +59,25 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id) ?? new ServerConfig({guild: message.guild.id, prefix});
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return await message.channel.send(i18n('server.lang.lang', sc?.lang, {lang: sc.lang}));
+            return i18n('server.lang.lang', sc?.lang, {lang: sc.lang});
         }
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!(args[0] in langs)) {
-            return await message.channel.send(i18n('server.lang.unknownLang', sc?.lang));
+            return i18n('server.lang.unknownLang', sc?.lang);
         }
 
         sc.lang = args[0];
-        serverConfig.set(message.guild.id, sc);
+        serverConfig.set(guild.id, sc);
         await sc.save(database_url);
 
-        return await message.channel.send(i18n('server.lang.success', sc?.lang, {lang: args[0]}));
+        return i18n('server.lang.success', sc?.lang, {lang: args[0]});
     },
 });

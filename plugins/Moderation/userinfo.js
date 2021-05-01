@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
 
@@ -33,7 +33,14 @@ export default new Command({
         en_US: '`@member` information.',
         pt_BR: 'Informações de um `@membro`.',
     },
-    usage: 'userinfo [@member]',
+    options: [
+        {
+            name: 'user',
+            description: 'Target User',
+            type: OptionType.USER,
+            required: true,
+        }
+    ],
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -44,27 +51,27 @@ export default new Command({
      * @this {Command}
      * @param {Message} message
      * @param {string[]} args
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message, args) {
-        const sc = serverConfig.get(message.guild.id);
+    async fn({client, guild, channel, author, member}, args) {
+        const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions(message);
+        await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0].match(/\d+/gm)) {
-            return await message.channel.send(i18n('mod.userinfo.misingUser', sc?.lang));
+            return i18n('mod.userinfo.missingUser', sc?.lang);
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
-        const guildMember = message.guild.member(userID);
+        const guildMember = await guild.members.fetch(userID);
 
         if (!guildMember) {
-            return await message.channel.send(i18n('mod.userinfo.invalidUser', sc?.lang));
+            return i18n('mod.userinfo.invalidUser', sc?.lang);
         }
 
-        return await message.channel.send(new MessageEmbed({
+        return new MessageEmbed({
             title: guildMember.nickname ?? guildMember.user.tag,
-            author: {name: message.author.username, iconURL: message.author.avatarURL()},
+            author: {name: author.username, iconURL: author.avatarURL()},
             color: guildMember.displayHexColor,
             timestamp: new Date(),
             thumbnail: {url: guildMember.user.avatarURL()},
@@ -85,6 +92,6 @@ export default new Command({
                 },
                 {name: i18n('mod.userinfo.bot', sc?.lang), value: guildMember.user.bot ? i18n('mod.userinfo.yes', sc?.lang) : i18n('mod.userinfo.no', sc?.lang), inline: true}
             ],
-        }));
+        });
     },
 });

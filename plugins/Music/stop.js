@@ -31,27 +31,27 @@ export default new Command({
         en_US: 'Clears the queue and stops the playback.',
         pt_BR: 'Limpa a fila e para de tocar.',
     },
-    usage: 'stop',
+
 
     /**
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return await message.channel.send(i18n('music.queueEmpty', sc?.lang));
+            return i18n('music.queueEmpty', sc?.lang);
         }
 
         serverQueue.songs = [];
-        serverQueue.connection?.dispatcher.end();
+        serverQueue.connection?.dispatcher?.end();
         serverQueue.playing = false;
-        return await message.channel.send(i18n('music.stop.success', sc?.lang));
+        return i18n('music.stop.success', sc?.lang);
     },
 });

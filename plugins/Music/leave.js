@@ -31,7 +31,6 @@ export default new Command({
         en_US: 'Leaves the Voice Channel.',
         pt_BR: 'Sai do canal de voz.',
     },
-    usage: 'leave',
 
     aliases: ['exit'],
 
@@ -39,21 +38,21 @@ export default new Command({
      *
      * @this {Command}
      * @param {Message} message
-     * @return {Promise<*>}
+     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn(message) {
-        const sc = serverConfig.get(message.guild.id);
-        const serverQueue = queue.get(message.guild.id);
+    async fn({client, guild, channel, author, member}) {
+        const sc = serverConfig.get(guild.id);
+        const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel(message);
+        await this.checkVoiceChannel({guild, member});
 
         if (serverQueue) {
             serverQueue.songs = [];
-            serverQueue.connection?.dispatcher.end();
+            serverQueue.connection?.dispatcher?.end();
             serverQueue.playing = false;
         }
 
-        message.member.voice.channel.leave();
-        await message.channel.send(i18n('music.leave.success', sc?.lang));
+        member.voice.channel.leave();
+        return i18n('music.leave.success', sc?.lang);
     },
 });
