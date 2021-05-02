@@ -55,6 +55,10 @@ export default new Command({
             return i18n('admin.eval.noArgs', sc?.lang);
         }
 
-        return `\`\`\`js\n${JSON.stringify(eval(args[0]), null, 2)}\n\`\`\``;
+        try {
+            return `\`\`\`js\n${JSON.stringify(eval(args[0]), null, 2)}\n\`\`\``;
+        } catch (e) {
+            return `\`\`\`\n${e.stack}\n\`\`\``;
+        }
     },
 });
