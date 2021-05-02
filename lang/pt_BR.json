@@ -64,7 +64,7 @@
       "longDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.\n\nDigite ,,,${serverPrefix}help [comando1] [comando2],,, para obter ajuda de um ou mais comandos em específico.`",
       "shortDescription": "`O prefixo deste servidor é ,,,${serverPrefix},,,.`",
       "commandNotFound": "`Comando ,,,${command},,, não encontrado.`",
-      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Uso**: ,,,${cmd + ' ' + command.options.map(o => '[' + o.name + ']').join(' ')},,,\n`",
+      "detailedHelp": "`\n\n**${serverPrefix}${cmd}**\n${command.description[sc?.lang ?? 'pt_BR']}\n**Uso**: ,,,${cmd + ' ' + command.options.map(o => (o.required ? '<' : '[') + o.name + (o.required ? '>' : ']')).join(' ')},,,\n`",
       "alias": "`\n**Alias**: ${aliases}`",
       "botPermissions": "`\n**Permissões do bot**: ${botPermissions}`",
       "userPermissions": "`\n**Permissões do usuário**: ${userPermissions}`",
