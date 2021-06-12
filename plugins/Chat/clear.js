@@ -39,8 +39,6 @@ export default new Command({
         }
     ],
 
-    deleteMessage: true,
-
     botPermissions: {
         text: ['MANAGE_MESSAGES'],
     },

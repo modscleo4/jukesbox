@@ -30,7 +30,6 @@ import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, yt
 import {
     getPlaylistItems,
     getSpotifyPlaylistItems,
-    isAsync,
     isValidHttpURL,
     searchVideo,
     videoInfo
@@ -141,6 +140,10 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
 
     serverQueue.song.seek = undefined;
     serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member}, []));
+
+    if (serverQueue.song.uploader.toUpperCase().includes('JUKES') || serverQueue.song.title.toUpperCase().includes('JUKES')) {
+        await sendMessage('Mec.');
+    }
 }
 
 /**

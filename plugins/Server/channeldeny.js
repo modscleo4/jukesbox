@@ -34,10 +34,55 @@ export default new Command({
     },
     options: [
         {
-            name: 'cmd',
+            name: 'cmd_1',
             description: 'Command Name',
             type: OptionType.STRING,
             required: true,
+        },
+        {
+            name: 'cmd_2',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_3',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_4',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_5',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_6',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_7',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_8',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_9',
+            description: 'Command Name',
+            type: OptionType.STRING,
+        },
+        {
+            name: 'cmd_10',
+            description: 'Command Name',
+            type: OptionType.STRING,
         }
     ],
 

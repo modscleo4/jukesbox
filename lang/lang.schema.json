@@ -216,13 +216,25 @@
             "missingTitle": {
               "$ref": "#/definitions/entry"
             },
+            "missingTimer": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidTimer": {
+              "$ref": "#/definitions/entry"
+            },
             "missingOptions": {
+              "$ref": "#/definitions/entry"
+            },
+            "results": {
               "$ref": "#/definitions/entry"
             }
           },
           "required": [
             "missingTitle",
-            "missingOptions"
+            "missingTimer",
+            "invalidTimer",
+            "missingOptions",
+            "results"
           ]
         },
         "invitebot": {

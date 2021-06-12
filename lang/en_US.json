@@ -53,7 +53,10 @@
     },
     "poll": {
       "missingTitle": "'Type the poll title.'",
-      "missingOptions": "'Type at least 2 options.'"
+      "missingTimer": "'Type the poll timer.'",
+      "invalidTimer": "'Invalid timer.'",
+      "missingOptions": "'Type at least 2 options.'",
+      "results": "`Results: \n${results.map(({key, val}) => key + ': ' + val).join('\\n')}`"
     },
     "invitebot": {
       "link": "`Add Jukes Box to a new server: ${link}`"

@@ -53,7 +53,10 @@
     },
     "poll": {
       "missingTitle": "'Informe o título da enquete.'",
-      "missingOptions": "'Informe ao menos 2 opções.'"
+      "missingTimer": "'Informe o timer da enquete.'",
+      "invalidTimer": "'Timer inválido.'",
+      "missingOptions": "'Informe ao menos 2 opções.'",
+      "results": "`Resultado: \n${results.map(({key, val}) => key + ': ' + val).join('\\n')}`"
     },
     "invitebot": {
       "link": "`Convide o Jukera pra rapaziada: ${link}`"

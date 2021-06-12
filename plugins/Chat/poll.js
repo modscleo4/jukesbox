@@ -40,6 +40,12 @@ export default new Command({
             required: true,
         },
         {
+            name: 'timer',
+            description: 'Poll Timer (minutes)',
+            type: OptionType.INTEGER,
+            required: true,
+        },
+        {
             name: 'option_1',
             description: 'Option 1',
             type: OptionType.STRING,
@@ -93,7 +99,7 @@ export default new Command({
         },
     ],
 
-    deleteMessage: true,
+    deleteUserMessage: true,
 
     botPermissions: {
         text: ['EMBED_LINKS'],
@@ -111,18 +117,29 @@ export default new Command({
 
         await this.checkPermissions({guild, channel, author, member});
 
-        if (args.length < 0) {
+        if (args.length < 1) {
             return i18n('chat.poll.missingTitle', sc?.lang);
         }
 
-        if (args.length < 3) {
+        if (args.length < 2) {
+            return i18n('chat.poll.missingTimer', sc?.lang);
+        }
+
+        if (!parseInt(args[1]) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
+            return i18n('chat.poll.invalidTimer', sc?.lang);
+        }
+
+        if (args.length < 4) {
             return i18n('chat.poll.missingOptions', sc?.lang);
         }
 
         const title = args.splice(0, 1)[0];
+        const timer = parseInt(args.splice(0, 1)[0]);
         args = args.map(a => a.replace(/"/gmi, ''));
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, args.length);
+
+        const results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0].splice(0, args.length);
 
         return {
             embed: new MessageEmbed({
@@ -132,6 +149,13 @@ export default new Command({
                 description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
             }),
             reactions,
+            timer,
+            onReact: async ({reaction, user, message, add}) => {
+                results[reactions.indexOf(reaction.emoji.name)] += add ? 1 : -1;
+            },
+            onEndReact: async ({message}) => {
+                await channel.send(i18n('chat.poll.results', sc?.lang, {results: results.map((v, i) => ({key: args[i], val: v})).sort((a, b) => b.val - a.val)}));
+            },
         };
     },
 });

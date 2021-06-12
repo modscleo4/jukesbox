@@ -126,8 +126,7 @@ export default new Command({
             embed: msg,
             reactions,
             lockAuthor: true,
-            onReact: async (collected) => {
-                const reaction = collected.first();
+            onReact: async ({reaction}) => {
                 await play.fn({client, guild, channel, author, member}, [results[reactions.indexOf(reaction.emoji.name)].url]);
             },
             deleteAfter: true,

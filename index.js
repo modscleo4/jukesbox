@@ -87,32 +87,40 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             }
         }
 
-        const msg = await (new WebhookClient(client.user.id, interaction.token).send(data));
-        const message = await channel.messages.fetch(msg.id);
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(data));
+        const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msgData.reactions) {
-            msgData.reactions.map(async r => await message.react(r).catch(() => {
+            msgData.reactions.map(async r => await msg.react(r).catch(() => {
 
             }));
 
             if (msgData.onReact) {
-                await message.awaitReactions((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : true, {
-                    max: 1,
-                    time: 60000,
-                    errors: ['time'],
-                }).then(async (collected) => await msgData.onReact(collected, message)).catch(() => {
+                const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
+                    max: Infinity,
+                    dispose: true,
+                    time: (msgData.timer || 1) * 60 * 1000,
+                }).on('collect', async (reaction, user) => {
+                    await msgData.onReact({reaction, user, message: msg, add: true});
+                }).on('remove', async (reaction, user) => {
+                    await msgData.onReact({reaction, user, message: msg, add: false});
+                }).on('end', async (collected) => {
+                    if (!msgData.onEndReact) {
+                        return;
+                    }
 
+                    await msgData.onEndReact({message: msg});
                 });
             }
 
-            if (msgData.deleteAfter && !message.deleted) {
-                return await message.delete().catch(() => {
+            if (msgData.deleteAfter && !msg.deleted) {
+                return await msg.delete().catch(() => {
 
                 });
             }
         }
 
-        return message;
+        return msg;
     }
 
     const sc = serverConfig.get(interaction.guild_id);
@@ -230,12 +238,20 @@ client.on('message', async message => {
                         }));
 
                         if (msgData.onReact) {
-                            await msg.awaitReactions((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : true, {
-                                max: 1,
-                                time: 60000,
-                                errors: ['time'],
-                            }).then(async (collected) => await msgData.onReact(collected, msg)).catch(() => {
+                            const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
+                                max: Infinity,
+                                dispose: true,
+                                time: (msgData.timer || 1) * 60 * 1000,
+                            }).on('collect', async (reaction, user) => {
+                                await msgData.onReact({reaction, user, message: msg, add: true});
+                            }).on('remove', async (reaction, user) => {
+                                await msgData.onReact({reaction, user, message: msg, add: false});
+                            }).on('end', async (collected) => {
+                                if (!msgData.onEndReact) {
+                                    return;
+                                }
 
+                                await msgData.onEndReact({message: msg});
                             });
                         }
 
@@ -248,8 +264,8 @@ client.on('message', async message => {
                 }
             }
 
-            if (command.deleteMessage) {
-                await msg?.delete().catch(() => {
+            if (command.deleteUserMessage) {
+                await message?.delete().catch(() => {
 
                 });
             }
