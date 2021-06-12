@@ -101,21 +101,21 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
                     dispose: true,
                     time: (msgData.timer || 1) * 60 * 1000,
                 }).on('collect', async (reaction, user) => {
-                    await msgData.onReact({reaction, user, message: msg, add: true});
+                    await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
                 }).on('remove', async (reaction, user) => {
-                    await msgData.onReact({reaction, user, message: msg, add: false});
+                    await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
                 }).on('end', async (collected) => {
+                    if (msgData.deleteAfter && !msg.deleted) {
+                        return await msg.delete().catch(() => {
+
+                        });
+                    }
+
                     if (!msgData.onEndReact) {
                         return;
                     }
 
                     await msgData.onEndReact({message: msg});
-                });
-            }
-
-            if (msgData.deleteAfter && !msg.deleted) {
-                return await msg.delete().catch(() => {
-
                 });
             }
         }
@@ -238,26 +238,26 @@ client.on('message', async message => {
                         }));
 
                         if (msgData.onReact) {
-                            const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
+                            const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : u.id !== client.user.id, {
                                 max: Infinity,
                                 dispose: true,
                                 time: (msgData.timer || 1) * 60 * 1000,
                             }).on('collect', async (reaction, user) => {
-                                await msgData.onReact({reaction, user, message: msg, add: true});
+                                await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
                             }).on('remove', async (reaction, user) => {
-                                await msgData.onReact({reaction, user, message: msg, add: false});
+                                await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
                             }).on('end', async (collected) => {
+                                if (msgData.deleteAfter && !msg.deleted) {
+                                    return await msg.delete().catch(() => {
+
+                                    });
+                                }
+
                                 if (!msgData.onEndReact) {
                                     return;
                                 }
 
                                 await msgData.onEndReact({message: msg});
-                            });
-                        }
-
-                        if (msgData.deleteAfter && !msg.deleted) {
-                            return await msg.delete().catch(() => {
-
                             });
                         }
                     }

@@ -72,7 +72,7 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkVoiceChannel({guild, member});
@@ -125,9 +125,11 @@ export default new Command({
         return {
             embed: msg,
             reactions,
+            timer: 1,
             lockAuthor: true,
-            onReact: async ({reaction}) => {
-                await play.fn({client, guild, channel, author, member}, [results[reactions.indexOf(reaction.emoji.name)].url]);
+            onReact: async ({reaction, stop}) => {
+                stop();
+                await play.fn({client, guild, channel, author, member, sendMessage}, [results[reactions.indexOf(reaction.emoji.name)].url]);
             },
             deleteAfter: true,
         };
