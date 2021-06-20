@@ -129,7 +129,7 @@ export default new Command({
             lockAuthor: true,
             onReact: async ({reaction, stop}) => {
                 stop();
-                await play.fn({client, guild, channel, author, member, sendMessage}, [results[reactions.indexOf(reaction.emoji.name)].url]);
+                sendMessage(await play.fn({client, guild, channel, author, member, sendMessage}, [results[reactions.indexOf(reaction.emoji.name)].url]));
             },
             deleteAfter: true,
         };

@@ -95,7 +95,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
             }));
 
-            if (msgData.onReact) {
+            if (msgData.onReact && msgData.timer) {
                 const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
                     max: Infinity,
                     dispose: true,
@@ -237,7 +237,7 @@ client.on('message', async message => {
 
                         }));
 
-                        if (msgData.onReact) {
+                        if (msgData.onReact && msgData.timer) {
                             const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : u.id !== client.user.id, {
                                 max: Infinity,
                                 dispose: true,

@@ -125,7 +125,7 @@ export default new Command({
             return i18n('chat.poll.missingTimer', sc?.lang);
         }
 
-        if (!parseInt(args[1]) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
+        if (isNaN(parseInt(args[1])) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
             return i18n('chat.poll.invalidTimer', sc?.lang);
         }
 
