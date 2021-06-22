@@ -36,7 +36,7 @@
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.5",
-    "ytdl-core": "^4.8.2",
+    "ytdl-core": "github:fent/node-ytdl-core#pull/938/head",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
