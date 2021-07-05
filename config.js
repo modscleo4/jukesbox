@@ -31,6 +31,7 @@ export let ytapikeys;
 export let scclientID;
 export let spclientID;
 export let spsecret;
+export let geniusToken;
 export let adminID;
 export let production;
 export let periodicallyClearCache;
@@ -47,6 +48,7 @@ export function reloadConfig() {
     scclientID = process.env.SCCLIENTID;
     spclientID = process.env.SPCLIENTID;
     spsecret = process.env.SPSECRET;
+    geniusToken = process.env.GENIUSTOKEN;
     adminID = process.env.ADMINID;
     production = process.env.PRODUCTION === 'true';
     periodicallyClearCache = process.env.PERIODICALLY_CLEAR_CACHE === 'true';

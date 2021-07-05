@@ -98,7 +98,8 @@
       "username#tag": "'usuário#tag'",
       "uuid": "'UUID'",
       "roles": "'Cargos'",
-      "joined": "'Entrou'",
+      "joined": "'Entrou em'",
+      "created": "'Criado em'",
       "bot": "'Bot'",
       "yes": "'Sim'",
       "no": "'Não'"
@@ -182,6 +183,9 @@
     },
     "queue": {
       "embedTitle": "'Fila tá assim lek'"
+    },
+    "lyrics": {
+      "nothingFound": "'Achei nada lesk.'"
     }
   },
   "server": {

@@ -90,7 +90,18 @@ export default new Command({
                     }).format(guildMember.joinedAt),
                     inline: true
                 },
-                {name: i18n('mod.userinfo.bot', sc?.lang), value: guildMember.user.bot ? i18n('mod.userinfo.yes', sc?.lang) : i18n('mod.userinfo.no', sc?.lang), inline: true}
+                {
+                    name: i18n('mod.userinfo.created', sc?.lang),
+                    value: new Intl.DateTimeFormat('pt-br', {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric"
+                    }).format(guildMember.user.createdAt),
+                    inline: true
+                },
+                {name: i18n('mod.userinfo.bot', sc?.lang), value: guildMember.user.bot ? i18n('mod.userinfo.yes', sc?.lang) : i18n('mod.userinfo.no', sc?.lang), inline: true},
             ],
         });
     },

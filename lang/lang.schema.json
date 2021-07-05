@@ -392,6 +392,9 @@
             "joined": {
               "$ref": "#/definitions/entry"
             },
+            "created": {
+              "$ref": "#/definitions/entry"
+            },
             "bot": {
               "$ref": "#/definitions/entry"
             },
@@ -409,6 +412,7 @@
             "uuid",
             "roles",
             "joined",
+            "created",
             "bot",
             "yes",
             "no"
@@ -717,6 +721,17 @@
           "required": [
             "embedTitle"
           ]
+        },
+        "lyrics": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "nothingFound": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "nothingFound"
+          ]
         }
       },
       "required": [
@@ -736,7 +751,8 @@
         "shuffle",
         "remove",
         "volume",
-        "queue"
+        "queue",
+        "lyrics"
       ]
     },
     "server": {

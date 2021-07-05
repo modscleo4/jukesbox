@@ -27,16 +27,21 @@
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
     "bufferutil": "^4.0.3",
+    "css-select": "^4.1.3",
     "discord.js": "^12.5.3",
+    "domhandler": "^4.2.0",
+    "domutils": "^2.7.0",
     "dotenv": "^10.0.0",
     "erlpack": "^0.1.3",
-    "googleapis": "^76.0.0",
+    "googleapis": "^80.1.0",
+    "htmlparser2": "^6.1.0",
     "libsodium-wrappers": "^0.7.9",
+    "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.5",
-    "ytdl-core": "github:fent/node-ytdl-core#pull/938/head",
+    "ytdl-core": "^4.8.3",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {

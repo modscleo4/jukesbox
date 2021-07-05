@@ -99,6 +99,7 @@
       "uuid": "'UUID'",
       "roles": "'Roles'",
       "joined": "'Joined at'",
+      "created": "'Created at'",
       "bot": "'Bot'",
       "yes": "'Yes'",
       "no": "'No'"
@@ -182,6 +183,9 @@
     },
     "queue": {
       "embedTitle": "'Current queue'"
+    },
+    "lyrics": {
+      "nothingFound": "'I didn't find anything on Genius.'"
     }
   },
   "server": {
