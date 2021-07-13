@@ -33,7 +33,7 @@
     "domutils": "^2.7.0",
     "dotenv": "^10.0.0",
     "erlpack": "^0.1.3",
-    "googleapis": "^80.1.0",
+    "googleapis": "^81.0.0",
     "htmlparser2": "^6.1.0",
     "libsodium-wrappers": "^0.7.9",
     "node-fetch": "^2.6.1",
@@ -45,11 +45,11 @@
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
-    "@types/pg": "^8.6.0",
-    "@types/spotify-web-api-node": "^5.0.2"
+    "@types/pg": "^8.6.1",
+    "@types/spotify-web-api-node": "^5.0.3"
   },
   "engines": {
-    "node": "^14.x",
-    "npm": "^7.x"
+    "node": ">=14",
+    "npm": ">=7"
   }
 }
