@@ -32,8 +32,7 @@
     "domhandler": "^4.2.0",
     "domutils": "^2.7.0",
     "dotenv": "^10.0.0",
-    "erlpack": "^0.1.3",
-    "googleapis": "^81.0.0",
+    "googleapis": "^82.0.0",
     "htmlparser2": "^6.1.0",
     "libsodium-wrappers": "^0.7.9",
     "node-fetch": "^2.6.1",
@@ -41,8 +40,7 @@
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.5",
-    "ytdl-core": "^4.8.3",
-    "zlib-sync": "^0.1.7"
+    "ytdl-core": "^4.8.3"
   },
   "devDependencies": {
     "@types/pg": "^8.6.1",
