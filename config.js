@@ -28,6 +28,7 @@ export let highWaterMark;
 export let dlChunkSize;
 export let token;
 export let ytapikeys;
+export let ytcookies;
 export let scclientID;
 export let spclientID;
 export let spsecret;
@@ -45,6 +46,7 @@ export function reloadConfig() {
     dlChunkSize = parseInt(process.env.DL_CHUNK_SIZE || '10485760');
     token = process.env.TOKEN;
     ytapikeys = (process.env.YTAPIKEYS ?? '').split(';');
+    ytcookies = process.env.YTCOOKIES || null;
     scclientID = process.env.SCCLIENTID;
     spclientID = process.env.SPCLIENTID;
     spsecret = process.env.SPSECRET;

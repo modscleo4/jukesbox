@@ -26,7 +26,7 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue, serverConfig} from "../../global.js";
-import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikeys} from "../../config.js";
+import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikeys, ytcookies} from "../../config.js";
 import {
     getPlaylistItems,
     getSpotifyPlaylistItems,
@@ -196,6 +196,7 @@ async function findOnYT(song) {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
                     Authorization: `Bearer ${ytapikeys[0]}`,
+                    cookie: ytcookies,
                 }
             },
         },
@@ -341,6 +342,7 @@ export default new Command({
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
                                     Authorization: `Bearer ${ytapikeys[0]}`,
+                                    cookie: ytcookies,
                                 }
                             },
                         },
@@ -381,6 +383,7 @@ export default new Command({
                             host: 'jukesbox.herokuapp.com',
                             headers: {
                                 Authorization: `Bearer ${ytapikeys[0]}`,
+                                cookie: ytcookies,
                             }
                         },
                     },
