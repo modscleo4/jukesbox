@@ -70,6 +70,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return;
         }
 
+        // For Discord.js v12
+        if (msgData?.embeds) {
+            msgData.embed = msgData.embeds[0];
+            msgData.embeds = undefined;
+        }
+
         if (msgData.type === 1) {
             //
             return;
@@ -207,22 +213,33 @@ client.on('message', async message => {
         }
 
         try {
-            let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage: async (data) => message.channel.send(data)}, args);
-            // For Discord.js v12
-            if (msgData?.embeds) {
-                msgData.embed = msgData.embeds[0];
-                msgData.embeds = undefined;
+            async function sendMessage(msgData) {
+                if (!msgData) {
+                    return;
+                }
+
+                // For Discord.js v12
+                if (msgData?.embeds) {
+                    msgData.embed = msgData.embeds[0];
+                    msgData.embeds = undefined;
+                }
+
+                if (msgData.type === 1) {
+
+                } else {
+                    return await message.channel.send(msgData);
+                }
             }
+
+            let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
             // Send the Message Intent warning
             message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
 
-            const msg = await message.channel.send(msgData);
+            const msg = sendMessage(msgData);
 
-            if (msgData.type === 1) {
-
-            } else {
-                if (msgData.reactions) {
+            if (msg) {
+                if (msgData?.reactions) {
                     msgData.reactions.map(async r => await msg.react(r).catch(() => { }));
 
                     if (msgData.onReact) {
