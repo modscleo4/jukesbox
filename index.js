@@ -216,6 +216,7 @@ client.on('message', async message => {
         }
 
         try {
+            message.channel.send({content: i18n('messageIntent', sc?.lang)});
             message.sendMessage = async (data) => message.channel.send(data);
 
             const msgData = await command.fn(message, args);

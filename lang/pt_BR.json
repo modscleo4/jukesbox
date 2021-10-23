@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/modscleo4/jukesbox/master/lang/lang.schema.json",
+  "messageIntent": "'AVISO! O suporte para comandos via mensagem será encerrado em abril de 2022: https://support-dev.discord.com/hc/en-us/articles/4404772028055'",
   "permission": {
     "SEND_MESSAGES": "`Me deixa falar! (Permissão ,,,SEND_MESSAGES,,, no Canal de Texto)`"
   },
