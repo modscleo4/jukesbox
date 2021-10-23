@@ -70,18 +70,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return;
         }
 
-        // For Discord.js v12
-        if (msgData?.embeds) {
-            msgData.embed = msgData.embeds[0];
-            msgData.embeds = undefined;
-        }
-
         if (msgData.type === 1) {
             //
             return;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData));
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData.embeds[0]));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msgData.reactions) {
@@ -236,7 +230,7 @@ client.on('message', async message => {
             // Send the Message Intent warning
             message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
 
-            const msg = sendMessage(msgData);
+            const msg = await sendMessage(msgData);
 
             if (msg) {
                 if (msgData?.reactions) {
