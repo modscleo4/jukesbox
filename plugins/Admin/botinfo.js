@@ -61,11 +61,17 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         const subcommands = {
@@ -75,7 +81,7 @@ export default new Command({
                     value: i18n('admin.botinfo.serverID', sc?.lang, {id: g.id}),
                 }));
 
-                return await pageEmbed({client, author}, {title: i18n('admin.botinfo.servers', sc?.lang), content: servers});
+                return await pageEmbed({client}, {title: i18n('admin.botinfo.servers', sc?.lang), content: servers});
             },
 
             async voicechannels() {
@@ -84,7 +90,7 @@ export default new Command({
                     value: i18n('admin.botinfo.serverName', sc?.lang, {server: g.channel.guild.name}),
                 }));
 
-                return await pageEmbed({client, author}, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
+                return await pageEmbed({client}, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
             },
 
             async env() {
@@ -93,7 +99,7 @@ export default new Command({
                     value: JSON.stringify(config[k], null, 2),
                 }));
 
-                return await pageEmbed({client, author}, {title: i18n('admin.botinfo.envVars', sc?.lang), content: envVars});
+                return await pageEmbed({client}, {title: i18n('admin.botinfo.envVars', sc?.lang), content: envVars});
             },
         };
 
@@ -103,21 +109,23 @@ export default new Command({
             return await subcommands[args[0]]();
         }
 
-        return new MessageEmbed({
-            title: i18n('admin.botinfo.embedTitle', sc?.lang),
-            author: {name: client.user.username, iconURL: client.user.avatarURL()},
-            timestamp: new Date(),
-            fields: [
-                {name: i18n('admin.botinfo.servers', sc?.lang), value: client.guilds.cache.size, inline: true},
-                {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: client.voice.connections.size, inline: true},
-                {name: i18n('admin.botinfo.uptime', sc?.lang), value: parseMS(Date.now() - startupTime).toString(), inline: true},
-                {name: i18n('admin.botinfo.uuid', sc?.lang), value: client.user.id, inline: false},
-                {name: i18n('admin.botinfo.server', sc?.lang), value: guild.region, inline: true},
-                {name: i18n('admin.botinfo.ping', sc?.lang), value: `${client.ws.ping.toFixed(0)} ms`, inline: true},
-                {name: i18n('admin.botinfo.playingIn', sc?.lang), value: i18n('admin.botinfo.nServers', sc?.lang, {n: queue.size}), inline: true},
-                {name: i18n('admin.botinfo.ram', sc?.lang), value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
-                {name: i18n('admin.botinfo.platform', sc?.lang), value: process.platform, inline: true},
-            ],
-        });
+        return {
+            embeds: [new MessageEmbed({
+                title: i18n('admin.botinfo.embedTitle', sc?.lang),
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                timestamp: new Date(),
+                fields: [
+                    {name: i18n('admin.botinfo.servers', sc?.lang), value: client.guilds.cache.size, inline: true},
+                    {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: client.voice.connections.size, inline: true},
+                    {name: i18n('admin.botinfo.uptime', sc?.lang), value: parseMS(Date.now() - startupTime).toString(), inline: true},
+                    {name: i18n('admin.botinfo.uuid', sc?.lang), value: client.user.id, inline: false},
+                    {name: i18n('admin.botinfo.server', sc?.lang), value: guild.region, inline: true},
+                    {name: i18n('admin.botinfo.ping', sc?.lang), value: `${client.ws.ping.toFixed(0)} ms`, inline: true},
+                    {name: i18n('admin.botinfo.playingIn', sc?.lang), value: i18n('admin.botinfo.nServers', sc?.lang, {n: queue.size}), inline: true},
+                    {name: i18n('admin.botinfo.ram', sc?.lang), value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},
+                    {name: i18n('admin.botinfo.platform', sc?.lang), value: process.platform, inline: true},
+                ],
+            })]
+        };
     }
 });

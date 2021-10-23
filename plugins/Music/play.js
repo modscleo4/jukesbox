@@ -52,15 +52,21 @@ const spotifyAPI = new SpotifyWebAPI({
 
 /**
  *
- * @param {Message} message
- * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+ * @param {Object} message
+ * @param {import('../../lib/Client.js').default} message.client
+ * @param {import('discord.js').Guild} message.guild
+ * @param {import('discord.js').TextChannel} message.channel
+ * @param {import('discord.js').User} message.author
+ * @param {import('discord.js').GuildMember} message.member
+ * @param {Function} message.sendMessage
+ * @return {Promise<*>}
  */
 async function playSong({client, guild, channel, author, member, sendMessage}) {
     const sc = serverConfig.get(guild.id);
     const serverQueue = queue.get(guild.id);
 
     if (!serverQueue) {
-        return;
+        return null;
     }
 
     await serverQueue.deletePending();
@@ -68,7 +74,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
     if (serverQueue.songs.length === 0) {
         serverQueue.connection.removeAllListeners('disconnect');
         queue.delete(guild.id);
-        return;
+        return null;
     }
 
     if (serverQueue.song.findOnYT) {
@@ -243,9 +249,15 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
@@ -275,7 +287,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return i18n('music.play.noLink', sc?.lang);
+            return {content: i18n('music.play.noLink', sc?.lang)};
         }
 
         const songs = [];
@@ -288,7 +300,7 @@ export default new Command({
         }))[0] ?? {url: null}).url;
 
         if (!url) {
-            return i18n('music.play.nothingFound', sc?.lang);
+            return {content: i18n('music.play.nothingFound', sc?.lang)};
         }
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
@@ -298,7 +310,7 @@ export default new Command({
                 const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
 
                 if (!PlaylistId.startsWith('PL')) {
-                    return i18n('music.play.youtubeMix', sc?.lang);
+                    return {content: i18n('music.play.youtubeMix', sc?.lang)};
                 }
 
                 const plSongs = await getPlaylistItems(PlaylistId, {
@@ -309,7 +321,7 @@ export default new Command({
                 });
 
                 if (!plSongs) {
-                    return i18n('music.play.error', sc?.lang);
+                    return {content: i18n('music.play.error', sc?.lang)};
                 }
 
                 const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: ytapikeys}).catch(e => {
@@ -318,7 +330,7 @@ export default new Command({
                 });
 
                 if (!songsInfo) {
-                    return i18n('music.play.error', sc?.lang);
+                    return {content: i18n('music.play.error', sc?.lang)};
                 }
 
                 songsInfo.forEach((songInfo, i) => {
@@ -359,7 +371,7 @@ export default new Command({
                 }))[0];
 
                 if (!songInfo) {
-                    return i18n('music.play.error', sc?.lang);
+                    return {content: i18n('music.play.error', sc?.lang)};
                 }
 
                 const song = new Song({
@@ -398,7 +410,7 @@ export default new Command({
             });
 
             if (!songInfo) {
-                return i18n('music.play.error', sc?.lang);
+                return {content: i18n('music.play.error', sc?.lang)};
             }
 
             const song = new Song({
@@ -422,7 +434,7 @@ export default new Command({
             }));
 
             if (!plSongs) {
-                return i18n('music.play.error', sc?.lang);
+                return {content: i18n('music.play.error', sc?.lang)};
             }
 
             plSongs.forEach(plSong => {
@@ -437,7 +449,7 @@ export default new Command({
                 songs.push(song);
             });
         } else {
-            return i18n('music.play.error', sc?.lang);
+            return {content: i18n('music.play.error', sc?.lang)};
         }
 
         if (!serverQueue) {
@@ -458,18 +470,20 @@ export default new Command({
             } catch (err) {
                 console.error(err);
                 queue.delete(guild.id);
-                return i18n('music.play.error', sc?.lang);
+                return {content: i18n('music.play.error', sc?.lang)};
             }
         } else {
             serverQueue.songs = serverQueue.songs.concat(songs);
             if (songs.length === 1) {
-                return i18n('music.play.playingOne', sc?.lang, {
-                    songTitle: songs[0].title,
-                    position: serverQueue.songs.length
-                });
+                return {
+                    content: i18n('music.play.playingOne', sc?.lang, {
+                        songTitle: songs[0].title,
+                        position: serverQueue.songs.length
+                    })
+                };
             }
 
-            return i18n('music.play.playingMany', sc?.lang, {n: songs.length});
+            return {content: i18n('music.play.playingMany', sc?.lang, {n: songs.length})};
         }
     },
 });

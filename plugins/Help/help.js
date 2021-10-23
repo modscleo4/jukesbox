@@ -93,11 +93,17 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
         const serverPrefix = sc?.prefix ?? prefix;
 
@@ -111,7 +117,7 @@ export default new Command({
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
                 if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(author.id))) {
-                    return i18n('help.help.commandNotFound', sc?.lang, {command: args[i]});
+                    return {content: i18n('help.help.commandNotFound', sc?.lang, {command: args[i]})};
                 }
             }
 
@@ -126,12 +132,14 @@ export default new Command({
                 command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, {userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
             }
 
-            return new MessageEmbed({
-                title: i18n('help.help.embedTitle', sc?.lang),
-                description: desc,
-                author: {name: client.user.username, iconURL: client.user.avatarURL()},
-                timestamp: new Date(),
-            });
+            return {
+                embeds: [new MessageEmbed({
+                    title: i18n('help.help.embedTitle', sc?.lang),
+                    description: desc,
+                    author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                    timestamp: new Date(),
+                })]
+            };
         }
 
         const cmds = [];
@@ -158,12 +166,14 @@ export default new Command({
             }
         });
 
-        return new MessageEmbed({
-            title: i18n('help.help.embedTitle', sc?.lang),
-            description,
-            author: {name: client.user.username, iconURL: client.user.avatarURL()},
-            timestamp: new Date(),
-            fields: cmds,
-        });
+        return {
+            embeds: [new MessageEmbed({
+                title: i18n('help.help.embedTitle', sc?.lang),
+                description,
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                timestamp: new Date(),
+                fields: cmds,
+            })]
+        };
     }
 });

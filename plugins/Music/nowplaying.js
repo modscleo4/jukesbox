@@ -44,32 +44,41 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
+     * @param {string[]} args
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (!serverQueue) {
-            return i18n('music.queueEmpty', sc?.lang);
+            return {content: i18n('music.queueEmpty', sc?.lang)};
         }
 
-        return new MessageEmbed({
-            title: i18n('music.nowplaying.embedTitle', sc?.lang),
-            url: serverQueue.song.url,
-            author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
-            color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
-            timestamp: new Date(),
-            thumbnail: {url: serverQueue.song.thumbnail},
-            description: serverQueue.song.title,
-            fields: [
-                {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
-                {name: i18n('music.nowplaying.queuePos', sc?.lang), value: serverQueue.position + 1, inline: true},
-                {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.player.streamTime + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
-            ],
-        });
+        return {
+            embeds: [new MessageEmbed({
+                title: i18n('music.nowplaying.embedTitle', sc?.lang),
+                url: serverQueue.song.url,
+                author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
+                color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
+                timestamp: new Date(),
+                thumbnail: {url: serverQueue.song.thumbnail},
+                description: serverQueue.song.title,
+                fields: [
+                    {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
+                    {name: i18n('music.nowplaying.queuePos', sc?.lang), value: serverQueue.position + 1, inline: true},
+                    {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.player.streamTime + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
+                ],
+            })]
+        };
     },
 });

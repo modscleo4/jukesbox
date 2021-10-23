@@ -50,17 +50,27 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]) {
-            return i18n('chat.clear.noArgs', sc?.lang);
+            return {content: i18n('chat.clear.noArgs', sc?.lang)};
+        }
+
+        if (args[-1]) {
+            await channel.bulkDelete(1);
         }
 
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
@@ -77,6 +87,6 @@ export default new Command({
 
         });
 
-        return i18n('chat.clear.deletedN', sc?.lang, {n});
+        return {content: i18n('chat.clear.deletedN', sc?.lang, {n})};
     }
 });

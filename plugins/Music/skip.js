@@ -44,18 +44,24 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
         await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return i18n('music.queueEmpty', sc?.lang);
+            return {content: i18n('music.queueEmpty', sc?.lang)};
         }
 
         const skips = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length);
@@ -71,6 +77,6 @@ export default new Command({
         !serverQueue.playing && serverQueue.connection?.dispatcher?.resume();
         serverQueue.connection?.dispatcher?.end();
 
-        return i18n('music.skip.success', sc?.lang);
+        return {content: i18n('music.skip.success', sc?.lang)};
     },
 });

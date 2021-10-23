@@ -50,17 +50,23 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-            return i18n('music.videoinfo.invalidURL', sc?.lang);
+            return {content: i18n('music.videoinfo.invalidURL', sc?.lang)};
         }
 
         const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
@@ -73,24 +79,26 @@ export default new Command({
         }))[0];
 
         if (!songInfo) {
-            return i18n('music.videoinfo.error', sc?.lang);
+            return {content: i18n('music.videoinfo.error', sc?.lang)};
         }
 
-        return new MessageEmbed({
-            title: i18n('music.videoinfo.embedTitle', sc?.lang),
-            url: songInfo.url,
-            author: {name: author.username, iconURL: author.avatarURL()},
-            timestamp: new Date(),
-            thumbnail: {url: songInfo.snippet.thumbnails.high.url},
-            description: songInfo.snippet.title,
-            fields: [
-                {name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true},
-                {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000), inline: true},
-                {name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
-                {name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true},
-                {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
-                {name: i18n('music.videoinfo.dislikes', sc?.lang), value: songInfo.statistics.dislikeCount, inline: true},
-            ],
-        });
+        return {
+            embeds: [new MessageEmbed({
+                title: i18n('music.videoinfo.embedTitle', sc?.lang),
+                url: songInfo.url,
+                author: {name: author.username, iconURL: author.avatarURL()},
+                timestamp: new Date(),
+                thumbnail: {url: songInfo.snippet.thumbnails.high.url},
+                description: songInfo.snippet.title,
+                fields: [
+                    {name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true},
+                    {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000), inline: true},
+                    {name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
+                    {name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true},
+                    {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
+                    {name: i18n('music.videoinfo.dislikes', sc?.lang), value: songInfo.statistics.dislikeCount, inline: true},
+                ],
+            })]
+        };
     },
 });

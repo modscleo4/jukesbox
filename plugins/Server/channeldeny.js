@@ -93,21 +93,27 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return i18n('server.channeldeny.noArgs', sc?.lang);
+            return {content: i18n('server.channeldeny.noArgs', sc?.lang)};
         }
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (args.includes('channelallow')) {
-            return i18n('server.channeldeny.cannotBlock', sc?.lang);
+            return {content: i18n('server.channeldeny.cannotBlock', sc?.lang)};
         }
 
         const categoriesCommands = client.categoriesCommands;
@@ -118,12 +124,12 @@ export default new Command({
                 const {category} = /category\/(?<category>\w+)/gmiu.exec(args[i]).groups;
 
                 if (!(category in categoriesCommands)) {
-                    return i18n('server.channeldeny.categoryNotFound', sc?.lang, {category});
+                    return {content: i18n('server.channeldeny.categoryNotFound', sc?.lang, {category})};
                 }
 
                 args.splice(i, 1, ...Object.keys(categoriesCommands[category]).filter(c => c !== 'channelallow'));
             } else if (!(args[i] in commands) || (commands[args[i]].only && !commands[args[i]].only.includes(author.id))) {
-                return i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]});
+                return {content: i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]})};
             }
         }
 
@@ -131,6 +137,6 @@ export default new Command({
         serverConfig.set(guild.id, sc);
         await sc.save(database_url);
 
-        return i18n('server.channeldeny.success', sc?.lang, {n: args.length});
+        return {content: i18n('server.channeldeny.success', sc?.lang, {n: args.length})};
     },
 });

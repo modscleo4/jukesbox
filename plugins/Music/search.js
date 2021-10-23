@@ -68,9 +68,15 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
@@ -99,7 +105,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return i18n('music.search.noArgs', sc?.lang);
+            return {content: i18n('music.search.noArgs', sc?.lang)};
         }
 
         const results = await searchVideo(args.join(' '), {
@@ -110,7 +116,7 @@ export default new Command({
         });
 
         if (results.length === 0) {
-            return i18n('music.search.nothingFound', sc?.lang);
+            return {content: i18n('music.search.nothingFound', sc?.lang)};
         }
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
@@ -123,7 +129,7 @@ export default new Command({
         });
 
         return {
-            embed: msg,
+            embeds: [msg],
             reactions,
             timer: 1,
             lockAuthor: true,

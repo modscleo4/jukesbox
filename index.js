@@ -70,24 +70,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return;
         }
 
-        let data = msgData;
-
-        if (typeof msgData === 'string') {
+        if (msgData.type === 1) {
             //
-        } else if (msgData instanceof MessageEmbed) {
-            //
-        } else if (typeof msgData === 'object') {
-            if (msgData.type === 1) {
-                //
-                return;
-            } else {
-                data = msgData.embed;
-
-                //
-            }
+            return;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(data));
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msgData.reactions) {
@@ -195,6 +183,9 @@ client.on('message', async message => {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? ['']).map(a => a.replace(/"/gmi, ''));
         const cmd = args.shift().toLowerCase();
 
+        // Tell commands it was a prefixed message
+        args[-1] = true;
+
         if (!(cmd in client.commands) && !(cmd in client.aliases)) {
             return;
         }
@@ -216,51 +207,46 @@ client.on('message', async message => {
         }
 
         try {
-            message.channel.send({content: i18n('messageIntent', sc?.lang)});
-            message.sendMessage = async (data) => message.channel.send(data);
+            let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage: async (data) => message.channel.send(data)}, args);
+            // For Discord.js v12
+            if (msgData?.embeds) {
+                msgData.embed = msgData.embeds[0];
+                msgData.embeds = undefined;
+            }
 
-            const msgData = await command.fn(message, args);
+            // Send the Message Intent warning
+            message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
 
-            let msg;
+            const msg = await message.channel.send(msgData);
 
-            if (typeof msgData === 'string') {
-                msg = await message.channel.send(msgData);
-            } else if (msgData instanceof MessageEmbed) {
-                msg = await message.channel.send(msgData);
-            } else if (typeof msgData === 'object') {
-                if (msgData.type === 1) {
+            if (msgData.type === 1) {
 
-                } else {
-                    msg = await message.channel.send(msgData.embed);
+            } else {
+                if (msgData.reactions) {
+                    msgData.reactions.map(async r => await msg.react(r).catch(() => { }));
 
-                    if (msgData.reactions) {
-                        msgData.reactions.map(async r => await msg.react(r).catch(() => {
+                    if (msgData.onReact) {
+                        const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : u.id !== client.user.id, {
+                            max: Infinity,
+                            dispose: true,
+                            time: (msgData.timer || 1) * 60 * 1000,
+                        }).on('collect', async (reaction, user) => {
+                            await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
+                        }).on('remove', async (reaction, user) => {
+                            await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
+                        }).on('end', async (collected) => {
+                            if (msgData.deleteAfter && !msg.deleted) {
+                                return await msg.delete().catch(() => {
 
-                        }));
+                                });
+                            }
 
-                        if (msgData.onReact && msgData.timer) {
-                            const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === message.author.id : u.id !== client.user.id, {
-                                max: Infinity,
-                                dispose: true,
-                                time: (msgData.timer || 1) * 60 * 1000,
-                            }).on('collect', async (reaction, user) => {
-                                await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
-                            }).on('remove', async (reaction, user) => {
-                                await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
-                            }).on('end', async (collected) => {
-                                if (msgData.deleteAfter && !msg.deleted) {
-                                    return await msg.delete().catch(() => {
+                            if (!msgData.onEndReact) {
+                                return;
+                            }
 
-                                    });
-                                }
-
-                                if (!msgData.onEndReact) {
-                                    return;
-                                }
-
-                                await msgData.onEndReact({message: msg});
-                            });
-                        }
+                            await msgData.onEndReact({message: msg});
+                        });
                     }
                 }
             }

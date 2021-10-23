@@ -101,21 +101,27 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]?.match(/\d+/gm)) {
-            return i18n('mod.giverole.missingUser', sc?.lang);
+            return {content: i18n('mod.giverole.missingUser', sc?.lang)};
         }
 
         if (args.length < 2) {
-            return i18n('mod.giverole.missingRole', sc?.lang);
+            return {content: i18n('mod.giverole.missingRole', sc?.lang)};
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
@@ -123,18 +129,18 @@ export default new Command({
         const roles = args.map(r => guild.roles.cache.find(g => g.name === r || g.id === r));
 
         if (!guildMember) {
-            return i18n('mod.giverole.invalidUser', sc?.lang);
+            return {content: i18n('mod.giverole.invalidUser', sc?.lang)};
         }
 
         if (roles.includes(undefined)) {
-            return i18n('mod.giverole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]});
+            return {content: i18n('mod.giverole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]})};
         }
 
         if (roles.find(r => !r.editable)) {
-            return i18n('mod.giverole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name});
+            return {content: i18n('mod.giverole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name})};
         }
 
         await guildMember.roles.add(roles);
-        return i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id});
+        return {content: i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id})};
     },
 });

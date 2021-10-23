@@ -41,10 +41,17 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
+     * @param {string[]} args
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkVoiceChannel({guild, member});
@@ -54,15 +61,17 @@ export default new Command({
         const voiceConnection = await member.voice.channel.join();
         await voiceConnection.voice?.setSelfDeaf(true);
 
-        return new MessageEmbed({
-            title: i18n('music.join.embedTitle', sc?.lang),
-            author: {name: author.username, iconURL: author.avatarURL()},
-            timestamp: new Date(),
-            description: i18n('music.join.embedDescription', sc?.lang),
-            fields: [
-                {name: i18n('music.join.voiceChannel', sc?.lang), value: member.voice.channel.name, inline: true},
-                {name: i18n('music.join.textChannel', sc?.lang), value: channel.name, inline: true}
-            ],
-        });
+        return {
+            embeds: [new MessageEmbed({
+                title: i18n('music.join.embedTitle', sc?.lang),
+                author: {name: author.username, iconURL: author.avatarURL()},
+                timestamp: new Date(),
+                description: i18n('music.join.embedDescription', sc?.lang),
+                fields: [
+                    {name: i18n('music.join.voiceChannel', sc?.lang), value: member.voice.channel.name, inline: true},
+                    {name: i18n('music.join.textChannel', sc?.lang), value: channel.name, inline: true}
+                ],
+            })]
+        };
     },
 });

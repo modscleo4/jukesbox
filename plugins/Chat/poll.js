@@ -108,29 +108,35 @@ export default new Command({
     /**
      *
      * @this {Command}
-     * @param {Message} message
+     * @param {Object} message
+     * @param {import('../../lib/Client.js').default} message.client
+     * @param {import('discord.js').Guild} message.guild
+     * @param {import('discord.js').TextChannel} message.channel
+     * @param {import('discord.js').User} message.author
+     * @param {import('discord.js').GuildMember} message.member
+     * @param {Function} message.sendMessage
      * @param {string[]} args
-     * @return {Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
+     * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
-    async fn({client, guild, channel, author, member}, args) {
+    async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (args.length < 1) {
-            return i18n('chat.poll.missingTitle', sc?.lang);
+            return {content: i18n('chat.poll.missingTitle', sc?.lang)};
         }
 
         if (args.length < 2) {
-            return i18n('chat.poll.missingTimer', sc?.lang);
+            return {content: i18n('chat.poll.missingTimer', sc?.lang)};
         }
 
         if (isNaN(parseInt(args[1])) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
-            return i18n('chat.poll.invalidTimer', sc?.lang);
+            return {content: i18n('chat.poll.invalidTimer', sc?.lang)};
         }
 
         if (args.length < 4) {
-            return i18n('chat.poll.missingOptions', sc?.lang);
+            return {content: i18n('chat.poll.missingOptions', sc?.lang)};
         }
 
         const title = args.splice(0, 1)[0];
@@ -142,12 +148,12 @@ export default new Command({
         const results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0].splice(0, args.length);
 
         return {
-            embed: new MessageEmbed({
+            embeds: [new MessageEmbed({
                 title,
                 author: {name: client.user.username, iconURL: client.user.avatarURL()},
                 timestamp: new Date(),
                 description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
-            }),
+            })],
             reactions,
             timer,
             onReact: async ({reaction, user, message, add}) => {
