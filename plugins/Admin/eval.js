@@ -21,7 +21,6 @@
 'use strict';
 
 import * as config from "../../config.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";

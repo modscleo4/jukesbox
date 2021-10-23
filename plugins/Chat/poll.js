@@ -20,9 +20,8 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -151,8 +150,8 @@ export default new Command({
         return {
             embeds: [new MessageEmbed({
                 title,
-                author: {name: client.user.username, iconURL: client.user.avatarURL()},
-                timestamp: new Date(),
+                author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                timestamp: new Date().toUTCString(),
                 description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
             })],
             reactions,

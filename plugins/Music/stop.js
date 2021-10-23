@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -58,7 +57,7 @@ export default new Command({
         }
 
         serverQueue.songs = [];
-        serverQueue.connection?.dispatcher?.end();
+        serverQueue.player?.stop();
         serverQueue.playing = false;
         return {content: i18n('music.stop.success', sc?.lang)};
     },

@@ -20,7 +20,6 @@
 
 'use strict';
 
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -137,7 +136,7 @@ export default new Command({
             throw new CommandExecutionError({content: i18n('mod.rmrole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]})});
         }
 
-        if (roles.find(r => !r.editable)) {
+        if (roles.find(r => r && !r.editable)) {
             throw new CommandExecutionError({content: i18n('mod.rmrole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name})});
         }
 

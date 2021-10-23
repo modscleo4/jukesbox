@@ -20,9 +20,8 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -78,9 +77,9 @@ export default new Command({
         return {
             embeds: [new MessageEmbed({
                 title: guildMember.nickname ?? guildMember.user.tag,
-                author: {name: author.username, iconURL: author.avatarURL()},
+                author: {name: author.username, icon_url: author.avatarURL()},
                 color: guildMember.displayHexColor,
-                timestamp: new Date(),
+                timestamp: new Date().toUTCString(),
                 thumbnail: {url: guildMember.user.avatarURL()},
                 fields: [
                     {name: i18n('mod.userinfo.username#tag', sc?.lang), value: guildMember.user.tag, inline: true},

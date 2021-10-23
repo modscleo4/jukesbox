@@ -30,7 +30,7 @@ import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
 import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
 import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
 import i18n from "./lang/lang.js";
-import { MessageEmbed, WebhookClient } from "discord.js";
+import { WebhookClient } from "discord.js";
 import Command from "./lib/Command.js";
 import CommandExecutionError from "./errors/CommandExecutionError.js";
 
@@ -43,11 +43,11 @@ console.log(`${serverConfig.size} configuraç${serverConfig.size > 1 ? 'ões' : 
 const client = new Client();
 
 client.on('ready', async () => {
-    await client.user.setPresence({
-        activity: {
+    client.user.setPresence({
+        activities: [{
             name: 'Jukera carai',
             type: 'WATCHING',
-        },
+        }],
 
         status: 'online',
     });
@@ -63,10 +63,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     }
 });
 
-client.ws.on('INTERACTION_CREATE', async interaction => {
-    const guild = await client.guilds.fetch(interaction.guild_id);
-    /** @type {import('discord.js').TextChannel} */
-    const channel = await client.channels.fetch(interaction.channel_id);
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) {
+        return;
+    }
+
+    const guild = await client.guilds.fetch(interaction.guild.id);
+    const channel = await client.channels.fetch(interaction.channel.id);
     const author = await client.users.fetch(interaction.member.user.id);
     const member = await guild.members.fetch(author);
 
@@ -84,15 +87,16 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return null;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData));
-        const msg = await channel.messages.fetch(webhookMsg.id);
+        const webhookMsg = await (new WebhookClient({ id: client.user.id, token: interaction.token }).send(msgData));
+        const msg = await interaction.channel.messages.fetch(webhookMsg.id);
 
         if (msg) {
             if (msgData.reactions) {
                 msgData.reactions.map(async r => await msg.react(r).catch(() => { }));
 
                 if (msgData.onReact) {
-                    const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
+                    const collector = msg.createReactionCollector({
+                        filter: (r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id,
                         max: Infinity,
                         dispose: true,
                         time: (msgData.timer || 1) * 60 * 1000,
@@ -101,7 +105,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
                     }).on('remove', async (reaction, user) => {
                         await msgData.onReact({ reaction, user, message: msg, add: false, stop: () => collector.stop() });
                     }).on('end', async (collected) => {
-                        if (msgData.deleteOnEnd && !msg.deleted) {
+                        if (msgData.deleteOnEnd) {
                             return await msg.delete().catch(() => { });
                         }
 
@@ -132,12 +136,6 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return null;
         }
 
-        // For Discord.js v12
-        if (msgData?.embeds) {
-            msgData.embed = msgData.embeds[0];
-            msgData.embeds = undefined;
-        }
-
         if (msgData.type === 1) {
             return null;
         }
@@ -145,11 +143,11 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
         return await channel.send(msgData);
     };
 
-    const sc = serverConfig.get(interaction.guild_id);
+    const sc = serverConfig.get(interaction.guild.id);
 
     switch (interaction.type) {
-        case 1:
-            client.api.interactions(interaction.id, interaction.token).callback.post({
+        case 'PING':
+            client.api.interactions(interaction.id, interaction.options.token).callback.post({
                 data: {
                     type: 1,
                 },
@@ -157,46 +155,48 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
             break;
 
-        case 2:
-            const response = client.api.interactions(interaction.id, interaction.token).callback.post({
-                data: {
-                    type: 5,
-                },
-            });
+        case 'APPLICATION_COMMAND':
+            await interaction.deferReply();
 
-            const command = client.commands[interaction.data.name];
-            const args = interaction.data.options?.map(o => o.value) ?? [];
+            const command = client.commands[interaction.commandName];
+            const args = interaction.options?.data.map(o => o.value) ?? [];
 
             try {
                 //await Command.logUsage(interaction.data.name);
                 await sendMessage(await command.fn({ client, guild, channel, author, member, sendMessage: sendChannelMessage }, args));
             } catch (e) {
                 if (e instanceof InsufficientBotPermissionsError) {
-                    return await sendMessage({ content: i18n('insufficientBotPermissions', sc?.lang, { permission: e.message }) });
+                    await sendMessage({ content: i18n('insufficientBotPermissions', sc?.lang, { permission: e.message }) });
+                    return;
                 }
 
                 if (e instanceof InsufficientUserPermissionsError) {
-                    return await sendMessage({ content: i18n('insufficientUserPermissions', sc?.lang, { permission: e.message }) });
+                    await sendMessage({ content: i18n('insufficientUserPermissions', sc?.lang, { permission: e.message }) });
+                    return;
                 }
 
                 if (e instanceof NoVoiceChannelError) {
-                    return await sendMessage({ content: i18n('noVoiceChannel', sc?.lang) });
+                    await sendMessage({ content: i18n('noVoiceChannel', sc?.lang) });
+                    return;
                 }
 
                 if (e instanceof SameVoiceChannelError) {
-                    return await sendMessage({ content: i18n('sameVoiceChannel', sc?.lang) });
+                    await sendMessage({ content: i18n('sameVoiceChannel', sc?.lang) });
+                    return;
                 }
 
                 if (e instanceof FullVoiceChannelError) {
-                    return await sendMessage({ content: i18n('fullVoiceChannel', sc?.lang) });
+                    await sendMessage({ content: i18n('fullVoiceChannel', sc?.lang) });
+                    return;
                 }
 
                 if (e instanceof CommandExecutionError) {
-                    return await sendMessage(e.messageContent);
+                    await sendMessage(e.messageContent);
+                    return;
                 }
 
                 console.error(e);
-                options.production && options.adminID && await (await client.users.fetch(options.adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
+                options.production && options.adminID && await (await client.users.fetch(options.adminID)).send(`Comando: ${interaction.commandName}\n\n\`\`\`${e.stack}\`\`\``);
                 await sendMessage({ content: i18n('unhandledException', sc?.lang) }).catch(() => { });
             }
 
@@ -210,11 +210,11 @@ console.log(`${Object.keys(client.commands).length} comando${Object.keys(client.
 await client.login(options.token);
 
 process.on('SIGTERM', async () => {
-    await client.user.setPresence({
-        activity: {
+    client.user.setPresence({
+        activities: [{
             name: 'Atualizando',
-            type: 'CUSTOM_STATUS',
-        },
+            type: 'PLAYING',
+        }],
 
         status: 'dnd',
     });

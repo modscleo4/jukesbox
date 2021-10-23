@@ -20,7 +20,6 @@
 
 'use strict';
 
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";

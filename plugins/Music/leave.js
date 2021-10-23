@@ -20,8 +20,7 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
+import {queue, voiceConnections} from "../../global.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -55,11 +54,12 @@ export default new Command({
 
         if (serverQueue) {
             serverQueue.songs = [];
-            serverQueue.connection?.dispatcher?.end();
+            serverQueue.connection?.destroy();
             serverQueue.playing = false;
         }
 
-        member.voice.channel.leave();
+        client.leaveVoiceChannel(guild.id);
+
         return {content: i18n('music.leave.success', sc?.lang)};
     },
 });

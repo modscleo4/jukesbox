@@ -20,11 +20,10 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
 import {queue} from "../../global.js";
 import {parseMS} from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -69,15 +68,15 @@ export default new Command({
             embeds: [new MessageEmbed({
                 title: i18n('music.nowplaying.embedTitle', sc?.lang),
                 url: serverQueue.song.url,
-                author: {name: serverQueue.song.addedBy.username, iconURL: serverQueue.song.addedBy.avatarURL()},
+                author: {name: serverQueue.song.addedBy.username, icon_url: serverQueue.song.addedBy.avatarURL()},
                 color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
-                timestamp: new Date(),
+                timestamp: new Date().toUTCString(),
                 thumbnail: {url: serverQueue.song.thumbnail},
                 description: serverQueue.song.title,
                 fields: [
                     {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
                     {name: i18n('music.nowplaying.queuePos', sc?.lang), value: `${serverQueue.position + 1} / ${serverQueue.songs.length}`, inline: true},
-                    {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.player.streamTime + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
+                    {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.resource.playbackDuration + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
                 ],
             })]
         };

@@ -155,6 +155,9 @@ export const configOptions = [
     },
 ];
 
+/**
+ * Loads the ENV vars
+ */
 export function reloadConfig() {
     dotenv.config({override: true});
 

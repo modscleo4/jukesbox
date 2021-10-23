@@ -20,11 +20,10 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
 import {serverConfig} from "../../global.js";
 import {options} from "../../config.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -137,12 +136,15 @@ export default new Command({
                 embeds: [new MessageEmbed({
                     title: i18n('help.help.embedTitle', sc?.lang),
                     description: desc,
-                    author: {name: client.user.username, iconURL: client.user.avatarURL()},
-                    timestamp: new Date(),
+                    author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                    timestamp: new Date().toUTCString(),
                 })]
             };
         }
 
+        /**
+         * @type {{name: string, value: string, inline?: boolean}[]}
+         */
         const cmds = [];
         Object.keys(client.categoriesCommands).forEach((cat, i, arr) => {
             const category = {...client.categoriesCommands[cat]};
@@ -171,8 +173,8 @@ export default new Command({
             embeds: [new MessageEmbed({
                 title: i18n('help.help.embedTitle', sc?.lang),
                 description,
-                author: {name: client.user.username, iconURL: client.user.avatarURL()},
-                timestamp: new Date(),
+                author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                timestamp: new Date().toUTCString(),
                 fields: cmds,
             })]
         };

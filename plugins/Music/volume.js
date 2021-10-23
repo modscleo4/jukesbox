@@ -22,7 +22,6 @@
 
 import {queue, serverConfig} from "../../global.js";
 import {options} from "../../config.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
@@ -72,7 +71,7 @@ export default new Command({
 
         if (serverQueue) {
             serverQueue.volume = volume;
-            serverQueue.connection.dispatcher?.setVolume(serverQueue.volume / 100);
+            serverQueue.resource.volume?.setVolume(volume / 100);
         }
 
         sc.volume = volume;

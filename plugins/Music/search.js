@@ -20,11 +20,10 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
 import {options} from "../../config.js";
 import {searchVideo} from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import play from "./play.js";
 import {serverConfig} from "../../global.js";
@@ -124,8 +123,8 @@ export default new Command({
 
         const msg = new MessageEmbed({
             title: i18n('music.search.embedTitle', sc?.lang),
-            author: {name: author.username, iconURL: author.avatarURL()},
-            timestamp: new Date(),
+            author: {name: author.username, icon_url: author.avatarURL()},
+            timestamp: new Date().toUTCString(),
             description: results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n'),
         });
 

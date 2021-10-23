@@ -20,7 +20,6 @@
 
 'use strict';
 
-import Message from "../../lib/Message.js";
 import {queue} from "../../global.js";
 import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Command from "../../lib/Command.js";

@@ -20,11 +20,10 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
 import {queue} from "../../global.js";
 import {getGeniusLyrics} from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {options} from '../../config.js';
 import {serverConfig} from "../../global.js";

@@ -20,12 +20,11 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {startupTime, queue, serverConfig} from "../../global.js";
+import {startupTime, voiceConnections, queue, serverConfig} from "../../global.js";
 import {options as config} from "../../config.js";
 import {pageEmbed, parseMS} from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -94,9 +93,9 @@ export default new Command({
             },
 
             async voicechannels() {
-                const voiceChannels = client.voice.connections.map(g => ({
-                    name: g.channel.name,
-                    value: i18n('admin.botinfo.serverName', sc?.lang, {server: g.channel.guild.name, queue: queue.get(g.channel.guild.id)}),
+                const voiceChannels = Array.from(voiceConnections).map(([_, vc]) => ({
+                    name: client.channels.cache.get(vc.joinConfig.channelId)?.name,
+                    value: i18n('admin.botinfo.serverName', sc?.lang, {server: client.guilds.cache.get(vc.joinConfig.guildId)?.name, queue: queue.get(g.channel.guild.id)}),
                 }));
 
                 if (voiceChannels.length === 0) {
@@ -129,14 +128,13 @@ export default new Command({
         return {
             embeds: [new MessageEmbed({
                 title: i18n('admin.botinfo.embedTitle', sc?.lang),
-                author: {name: client.user.username, iconURL: client.user.avatarURL()},
-                timestamp: new Date(),
+                author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                timestamp: new Date().toISOString(),
                 fields: [
                     {name: i18n('admin.botinfo.servers', sc?.lang), value: client.guilds.cache.size, inline: true},
-                    {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: client.voice.connections.size, inline: true},
+                    {name: i18n('admin.botinfo.voiceChannels', sc?.lang), value: voiceConnections.size, inline: true},
                     {name: i18n('admin.botinfo.uptime', sc?.lang), value: parseMS(Date.now() - startupTime).toString(), inline: true},
                     {name: i18n('admin.botinfo.uuid', sc?.lang), value: client.user.id, inline: false},
-                    {name: i18n('admin.botinfo.server', sc?.lang), value: guild.region, inline: true},
                     {name: i18n('admin.botinfo.ping', sc?.lang), value: `${client.ws.ping.toFixed(0)} ms`, inline: true},
                     {name: i18n('admin.botinfo.playingIn', sc?.lang), value: i18n('admin.botinfo.nServers', sc?.lang, {n: queue.size}), inline: true},
                     {name: i18n('admin.botinfo.ram', sc?.lang), value: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(1)} MiB`, inline: true},

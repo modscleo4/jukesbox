@@ -20,12 +20,13 @@
 
 'use strict';
 
-import { MessageEmbed } from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
+import { createAudioPlayer, VoiceConnectionStatus, entersState, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } from "@discordjs/voice";
 import ytdl from "ytdl-core";
 import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
-import { queue, serverConfig } from "../../global.js";
+import { queue, serverConfig, voiceConnections } from "../../global.js";
 import { options } from "../../config.js";
 import {
     getPlaylistItems,
@@ -34,7 +35,6 @@ import {
     searchVideo,
     videoInfo
 } from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command, { OptionType } from "../../lib/Command.js";
 import Song from "../../lib/Song.js";
 import ServerQueue from "../../lib/ServerQueue.js";
@@ -76,7 +76,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     await serverQueue.deletePending();
 
     if (serverQueue.songs.length === 0) {
-        serverQueue.connection.removeAllListeners('disconnect');
+        serverQueue.connection.removeAllListeners(VoiceConnectionStatus.Disconnected);
         queue.delete(guild.id);
         return null;
     }
@@ -95,15 +95,14 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         serverQueue.song = found;
     }
 
-    serverQueue.playing = true;
-
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    serverQueue.player = serverQueue.connection.play(serverQueue.song.stream, {
-        seek: serverQueue.song.seek,
-        volume: serverQueue.volume / 100,
-        highWaterMark: 1 << 10,
-    }).on('finish', async () => {
+    serverQueue.resource = createAudioResource(serverQueue.song.stream, {inlineVolume: true});
+
+    serverQueue.player = createAudioPlayer({behaviors: {noSubscriber: NoSubscriberBehavior.Stop}});
+    voiceConnections.get(guild.id)?.subscribe(serverQueue.player);
+
+    serverQueue.player.once(AudioPlayerStatus.Idle, async () => {
         serverQueue.playing = false;
 
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
@@ -119,7 +118,9 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         }
 
         await playSong({ client, guild, channel, author, member, sendMessage });
-    }).on('error', async e => {
+    });
+
+    serverQueue.player.on('error', async e => {
         console.error(e);
 
         if ((e.message.includes('Status code: 403') || e.message.includes('input stream: aborted')) && tries > 0) {
@@ -147,8 +148,8 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         await sendMessage({
             embeds: [new MessageEmbed({
                 title: i18n('music.play.errorEmbedTitle', sc?.lang),
-                author: { name: client.user.username, iconURL: client.user.avatarURL() },
-                timestamp: new Date(),
+                author: { name: client.user.username, icon_url: client.user.avatarURL() },
+                timestamp: new Date().toUTCString(),
                 description: i18n('music.play.errorEmbedDescription', sc?.lang, { e, song: serverQueue.song }),
             })]
         });
@@ -157,18 +158,20 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         await playSong({ client, guild, channel, author, member, sendMessage });
     });
 
-    if (!serverQueue.connection.dispatcher) {
+    if (!serverQueue.player) {
         await sendMessage({
             embeds: [new MessageEmbed({
                 title: i18n('music.play.errorEmbedTitle', sc?.lang),
-                author: { name: client.user.username, iconURL: client.user.avatarURL() },
-                timestamp: new Date(),
+                author: { name: client.user.username, icon_url: client.user.avatarURL() },
+                timestamp: new Date().toUTCString(),
             })]
         });
 
         serverQueue.songs.shift();
         await playSong({ client, guild, channel, author, member, sendMessage });
     }
+
+    serverQueue.player.play(serverQueue.resource);
 
     serverQueue.runSeek = false;
     serverQueue.lastPlaybackTime = 0;
@@ -457,15 +460,20 @@ export default new Command({
             queue.set(guild.id, q);
 
             try {
-                q.connection = client.voice.connections.find(c => c.channel.id === member.voice.channel.id);
-                if (!q.connection) {
-                    q.connection = await member.voice.channel.join();
-                    await q.connection.voice?.setSelfDeaf(true);
-                }
+                q.connection = client.joinVoiceChannel({channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true});
 
-                q.connection.on('disconnect', async () => {
-                    await q.deletePending();
-                    queue.delete(guild.id);
+                q.connection.on(VoiceConnectionStatus.Disconnected, async () => {
+                    try {
+                        await Promise.race([
+                            entersState(q.connection, VoiceConnectionStatus.Signalling, 5_000),
+                            entersState(q.connection, VoiceConnectionStatus.Connecting, 5_000),
+                        ]);
+                    } catch (error) {
+                        await q.deletePending();
+                        queue.delete(guild.id);
+
+                        client.leaveVoiceChannel(guild.id);
+                    }
                 });
 
                 await playSong({ client, guild, channel, author, member, sendMessage });

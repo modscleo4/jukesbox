@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -69,7 +68,7 @@ export default new Command({
             throw new CommandExecutionError({content: i18n('music.resume.alreadyPlaying', sc?.lang)});
         }
 
-        serverQueue.connection.dispatcher?.resume();
+        serverQueue.player?.unpause();
         serverQueue.playing = true;
         return {content: i18n('music.resume.success', sc?.lang)};
     },

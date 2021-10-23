@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -57,10 +56,6 @@ export default new Command({
 
         serverQueue.shuffle = !serverQueue.shuffle;
 
-        if (serverQueue.shuffle) {
-            return {content: i18n('music.shuffle.successOn', sc?.lang)};
-        } else {
-            return {content: i18n('music.shuffle.successOff', sc?.lang)};
-        }
+        return {content: i18n(serverQueue.shuffle ? 'music.shuffle.successOn' : 'music.shuffle.successOff', sc?.lang)};
     },
 });

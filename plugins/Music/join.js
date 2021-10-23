@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import Message from "../../lib/Message.js";
+import {VoiceConnectionStatus} from "@discordjs/voice";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -58,14 +58,15 @@ export default new Command({
 
         await this.checkPermissions({guild, channel, author, member});
 
-        const voiceConnection = await member.voice.channel.join();
-        await voiceConnection.voice?.setSelfDeaf(true);
+        client.joinVoiceChannel({channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true}).on(VoiceConnectionStatus.Disconnected, async () => {
+            client.leaveVoiceChannel(guild.id);
+        });
 
         return {
             embeds: [new MessageEmbed({
                 title: i18n('music.join.embedTitle', sc?.lang),
-                author: {name: author.username, iconURL: author.avatarURL()},
-                timestamp: new Date(),
+                author: {name: author.username, icon_url: author.avatarURL()},
+                timestamp: new Date().toUTCString(),
                 description: i18n('music.join.embedDescription', sc?.lang),
                 fields: [
                     {name: i18n('music.join.voiceChannel', sc?.lang), value: member.voice.channel.name, inline: true},

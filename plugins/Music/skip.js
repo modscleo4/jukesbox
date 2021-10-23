@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -75,8 +74,8 @@ export default new Command({
             serverQueue.songs.shift();
         }
 
-        !serverQueue.playing && serverQueue.connection?.dispatcher?.resume();
-        serverQueue.connection?.dispatcher?.end();
+        !serverQueue.playing && serverQueue.player?.unpause();
+        serverQueue.player?.stop();
 
         return {content: i18n('music.skip.success', sc?.lang)};
     },
