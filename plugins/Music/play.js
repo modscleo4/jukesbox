@@ -78,14 +78,14 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
     }
 
     if (serverQueue.song.findOnYT) {
-        const msg = await sendMessage(i18n('music.play.searchingYT', sc?.lang));
+        const msg = await sendMessage({content: i18n('music.play.searchingYT', sc?.lang)});
         const found = await findOnYT(serverQueue.song);
         await msg.delete().catch(() => {
 
         });
 
         if (!found) {
-            serverQueue.toDelete = await sendMessage(i18n('music.play.nothingFound', sc?.lang));
+            serverQueue.toDelete = await sendMessage({content: i18n('music.play.nothingFound', sc?.lang)});
             serverQueue.songs.shift();
             return await playSong({client, guild, channel, author, member, sendMessage});
         }
@@ -122,23 +122,27 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
     }).on('error', async e => {
         console.error(e);
 
-        await sendMessage(new MessageEmbed({
-            title: i18n('music.play.errorEmbedTitle', sc?.lang),
-            author: {name: client.user.username, iconURL: client.user.avatarURL()},
-            timestamp: new Date(),
-            description: i18n('music.play.errorEmbedDescription', sc?.lang, {e, song: serverQueue.song}),
-        }));
+        await sendMessage({
+            embeds: [new MessageEmbed({
+                title: i18n('music.play.errorEmbedTitle', sc?.lang),
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                timestamp: new Date(),
+                description: i18n('music.play.errorEmbedDescription', sc?.lang, {e, song: serverQueue.song}),
+            })]
+        });
 
         serverQueue.songs.shift();
         await playSong({client, guild, channel, author, member, sendMessage});
     });
 
     if (!serverQueue.connection.dispatcher) {
-        await sendMessage(new MessageEmbed({
-            title: i18n('music.play.errorEmbedTitle', sc?.lang),
-            author: {name: client.user.username, iconURL: client.user.avatarURL()},
-            timestamp: new Date(),
-        }));
+        await sendMessage({
+            embeds: [new MessageEmbed({
+                title: i18n('music.play.errorEmbedTitle', sc?.lang),
+                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                timestamp: new Date(),
+            })]
+        });
 
         serverQueue.songs.shift();
         await playSong({client, guild, channel, author, member, sendMessage});
@@ -148,7 +152,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
     serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member}, []));
 
     if (serverQueue.song.uploader.toUpperCase().includes('JUKES') || serverQueue.song.title.toUpperCase().includes('JUKES')) {
-        await sendMessage('Mec.');
+        await sendMessage({content: 'Mec.'});
     }
 }
 
