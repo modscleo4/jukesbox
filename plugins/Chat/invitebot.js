@@ -48,6 +48,6 @@ export default new Command({
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
-        return {content: i18n('chat.invitebot.link', sc?.lang, {link: `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3271680&scope=bot`})};
+        return {content: i18n('chat.invitebot.link', sc?.lang, {link: `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3271680&scope=bot%20applications.commands`})};
     },
 });
