@@ -21,7 +21,7 @@
 'use strict';
 
 import Client from "./lib/Client.js";
-import {setServerConfig} from "./global.js";
+import {setServerConfig, messageAlert} from "./global.js";
 import {adminID, database_url, prefix, token, production, periodicallyClearCache} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
@@ -227,8 +227,12 @@ client.on('message', async message => {
 
             let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
-            // Send the Message Intent warning
-            message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
+            if (!messageAlert.has(message.guild.id)) {
+                // Send the Message Intent warning
+                message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
+
+                messageAlert.set(message.guild.id, true);
+            }
 
             const msg = await sendMessage(msgData);
 
@@ -325,6 +329,8 @@ process.on('unhandledRejection', async (e, promise) => {
 });
 
 setInterval(async () => {
+    messageAlert.clear();
+
     if (!periodicallyClearCache) {
         return;
     }

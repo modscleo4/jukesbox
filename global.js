@@ -31,6 +31,11 @@ export const queue = new Map();
 export const startupTime = Date.now();
 
 /**
+ * @type {Map<string, boolean>}
+ */
+export const messageAlert = new Map();
+
+/**
  *
  * @type {Map<string, ServerConfig>}
  */
