@@ -169,7 +169,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
 client.on('message', async message => {
     async function sendMessage(msgData) {
-        if (msgData) {
+        if (!msgData) {
             return;
         }
 
