@@ -137,28 +137,28 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
                 await sendMessage(await command.fn({client, guild, channel, author, member, sendMessage}, args));
             } catch (e) {
                 if (e instanceof InsufficientBotPermissionsError) {
-                    return await sendMessage(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
+                    return await sendMessage({content: i18n('insufficientBotPermissions', sc?.lang, {permission: e.message})});
                 }
 
                 if (e instanceof InsufficientUserPermissionsError) {
-                    return await sendMessage(i18n('insufficientUserPermissions', sc?.lang, {permission: e.message}));
+                    return await sendMessage({content: i18n('insufficientUserPermissions', sc?.lang, {permission: e.message})});
                 }
 
                 if (e instanceof NoVoiceChannelError) {
-                    return await sendMessage(i18n('noVoiceChannel', sc?.lang));
+                    return await sendMessage({content: i18n('noVoiceChannel', sc?.lang)});
                 }
 
                 if (e instanceof SameVoiceChannelError) {
-                    return await sendMessage(i18n('sameVoiceChannel', sc?.lang));
+                    return await sendMessage({content: i18n('sameVoiceChannel', sc?.lang)});
                 }
 
                 if (e instanceof FullVoiceChannelError) {
-                    return await sendMessage(i18n('fullVoiceChannel', sc?.lang));
+                    return await sendMessage({content: i18n('fullVoiceChannel', sc?.lang)});
                 }
 
                 console.error(e);
                 production && adminID && await (await client.users.fetch(adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
-                await sendMessage(i18n('unhandledException', sc?.lang)).catch(() => {
+                await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => {
 
                 });
             }
@@ -168,6 +168,24 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 });
 
 client.on('message', async message => {
+    async function sendMessage(msgData) {
+        if (msgData) {
+            return;
+        }
+
+        // For Discord.js v12
+        if (msgData?.embeds) {
+            msgData.embed = msgData.embeds[0];
+            msgData.embeds = undefined;
+        }
+
+        if (msgData.type === 1) {
+
+        } else {
+            return await message.channel.send(msgData);
+        }
+    };
+
     if (message.author.bot) {
         return;
     }
@@ -198,38 +216,19 @@ client.on('message', async message => {
 
         // DM User if the bot cannot send Messages in the Text Channel
         if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-            return await message.author.send(i18n('permission.SEND_MESSAGES', sc?.lang));
+            return await sendMessage({content: i18n('permission.SEND_MESSAGES', sc?.lang)});
         }
 
         // Check if the Command is restricted in the current Text Channel
         if (sc?.channelDenies[message.channel.id]?.has(client.aliases[cmd] ?? cmd)) {
-            return await message.channel.send(i18n('commandRestricted', sc?.lang));
+            return await sendMessage({content: i18n('commandRestricted', sc?.lang)});
         }
 
         try {
-            async function sendMessage(msgData) {
-                if (!msgData) {
-                    return;
-                }
-
-                // For Discord.js v12
-                if (msgData?.embeds) {
-                    msgData.embed = msgData.embeds[0];
-                    msgData.embeds = undefined;
-                }
-
-                if (msgData.type === 1) {
-
-                } else {
-                    return await message.channel.send(msgData);
-                }
-            }
-
             let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
             if (!messageAlert.has(message.guild.id)) {
-                // Send the Message Intent warning
-                message.channel.send({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
+                await sendMessage({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
 
                 messageAlert.set(message.guild.id, true);
             }
@@ -273,28 +272,28 @@ client.on('message', async message => {
             }
         } catch (e) {
             if (e instanceof InsufficientBotPermissionsError) {
-                return await message.channel.send(i18n('insufficientBotPermissions', sc?.lang, {permission: e.message}));
+                return await sendMessage({content: i18n('insufficientBotPermissions', sc?.lang, {permission: e.message})});
             }
 
             if (e instanceof InsufficientUserPermissionsError) {
-                return await message.channel.send(i18n('insufficientUserPermissions', sc?.lang, {permission: e.message}));
+                return await sendMessage({content: i18n('insufficientUserPermissions', sc?.lang, {permission: e.message})});
             }
 
             if (e instanceof NoVoiceChannelError) {
-                return await message.channel.send(i18n('noVoiceChannel', sc?.lang));
+                return await sendMessage({content: i18n('noVoiceChannel', sc?.lang)});
             }
 
             if (e instanceof SameVoiceChannelError) {
-                return await message.channel.send(i18n('sameVoiceChannel', sc?.lang));
+                return await sendMessage({content: i18n('sameVoiceChannel', sc?.lang)});
             }
 
             if (e instanceof FullVoiceChannelError) {
-                return await message.channel.send(i18n('fullVoiceChannel', sc?.lang));
+                return await sendMessage({content: i18n('fullVoiceChannel', sc?.lang)});
             }
 
             console.error(e);
             production && adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
-            await message.channel.send(i18n('unhandledException', sc?.lang)).catch(() => {
+            await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => {
 
             });
         }
