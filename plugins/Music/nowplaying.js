@@ -75,7 +75,7 @@ export default new Command({
                 description: serverQueue.song.title,
                 fields: [
                     {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
-                    {name: i18n('music.nowplaying.queuePos', sc?.lang), value: serverQueue.position + 1, inline: true},
+                    {name: i18n('music.nowplaying.queuePos', sc?.lang), value: `${serverQueue.position + 1} / ${serverQueue.songs.length}`, inline: true},
                     {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.player.streamTime + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
                 ],
             })]
