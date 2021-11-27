@@ -59,9 +59,10 @@ const spotifyAPI = new SpotifyWebAPI({
  * @param {import('discord.js').User} message.author
  * @param {import('discord.js').GuildMember} message.member
  * @param {Function} message.sendMessage
+ * @param {number} [tries=3]
  * @return {Promise<*>}
  */
-async function playSong({client, guild, channel, author, member, sendMessage}) {
+async function playSong({client, guild, channel, author, member, sendMessage}, tries = 3) {
     const sc = serverConfig.get(guild.id);
     const serverQueue = queue.get(guild.id);
 
@@ -70,6 +71,12 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
     }
 
     await serverQueue.deletePending();
+
+    if (tries <= 0) {
+        serverQueue.songs.shift();
+        await playSong({client, guild, channel, author, member, sendMessage});
+        return null;
+    }
 
     if (serverQueue.songs.length === 0) {
         serverQueue.connection.removeAllListeners('disconnect');
@@ -121,6 +128,11 @@ async function playSong({client, guild, channel, author, member, sendMessage}) {
         await playSong({client, guild, channel, author, member, sendMessage});
     }).on('error', async e => {
         console.error(e);
+
+        if (e.message.includes('Status code: 403')) {
+            await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
+            return null;
+        }
 
         await sendMessage({
             embeds: [new MessageEmbed({
