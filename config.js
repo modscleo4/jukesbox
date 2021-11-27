@@ -36,6 +36,7 @@ export let geniusToken;
 export let adminID;
 export let production;
 export let periodicallyClearCache;
+export let ignorePermissionsForAdmin;
 
 export function reloadConfig() {
     dotenv.config();
@@ -54,6 +55,7 @@ export function reloadConfig() {
     adminID = process.env.ADMINID;
     production = process.env.PRODUCTION === 'true';
     periodicallyClearCache = process.env.PERIODICALLY_CLEAR_CACHE === 'true';
+    ignorePermissionsForAdmin = process.env.IGNORE_PERMISSIONS_FOR_ADMIN === 'true';
 }
 
 reloadConfig();
