@@ -161,9 +161,9 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }
 
     serverQueue.song.seek = undefined;
-    serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member}, []));
+    serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member, sendMessage}, []));
 
-    if (serverQueue.song.uploader.toUpperCase().includes('JUKES') || serverQueue.song.title.toUpperCase().includes('JUKES')) {
+    if (serverQueue.song?.uploader.toUpperCase().includes('JUKES') || serverQueue.song?.title.toUpperCase().includes('JUKES')) {
         await sendMessage({content: 'Mec.'});
     }
 }
