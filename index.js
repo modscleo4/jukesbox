@@ -31,6 +31,7 @@ import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
 import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
 import i18n from "./lang/lang.js";
 import {MessageEmbed, WebhookClient} from "discord.js";
+import Command from "./lib/Command.js";
 
 const serverConfig = await loadServerConfig(database_url);
 setServerConfig(serverConfig);
@@ -134,6 +135,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             const args = interaction.data.options?.map(o => o.value) ?? [];
 
             try {
+                await Command.logUsage(interaction.data.name);
                 await sendMessage(await command.fn({client, guild, channel, author, member, sendMessage}, args));
             } catch (e) {
                 if (e instanceof InsufficientBotPermissionsError) {
@@ -225,6 +227,7 @@ client.on('message', async message => {
         }
 
         try {
+            await Command.logUsage(cmd);
             let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
             if (!messageAlert.has(message.guild.id)) {
