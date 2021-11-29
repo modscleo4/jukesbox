@@ -215,7 +215,6 @@ async function findOnYT(song) {
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
-                    Authorization: `Bearer ${ytapikeys[0]}`,
                     cookie: ytcookies,
                 }
             },
@@ -225,26 +224,10 @@ async function findOnYT(song) {
 
 export default new Command({
     description: {
-        en_US: 'Adds a music/playlist in the queue. Use `/playlist` to search for playlists.',
-        pt_BR: 'Adiciona uma música/playlist na fila. `/playlist` para procurar por playlists.',
+        en_US: 'Adds a music in the queue.',
+        pt_BR: 'Adiciona uma música na fila.',
     },
     options: [
-        {
-            name: 'mode',
-            description: 'Query Search Mode',
-            type: OptionType.STRING,
-            choices: [
-                {
-                    name: 'Video Search Mode',
-                    value: '/video',
-                },
-                {
-                    name: 'Playlist Search Mode',
-                    value: '/playlist',
-                },
-            ],
-            required: true,
-        },
         {
             name: 'youtube_url',
             description: 'YouTube URL or Query String',
@@ -285,19 +268,10 @@ export default new Command({
          * @type {'video'|'playlist'}
          */
         let kind = 'video';
-        switch (args[0]) {
-            case '/playlist':
-                args.shift();
-                kind = 'playlist';
-                break;
+        if (args[-1]) {
+            kind = args[-1];
 
-            case '/video':
-                args.shift();
-                kind = 'video';
-                break;
-
-            default:
-                break;
+            args[-1] = undefined;
         }
 
         if (!args[0]) {
@@ -367,7 +341,6 @@ export default new Command({
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
-                                    Authorization: `Bearer ${ytapikeys[0]}`,
                                     cookie: ytcookies,
                                 }
                             },
@@ -408,7 +381,6 @@ export default new Command({
                         requestOptions: {
                             host: 'jukesbox.herokuapp.com',
                             headers: {
-                                Authorization: `Bearer ${ytapikeys[0]}`,
                                 cookie: ytcookies,
                             }
                         },

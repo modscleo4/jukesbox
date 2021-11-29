@@ -25,6 +25,7 @@ export {default as leave} from "./leave.js";
 export {default as search} from "./search.js";
 export {default as videoinfo} from "./videoinfo.js";
 export {default as play} from "./play.js";
+export {default as playlist} from "./playlist.js";
 export {default as nowplaying} from "./nowplaying.js";
 export {default as pause} from "./pause.js";
 export {default as resume} from "./resume.js";
