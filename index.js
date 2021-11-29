@@ -330,9 +330,7 @@ process.on('unhandledRejection', async (e, promise) => {
 setInterval(async () => {
     messageAlert.clear();
 
-    if (!periodicallyClearCache) {
-        return;
+    if (periodicallyClearCache) {
+        await client.clearCache();
     }
-
-    await client.clearCache();
 }, 1000 * 60 * 60 * 24);

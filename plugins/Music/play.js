@@ -74,8 +74,6 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
 
     if (tries <= 0) {
         serverQueue.songs.shift();
-        await playSong({client, guild, channel, author, member, sendMessage});
-        return null;
     }
 
     if (serverQueue.songs.length === 0) {
