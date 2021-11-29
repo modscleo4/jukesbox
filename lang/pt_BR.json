@@ -31,6 +31,9 @@
       "platform": "'Plataforma'",
       "nServers": "`${n} servidor${n > 1 ? 'es' : ''}`"
     },
+    "update": {
+      "updating": "'Atualizando.'"
+    },
     "restart": {
       "restarting": "'F'"
     },
