@@ -48,6 +48,10 @@
     },
     "registercommands": {
       "success": "'Commands registered.'"
+    },
+    "usagestats": {
+      "noStats": "'Nothing yet.'",
+      "embedTitle": "'Used commands:'"
     }
   },
   "chat": {

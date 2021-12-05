@@ -20,8 +20,8 @@
 
 'use strict';
 
-import en_US from "./en_US.json";
-import pt_BR from "./pt_BR.json";
+import en_US from "./en_US.json" assert {type: "json"};
+import pt_BR from "./pt_BR.json" assert {type: "json"};
 
 export const langs = {
     en_US,

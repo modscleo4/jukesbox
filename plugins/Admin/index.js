@@ -27,3 +27,4 @@ export {default as eval} from "./eval.js";
 export {default as clearcache} from "./clearcache.js";
 export {default as registercommands} from "./registercommands.js";
 export {default as update} from "./update.js";
+export {default as usagestats} from "./usagestats.js";
