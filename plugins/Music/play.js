@@ -107,7 +107,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     serverQueue.player = serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.song.seek,
         volume: serverQueue.volume / 100,
-        highWaterMark,
+        highWaterMark: 1 << 10,
     }).on('finish', async () => {
         serverQueue.playing = false;
 
