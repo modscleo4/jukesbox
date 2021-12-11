@@ -72,10 +72,6 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
 
     await serverQueue.deletePending();
 
-    if (tries <= 0) {
-        serverQueue.songs.shift();
-    }
-
     if (serverQueue.songs.length === 0) {
         serverQueue.connection.removeAllListeners('disconnect');
         queue.delete(guild.id);
@@ -90,7 +86,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
         });
 
         if (!found) {
-            serverQueue.toDelete = await sendMessage({content: i18n('music.play.nothingFound', sc?.lang)});
+            serverQueue.toDelete.push(await sendMessage({content: i18n('music.play.nothingFound', sc?.lang)}));
             serverQueue.songs.shift();
             return await playSong({client, guild, channel, author, member, sendMessage});
         }
@@ -127,8 +123,10 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }).on('error', async e => {
         console.error(e);
 
-        if (e.message.includes('Status code: 403')) {
-            await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
+        if (e.message.includes('Status code: 403') && tries > 0) {
+            setTimeout(async () => {
+                await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
+            }, 1000);
             return null;
         }
 
@@ -159,10 +157,10 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }
 
     serverQueue.song.seek = undefined;
-    serverQueue.toDelete = await sendMessage(await nowplaying.fn({client, guild, channel, author, member, sendMessage}, []));
+    serverQueue.toDelete.push(await sendMessage(await nowplaying.fn({client, guild, channel, author, member, sendMessage}, [])));
 
     if (serverQueue.song?.uploader.toUpperCase().includes('JUKES') || serverQueue.song?.title.toUpperCase().includes('JUKES')) {
-        await sendMessage({content: 'Mec.'});
+        serverQueue.toDelete.push(await sendMessage({content: 'Mec.'}));
     }
 }
 
