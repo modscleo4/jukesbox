@@ -48,6 +48,10 @@ export default new Command({
                     name: 'Voice Channels',
                     value: 'voicechannels',
                 },
+                {
+                    name: 'Env Vars',
+                    value: 'env',
+                },
             ]
         },
     ],
