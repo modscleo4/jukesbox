@@ -23,7 +23,7 @@
 import * as config from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";
 
 export default new Command({
@@ -56,7 +56,7 @@ export default new Command({
      * @return {Promise<{content?: string, embeds?: import('discord.js').MessageEmbed[], lockAuthor?: boolean, reactions?: string[], onReact?: Function, onEndReact?: Function, timer?: number, deleteAfter?: boolean}>}{Promise<string|import('discord.js').MessageEmbed|{embed: import('discord.js').MessageEmbed, reactions: string[]}>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id);
+        const sc = global.serverConfig.get(guild.id);
 
         if (args.length === 0) {
             return {content: i18n('admin.eval.noArgs', sc?.lang)};
