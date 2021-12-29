@@ -21,7 +21,7 @@
 'use strict';
 
 import Client from "./lib/Client.js";
-import {setServerConfig, messageAlert} from "./global.js";
+import {serverConfig, messageAlert} from "./global.js";
 import {adminID, database_url, prefix, token, production, periodicallyClearCache} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
@@ -33,8 +33,10 @@ import i18n from "./lang/lang.js";
 import {MessageEmbed, WebhookClient} from "discord.js";
 import Command from "./lib/Command.js";
 
-const serverConfig = await loadServerConfig(database_url);
-setServerConfig(serverConfig);
+for (const sc of await loadServerConfig(database_url)) {
+    serverConfig.set(sc[0], sc[1]);
+}
+
 console.log(`${serverConfig.size} configuraç${serverConfig.size > 1 ? 'ões' : 'ão'} carregada${serverConfig.size > 1 ? 's' : ''}.`);
 
 const client = new Client();

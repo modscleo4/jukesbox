@@ -1,0 +1,12 @@
+{
+    "exclude": [
+        "node_modules",
+    ],
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "es2022",
+        "lib": [
+            "ES2021"
+        ]
+    }
+}

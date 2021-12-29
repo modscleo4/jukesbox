@@ -39,12 +39,4 @@ export const messageAlert = new Map();
  *
  * @type {Map<string, ServerConfig>}
  */
-export let serverConfig = new Map();
-
-/**
- *
- * @param {Map<string, ServerConfig>} sc
- */
-export function setServerConfig(sc) {
-    serverConfig = sc;
-}
+export const serverConfig = new Map();
