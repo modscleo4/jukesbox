@@ -13,24 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Admin plugin (clearcache command)
+ * @file Admin plugin (log command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-import {adminID, token} from "../../config.js";
-import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
+import {adminID} from "../../config.js";
 import {serverConfig} from "../../global.js";
+import {statSync, readdirSync} from 'fs';
+import Message from "../../lib/Message.js";
+import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Clears Discord.js cache.',
-        pt_BR: 'Limpa o cache do Discord.js.',
+        en_US: 'Runs pure JS.',
+        pt_BR: 'Roda JS puro.',
     },
+    options: [
+        {
+            name: 'js',
+            description: 'JavaScript code.',
+            type: OptionType.STRING,
+            required: true,
+        }
+    ],
 
     only: [adminID],
 
@@ -50,8 +59,11 @@ export default new Command({
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
-        client.clearCache();
+        const logs = readdirSync('./logs/');
+        if (logs.length === 0 || logs.at(-1) === '.gitkeep' || !statSync('./logs/' + logs.at(-1)).isFile()) {
+            return {content: i18n('admin.log.noLogs', sc?.lang)};
+        }
 
-        return {content: i18n('admin.clearcache.success', sc?.lang)};
+        return {files: ['./logs/' + logs.at(-1)]};
     },
 });

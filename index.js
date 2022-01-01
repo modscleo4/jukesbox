@@ -68,14 +68,18 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     const author = await client.users.fetch(interaction.member.user.id);
     const member = await guild.members.fetch(author);
 
+    /**
+     *
+     * @type {import('./lib/Command.js').SendMessageFn}
+     */
     async function sendMessage(msgData) {
         if (!msgData) {
-            return;
+            return null;
         }
 
         if (msgData.type === 1) {
             //
-            return;
+            return null;
         }
 
         const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData.embeds[0]));
@@ -172,9 +176,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 });
 
 client.on('message', async message => {
+    /**
+     * @type {import('./lib/Command.js').SendMessageFn}
+     */
     async function sendMessage(msgData) {
         if (!msgData) {
-            return;
+            return null;
         }
 
         // For Discord.js v12
@@ -184,10 +191,10 @@ client.on('message', async message => {
         }
 
         if (msgData.type === 1) {
-
-        } else {
-            return await message.channel.send(msgData);
+            return null;
         }
+
+        return await message.channel.send(msgData);
     };
 
     if (message.author.bot) {

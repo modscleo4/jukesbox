@@ -52,6 +52,9 @@
     "usagestats": {
       "noStats": "'Nada ainda vei.'",
       "embedTitle": "'Comandos usados:'"
+    },
+    "log": {
+      "noLogs": "'Nada ainda vei.'"
     }
   },
   "chat": {

@@ -52,6 +52,9 @@
     "usagestats": {
       "noStats": "'Nothing yet.'",
       "embedTitle": "'Used commands:'"
+    },
+    "log": {
+      "noLogs": "'No logs found.'"
     }
   },
   "chat": {
