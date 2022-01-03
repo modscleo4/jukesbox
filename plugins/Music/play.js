@@ -442,8 +442,11 @@ export default new Command({
             queue.set(guild.id, q);
 
             try {
-                q.connection = await member.voice.channel.join();
-                await q.connection.voice?.setSelfDeaf(true);
+                q.connection = client.voice.connections.find(c => c.channel.id === member.voice.channel.id);
+                if (!q.connection) {
+                    q.connection = await member.voice.channel.join();
+                    await q.connection.voice?.setSelfDeaf(true);
+                }
 
                 q.connection.on('disconnect', async () => {
                     await q.deletePending();

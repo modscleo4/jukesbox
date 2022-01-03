@@ -39,6 +39,22 @@ export let periodicallyClearCache;
 export let ignorePermissionsForAdmin;
 
 export function reloadConfig() {
+    delete process.env.DATABASE_URL;
+    delete process.env.PREFIX;
+    delete process.env.HIGH_WATER_MARK;
+    delete process.env.DL_CHUNK_SIZE;
+    delete process.env.TOKEN;
+    delete process.env.YTAPIKEYS;
+    delete process.env.YTCOOKIES;
+    delete process.env.SCCLIENTID;
+    delete process.env.SPCLIENTID;
+    delete process.env.SPSECRET;
+    delete process.env.GENIUSTOKEN;
+    delete process.env.ADMINID;
+    delete process.env.PRODUCTION;
+    delete process.env.PERIODICALLY_CLEAR_CACHE;
+    delete process.env.IGNORE_PERMISSIONS_FOR_ADMIN;
+
     dotenv.config();
 
     database_url = process.env.DATABASE_URL;

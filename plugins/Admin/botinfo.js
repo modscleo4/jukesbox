@@ -85,14 +85,22 @@ export default new Command({
                     value: i18n('admin.botinfo.serverID', sc?.lang, {id: g.id}),
                 }));
 
+                if (servers.length === 0) {
+                    return {content: i18n('admin.botinfo.noServers', sc?.lang)};
+                }
+
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.servers', sc?.lang), content: servers});
             },
 
             async voicechannels() {
                 const voiceChannels = client.voice.connections.map(g => ({
                     name: g.channel.name,
-                    value: i18n('admin.botinfo.serverName', sc?.lang, {server: g.channel.guild.name}),
+                    value: i18n('admin.botinfo.serverName', sc?.lang, {server: g.channel.guild.name, queue: queue.get(g.channel.guild.id)}),
                 }));
+
+                if (voiceChannels.length === 0) {
+                    return {content: i18n('admin.botinfo.noVoiceChannels', sc?.lang)};
+                }
 
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
             },
@@ -102,6 +110,10 @@ export default new Command({
                     name: k,
                     value: JSON.stringify(config[k], null, 2),
                 }));
+
+                if (envVars.length === 0) {
+                    return {content: i18n('admin.botinfo.noEnvVars', sc?.lang)};
+                }
 
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.envVars', sc?.lang), content: envVars});
             },
