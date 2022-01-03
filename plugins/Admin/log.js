@@ -29,17 +29,9 @@ import i18n from "../../lang/lang.js";
 
 export default new Command({
     description: {
-        en_US: 'Runs pure JS.',
-        pt_BR: 'Roda JS puro.',
+        en_US: 'Sends the current log file.',
+        pt_BR: 'Envia o arquivo de log atual.',
     },
-    options: [
-        {
-            name: 'js',
-            description: 'JavaScript code.',
-            type: OptionType.STRING,
-            required: true,
-        }
-    ],
 
     only: [adminID],
 

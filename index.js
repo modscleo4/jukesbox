@@ -82,7 +82,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return null;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData.embeds[0]));
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msgData.reactions) {
