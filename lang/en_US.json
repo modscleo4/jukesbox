@@ -196,7 +196,8 @@
       "success": "'Volume updated.'"
     },
     "queue": {
-      "embedTitle": "'Current queue'"
+      "embedTitle": "'Current queue'",
+      "description": "`Playback time: ${time}`"
     },
     "lyrics": {
       "nothingFound": "'I didn't find anything on Genius.'"

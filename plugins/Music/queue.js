@@ -22,7 +22,7 @@
 
 import Message from "../../lib/Message.js";
 import {queue} from "../../global.js";
-import {pageEmbed} from "../../lib/utils.js";
+import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -61,9 +61,10 @@ export default new Command({
         }
 
         const songs = serverQueue.songs.map((s, i) => {
-            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader};
+            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader + "\n" + parseMS(1000 * s.duration)};
         });
+        const time = parseMS(1000 * serverQueue.songs.reduce((acc, v) => acc + v.duration, 0) - (serverQueue.player.streamTime + serverQueue.startTime * 1000)).toString();
 
-        return await pageEmbed({client}, {title: i18n('music.queue.embedTitle', sc?.lang), content: songs});
+        return await pageEmbed({client}, {title: i18n('music.queue.embedTitle', sc?.lang), description: i18n('music.queue.description', sc?.lang, {time}), content: songs});
     },
 });

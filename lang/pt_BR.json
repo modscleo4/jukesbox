@@ -196,7 +196,8 @@
       "success": "'Aumenta essa porra aí.'"
     },
     "queue": {
-      "embedTitle": "'Fila tá assim lek'"
+      "embedTitle": "'Fila tá assim lek'",
+      "description": "`Tempo de reprodução: ${time}`"
     },
     "lyrics": {
       "nothingFound": "'Achei nada lesk.'"
