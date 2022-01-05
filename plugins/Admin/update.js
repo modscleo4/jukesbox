@@ -52,11 +52,24 @@ export default new Command({
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
+        try {
+            const gitpull = execSync('git pull --rebase').toString();
+            await sendMessage({content: '```' + gitpull + '```'});
+
+            try {
+                // Only run npm install if the dependencies were updated
+                if (gitpull.includes('package.json') || gitpull.includes('package-lock.json')) {
+                    await sendMessage({content: '```' + execSync('npm ci') + '```'});
+                }
+            } catch (e) {
+                return {content: 'Error during npm ci: \n```' + e.message + '```'};
+            }
+        } catch (e) {
+            return {content: 'Error during git pull: \n```' + e.message + '```'};
+        }
+
         setTimeout(() => {
-            execSync('source ~/.bashrc');
-            execSync('git pull --rebase');
-            execSync('npm ci');
-            execSync('systemctl restart jukesbox');
+            process.exit(1);
         }, 1000);
 
         return {content: i18n('admin.update.updating', sc?.lang)};
