@@ -30,6 +30,9 @@
         "SEND_MESSAGES"
       ]
     },
+    "messageIntent": {
+      "$ref": "#/definitions/entry"
+    },
     "unhandledException": {
       "$ref": "#/definitions/entry"
     },
@@ -84,6 +87,15 @@
             "envVars": {
               "$ref": "#/definitions/entry"
             },
+            "noServers": {
+              "$ref": "#/definitions/entry"
+            },
+            "noVoiceChannels": {
+              "$ref": "#/definitions/entry"
+            },
+            "noEnvVars": {
+              "$ref": "#/definitions/entry"
+            },
             "uptime": {
               "$ref": "#/definitions/entry"
             },
@@ -117,6 +129,9 @@
             "servers",
             "voiceChannels",
             "envVars",
+            "noServers",
+            "noVoiceChannels",
+            "noEnvVars",
             "uptime",
             "uuid",
             "server",
@@ -125,6 +140,17 @@
             "ram",
             "platform",
             "nServers"
+          ]
+        },
+        "update": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "updating": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "updating"
           ]
         },
         "restart": {
@@ -181,15 +207,44 @@
           "required": [
             "success"
           ]
+        },
+        "usagestats": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noStats": {
+              "$ref": "#/definitions/entry"
+            },
+            "embedTitle": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noStats",
+            "embedTitle"
+          ]
+        },
+        "log": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noLogs": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noLogs"
+          ]
         }
       },
       "required": [
         "botinfo",
+        "update",
         "restart",
         "reload",
         "eval",
         "clearcache",
-        "registercommands"
+        "registercommands",
+        "usagestats",
+        "log"
       ]
     },
     "chat": {
@@ -716,10 +771,14 @@
           "properties": {
             "embedTitle": {
               "$ref": "#/definitions/entry"
+            },
+            "description": {
+              "$ref": "#/definitions/entry"
             }
           },
           "required": [
-            "embedTitle"
+            "embedTitle",
+            "description"
           ]
         },
         "lyrics": {
