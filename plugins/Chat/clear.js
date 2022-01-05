@@ -36,6 +36,12 @@ export default new Command({
             description: 'Number of messages to delete.',
             type: OptionType.INTEGER,
             required: true,
+        },
+        {
+            name: 'deletePinned',
+            description: 'Delete pinned messages.',
+            type: OptionType.BOOLEAN,
+            required: false,
         }
     ],
 
@@ -70,23 +76,16 @@ export default new Command({
         }
 
         if (args[-1]) {
-            await channel.bulkDelete(1);
+            await channel.bulkDelete([args[-1]]);
         }
 
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
+        const messages = (await channel.messages.fetch({limit: n})).filter(m => !args[1] || m.pinned).map(m => m);
 
-        await (async () => {
-            n % 100 > 0 && await channel.bulkDelete(n % 100);
+        for (let i = 0; i < Math.ceil(n / 100); i++) {
+            await channel.bulkDelete(messages.splice(0, 100)).catch(e => { });
+        }
 
-            for (let i = 0; i < Math.floor(n / 100); i++) {
-                await channel.bulkDelete(100).catch(e => {
-
-                });
-            }
-        })().catch(e => {
-
-        });
-
-        return {content: i18n('chat.clear.deletedN', sc?.lang, {n})};
+        return {content: i18n('chat.clear.deletedN', sc?.lang, {n}), deleteAfter: 1};
     }
 });

@@ -81,9 +81,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     if (serverQueue.song.findOnYT) {
         const msg = await sendMessage({content: i18n('music.play.searchingYT', sc?.lang)});
         const found = await findOnYT(serverQueue.song);
-        await msg.delete().catch(() => {
-
-        });
+        await msg.delete().catch(() => { });
 
         if (!found) {
             serverQueue.toDelete.push(await sendMessage({content: i18n('music.play.nothingFound', sc?.lang)}));

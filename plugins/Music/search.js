@@ -137,7 +137,7 @@ export default new Command({
                 stop();
                 sendMessage(await play.fn({client, guild, channel, author, member, sendMessage}, [results[reactions.indexOf(reaction.emoji.name)].url]));
             },
-            deleteAfter: true,
+            deleteOnEnd: true,
         };
     },
 });

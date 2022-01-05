@@ -64,6 +64,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
     const guild = await client.guilds.fetch(interaction.guild_id);
+    /** @type {import('discord.js').TextChannel} */
     const channel = await client.channels.fetch(interaction.channel_id);
     const author = await client.users.fetch(interaction.member.user.id);
     const member = await guild.members.fetch(author);
@@ -85,33 +86,37 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
         const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
-        if (msgData.reactions) {
-            msgData.reactions.map(async r => await msg.react(r).catch(() => {
+        if (msg) {
+            if (msgData.reactions) {
+                msgData.reactions.map(async r => await msg.react(r).catch(() => { }));
 
-            }));
+                if (msgData.onReact) {
+                    const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
+                        max: Infinity,
+                        dispose: true,
+                        time: (msgData.timer || 1) * 60 * 1000,
+                    }).on('collect', async (reaction, user) => {
+                        await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
+                    }).on('remove', async (reaction, user) => {
+                        await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
+                    }).on('end', async (collected) => {
+                        if (msgData.deleteOnEnd && !msg.deleted) {
+                            return await msg.delete().catch(() => { });
+                        }
 
-            if (msgData.onReact) {
-                const collector = msg.createReactionCollector((r, u) => msgData.reactions.includes(r.emoji.name) && msgData.lockAuthor ? u.id === author.id : u.id !== client.user.id, {
-                    max: Infinity,
-                    dispose: true,
-                    time: (msgData.timer || 1) * 60 * 1000,
-                }).on('collect', async (reaction, user) => {
-                    await msgData.onReact({reaction, user, message: msg, add: true, stop: () => collector.stop()});
-                }).on('remove', async (reaction, user) => {
-                    await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
-                }).on('end', async (collected) => {
-                    if (msgData.deleteAfter && !msg.deleted) {
-                        return await msg.delete().catch(() => {
+                        if (!msgData.onEndReact) {
+                            return;
+                        }
 
-                        });
-                    }
+                        await msgData.onEndReact({message: msg});
+                    });
+                }
+            }
 
-                    if (!msgData.onEndReact) {
-                        return;
-                    }
-
-                    await msgData.onEndReact({message: msg});
-                });
+            if (msgData.deleteAfter) {
+                setTimeout(() => {
+                    msg.delete().catch(() => { });
+                }, msgData.deleteAfter * 1000);
             }
         }
 
@@ -166,9 +171,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
                 console.error(e);
                 production && adminID && await (await client.users.fetch(adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
-                await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => {
-
-                });
+                await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => { });
             }
 
             break;
@@ -213,7 +216,7 @@ client.on('message', async message => {
         const cmd = args.shift().toLowerCase();
 
         // Tell commands it was a prefixed message
-        args[-1] = true;
+        args[-1] = message.id;
 
         if (!(cmd in client.commands) && !(cmd in client.aliases)) {
             return;
@@ -237,7 +240,7 @@ client.on('message', async message => {
 
         try {
             await Command.logUsage(cmd);
-            let msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
+            const msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
             if (!messageAlert.has(message.guild.id)) {
                 await sendMessage({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
@@ -261,10 +264,8 @@ client.on('message', async message => {
                         }).on('remove', async (reaction, user) => {
                             await msgData.onReact({reaction, user, message: msg, add: false, stop: () => collector.stop()});
                         }).on('end', async (collected) => {
-                            if (msgData.deleteAfter && !msg.deleted) {
-                                return await msg.delete().catch(() => {
-
-                                });
+                            if (msgData.deleteOnEnd && !msg.deleted) {
+                                return await msg.delete().catch(() => { });
                             }
 
                             if (!msgData.onEndReact) {
@@ -275,12 +276,16 @@ client.on('message', async message => {
                         });
                     }
                 }
+
+                if (msgData.deleteAfter) {
+                    setTimeout(() => {
+                        msg.delete().catch(() => { });
+                    }, msgData.deleteAfter * 1000);
+                }
             }
 
             if (command.deleteUserMessage) {
-                await message?.delete().catch(() => {
-
-                });
+                await message?.delete().catch(() => { });
             }
         } catch (e) {
             if (e instanceof InsufficientBotPermissionsError) {
@@ -305,9 +310,7 @@ client.on('message', async message => {
 
             console.error(e);
             production && adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
-            await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => {
-
-            });
+            await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => { });
         }
     }
 });
