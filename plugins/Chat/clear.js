@@ -80,7 +80,7 @@ export default new Command({
         }
 
         const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
-        const messages = (await channel.messages.fetch({limit: n})).filter(m => !args[1] || m.pinned).map(m => m);
+        const messages = (await channel.messages.fetch({limit: n, after: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)})).filter(m => !args[1] || m.pinned).map(m => m);
 
         for (let i = 0; i < Math.ceil(n / 100); i++) {
             await channel.bulkDelete(messages.splice(0, 100)).catch(e => { });
