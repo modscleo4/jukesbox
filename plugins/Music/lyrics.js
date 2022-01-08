@@ -29,6 +29,7 @@ import Command from "../../lib/Command.js";
 import {geniusToken} from '../../config.js';
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -62,7 +63,7 @@ export default new Command({
         let q;
         if (!args.length) {
             if (!serverQueue) {
-                return {content: i18n('music.queueEmpty', sc?.lang)};
+                throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
             }
 
             q = `${serverQueue.song.uploader} - ${serverQueue.song.title}`;
@@ -72,7 +73,7 @@ export default new Command({
 
         const lyrics = await getGeniusLyrics(geniusToken, q);
         if (!lyrics) {
-            return {content: i18n('music.lyrics.nothingFound', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.lyrics.nothingFound', sc?.lang)});
         }
 
         return {content: lyrics};

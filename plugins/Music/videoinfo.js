@@ -28,6 +28,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -66,7 +67,7 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-            return {content: i18n('music.videoinfo.invalidURL', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.videoinfo.invalidURL', sc?.lang)});
         }
 
         const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
@@ -79,7 +80,7 @@ export default new Command({
         }))[0];
 
         if (!songInfo) {
-            return {content: i18n('music.videoinfo.error', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.videoinfo.error', sc?.lang)});
         }
 
         return {

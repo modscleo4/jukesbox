@@ -25,6 +25,7 @@ import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -53,7 +54,7 @@ export default new Command({
         await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return {content: i18n('music.queueEmpty', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
         }
 
         serverQueue.songs = [];

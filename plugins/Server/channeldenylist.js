@@ -26,6 +26,7 @@ import {serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -56,7 +57,7 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (!sc.channelDenies[channel.id]?.size) {
-            return {content: i18n('server.channeldenylist.noBlocked', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('server.channeldenylist.noBlocked', sc?.lang)});
         }
 
         return {content: i18n('server.channeldenylist.list', sc?.lang, {cmds: Array.from(sc.channelDenies[channel.id]).map(c => `\`${c}\``)})};

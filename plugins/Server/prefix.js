@@ -26,6 +26,7 @@ import {serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -61,7 +62,7 @@ export default new Command({
         const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return {content: i18n('server.prefix.prefix', sc?.lang, {prefix: sc.prefix})};
+            throw new CommandExecutionError({content: i18n('server.prefix.prefix', sc?.lang, {prefix: sc.prefix})});
         }
 
         await this.checkPermissions({guild, channel, author, member});

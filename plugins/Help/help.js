@@ -27,6 +27,7 @@ import {prefix} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -117,7 +118,7 @@ export default new Command({
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
                 if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(author.id))) {
-                    return {content: i18n('help.help.commandNotFound', sc?.lang, {command: args[i]})};
+                    throw new CommandExecutionError({content: i18n('help.help.commandNotFound', sc?.lang, {command: args[i]})});
                 }
             }
 

@@ -25,6 +25,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 
 export default new Command({
@@ -61,11 +62,11 @@ export default new Command({
         await this.checkVoiceChannel({guild, member});
 
         if (!serverQueue) {
-            return {content: i18n('music.queueEmpty', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
         }
 
         if (serverQueue.playing) {
-            return {content: i18n('music.resume.alreadyPlaying', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.resume.alreadyPlaying', sc?.lang)});
         }
 
         serverQueue.connection.dispatcher?.resume();

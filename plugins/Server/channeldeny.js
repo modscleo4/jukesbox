@@ -26,6 +26,7 @@ import {serverConfig} from "../../global.js";
 import {database_url, prefix} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -107,13 +108,13 @@ export default new Command({
         const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return {content: i18n('server.channeldeny.noArgs', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('server.channeldeny.noArgs', sc?.lang)});
         }
 
         await this.checkPermissions({guild, channel, author, member});
 
         if (args.includes('channelallow')) {
-            return {content: i18n('server.channeldeny.cannotBlock', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('server.channeldeny.cannotBlock', sc?.lang)});
         }
 
         const categoriesCommands = client.categoriesCommands;
@@ -124,12 +125,12 @@ export default new Command({
                 const {category} = /category\/(?<category>\w+)/gmiu.exec(args[i]).groups;
 
                 if (!(category in categoriesCommands)) {
-                    return {content: i18n('server.channeldeny.categoryNotFound', sc?.lang, {category})};
+                    throw new CommandExecutionError({content: i18n('server.channeldeny.categoryNotFound', sc?.lang, {category})});
                 }
 
                 args.splice(i, 1, ...Object.keys(categoriesCommands[category]).filter(c => c !== 'channelallow'));
             } else if (!(args[i] in commands) || (commands[args[i]].only && !commands[args[i]].only.includes(author.id))) {
-                return {content: i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]})};
+                throw new CommandExecutionError({content: i18n('server.channeldeny.commandNotFound', sc?.lang, {command: args[i]})});
             }
         }
 

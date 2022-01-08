@@ -26,6 +26,7 @@ import {statSync, readdirSync} from 'fs';
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -53,7 +54,7 @@ export default new Command({
 
         const logs = readdirSync('./logs/');
         if (logs.length === 0 || logs.at(-1) === '.gitkeep' || !statSync('./logs/' + logs.at(-1)).isFile()) {
-            return {content: i18n('admin.log.noLogs', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('admin.log.noLogs', sc?.lang)});
         }
 
         return {files: ['./logs/' + logs.at(-1)]};

@@ -27,6 +27,7 @@ import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -62,10 +63,10 @@ export default new Command({
                     await sendMessage({content: '```' + execSync('npm ci') + '```'});
                 }
             } catch (e) {
-                return {content: 'Error during npm ci: \n```' + e.message + '```'};
+                throw new CommandExecutionError({content: 'Error during npm ci: \n```' + e.message + '```'});
             }
         } catch (e) {
-            return {content: 'Error during git pull: \n```' + e.message + '```'};
+            throw new CommandExecutionError({content: 'Error during git pull: \n```' + e.message + '```'});
         }
 
         setTimeout(() => {

@@ -32,6 +32,7 @@ import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
 import i18n from "./lang/lang.js";
 import {MessageEmbed, WebhookClient} from "discord.js";
 import Command from "./lib/Command.js";
+import CommandExecutionError from "./errors/CommandExecutionError.js";
 
 for (const sc of await loadServerConfig(database_url)) {
     serverConfig.set(sc[0], sc[1]);
@@ -167,6 +168,10 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
                 if (e instanceof FullVoiceChannelError) {
                     return await sendMessage({content: i18n('fullVoiceChannel', sc?.lang)});
+                }
+
+                if (e instanceof CommandExecutionError) {
+                    return await sendMessage(e.messageContent);
                 }
 
                 console.error(e);
@@ -306,6 +311,10 @@ client.on('message', async message => {
 
             if (e instanceof FullVoiceChannelError) {
                 return await sendMessage({content: i18n('fullVoiceChannel', sc?.lang)});
+            }
+
+            if (e instanceof CommandExecutionError) {
+                return await sendMessage(e.messageContent);
             }
 
             console.error(e);

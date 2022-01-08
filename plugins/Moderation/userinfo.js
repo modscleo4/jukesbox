@@ -26,7 +26,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
-
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -65,14 +65,14 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0].match(/\d+/gm)) {
-            return {content: i18n('mod.userinfo.missingUser', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('mod.userinfo.missingUser', sc?.lang)});
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
         const guildMember = await guild.members.fetch(userID);
 
         if (!guildMember) {
-            return {content: i18n('mod.userinfo.invalidUser', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('mod.userinfo.invalidUser', sc?.lang)});
         }
 
         return {

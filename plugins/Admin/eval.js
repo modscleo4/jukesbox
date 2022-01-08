@@ -25,6 +25,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -59,13 +60,13 @@ export default new Command({
         const sc = global.serverConfig.get(guild.id);
 
         if (args.length === 0) {
-            return {content: i18n('admin.eval.noArgs', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('admin.eval.noArgs', sc?.lang)});
         }
 
         try {
             return {content: `\`\`\`js\n${JSON.stringify(eval(args[0]), null, 2)}\n\`\`\``};
         } catch (e) {
-            return {content: `\`\`\`\n${e.stack}\n\`\`\``};
+            throw new CommandExecutionError({content: `\`\`\`\n${e.stack}\n\`\`\``});
         }
     },
 });

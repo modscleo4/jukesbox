@@ -26,6 +26,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -62,7 +63,7 @@ export default new Command({
         const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
 
         if (args.length === 0) {
-            return {content: i18n('music.volume.volume', sc?.lang, {volume: sc.volume})};
+            throw new CommandExecutionError({content: i18n('music.volume.volume', sc?.lang, {volume: sc.volume})});
         }
 
         await this.checkPermissions({guild, channel, author, member});

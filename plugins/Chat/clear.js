@@ -24,6 +24,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -38,7 +39,7 @@ export default new Command({
             required: true,
         },
         {
-            name: 'deletePinned',
+            name: 'delete_pinned',
             description: 'Delete pinned messages.',
             type: OptionType.BOOLEAN,
             required: false,
@@ -72,18 +73,34 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]) {
-            return {content: i18n('chat.clear.noArgs', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('chat.clear.noArgs', sc?.lang)});
         }
 
         if (args[-1]) {
             await channel.bulkDelete([args[-1]]);
         }
 
-        const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
-        const messages = (await channel.messages.fetch({limit: n, after: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)})).filter(m => !args[1] || m.pinned).map(m => m);
+        if (typeof args[1] === 'string') {
+            args[1] = args[1].toLowerCase() === 'true';
+        }
 
-        for (let i = 0; i < Math.ceil(n / 100); i++) {
-            await channel.bulkDelete(messages.splice(0, 100)).catch(e => { });
+        const before_14 = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+        const n = (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 100;
+
+        // split n in chunks of 100 and remainder
+        const chunks = [];
+        let i;
+        for (i = 0; (i + 100) <= n; i += 100) {
+            chunks.push(100);
+        }
+
+        if (i < n) {
+            chunks.push(n - i);
+        }
+
+        for (const v of chunks) {
+            const messages = (await channel.messages.fetch({limit: v})).filter(/** @param {Message} m */ m => m.createdAt >= before_14 && (args[1] || !m.pinned)).map(m => m);
+            await channel.bulkDelete(messages).catch(() => { });
         }
 
         return {content: i18n('chat.clear.deletedN', sc?.lang, {n}), deleteAfter: 1};

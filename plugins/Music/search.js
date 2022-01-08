@@ -29,6 +29,7 @@ import Command, {OptionType} from "../../lib/Command.js";
 import play from "./play.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -105,7 +106,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return {content: i18n('music.search.noArgs', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.search.noArgs', sc?.lang)});
         }
 
         const results = await searchVideo(args.join(' '), {
@@ -116,7 +117,7 @@ export default new Command({
         });
 
         if (results.length === 0) {
-            return {content: i18n('music.search.nothingFound', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.search.nothingFound', sc?.lang)});
         }
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);

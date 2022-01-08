@@ -24,6 +24,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -117,11 +118,11 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (!args[0]?.match(/\d + /gm)) {
-            return {content: i18n('mod.rmrole.missingUser', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('mod.rmrole.missingUser', sc?.lang)});
         }
 
         if (args.length < 2) {
-            return {content: i18n('mod.rmrole.missingRole', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('mod.rmrole.missingRole', sc?.lang)});
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
@@ -129,15 +130,15 @@ export default new Command({
         const roles = args.map(r => guild.roles.cache.find(g => g.name === r || g.id === r));
 
         if (!guildMember) {
-            return {content: i18n('mod.rmrole.invalidUser', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('mod.rmrole.invalidUser', sc?.lang)});
         }
 
         if (roles.includes(undefined)) {
-            return {content: i18n('mod.rmrole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]})};
+            throw new CommandExecutionError({content: i18n('mod.rmrole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]})});
         }
 
         if (roles.find(r => !r.editable)) {
-            return {content: i18n('mod.rmrole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name})};
+            throw new CommandExecutionError({content: i18n('mod.rmrole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name})});
         }
 
         await guildMember.roles.remove(roles);

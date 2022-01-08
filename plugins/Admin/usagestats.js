@@ -28,6 +28,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 import {loadUsageStats} from "../../lib/utils.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -59,7 +60,7 @@ export default new Command({
 
         const stats = (await loadUsageStats(database_url)).sort((a, b) => b.used - a.used);
         if (stats.length === 0) {
-            return {content: i18n('admin.usagestats.noStats', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('admin.usagestats.noStats', sc?.lang)});
         }
 
         const cmds = [

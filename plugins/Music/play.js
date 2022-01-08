@@ -41,6 +41,7 @@ import ServerQueue from "../../lib/ServerQueue.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import nowplaying from "./nowplaying.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 const scdl = _scdl.default;
 
@@ -271,7 +272,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            return {content: i18n('music.play.noLink', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.play.noLink', sc?.lang)});
         }
 
         const songs = [];
@@ -284,7 +285,7 @@ export default new Command({
         }))[0] ?? {url: null}).url;
 
         if (!url) {
-            return {content: i18n('music.play.nothingFound', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.play.nothingFound', sc?.lang)});
         }
 
         if (url.match(/youtube.com|youtu.be/gmu)) {
@@ -294,7 +295,7 @@ export default new Command({
                 const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
 
                 if (!PlaylistId.startsWith('PL')) {
-                    return {content: i18n('music.play.youtubeMix', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('music.play.youtubeMix', sc?.lang)});
                 }
 
                 const plSongs = await getPlaylistItems(PlaylistId, {
@@ -305,7 +306,7 @@ export default new Command({
                 });
 
                 if (!plSongs) {
-                    return {content: i18n('music.play.error', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
                 }
 
                 const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: ytapikeys}).catch(e => {
@@ -314,7 +315,7 @@ export default new Command({
                 });
 
                 if (!songsInfo) {
-                    return {content: i18n('music.play.error', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
                 }
 
                 songsInfo.forEach((songInfo, i) => {
@@ -354,7 +355,7 @@ export default new Command({
                 }))[0];
 
                 if (!songInfo) {
-                    return {content: i18n('music.play.error', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
                 }
 
                 const song = new Song({
@@ -392,7 +393,7 @@ export default new Command({
             });
 
             if (!songInfo) {
-                return {content: i18n('music.play.error', sc?.lang)};
+                throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
             }
 
             const song = new Song({
@@ -416,7 +417,7 @@ export default new Command({
             }));
 
             if (!plSongs) {
-                return {content: i18n('music.play.error', sc?.lang)};
+                throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
             }
 
             plSongs.forEach(plSong => {
@@ -431,7 +432,7 @@ export default new Command({
                 songs.push(song);
             });
         } else {
-            return {content: i18n('music.play.error', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
         }
 
         if (!serverQueue) {
@@ -455,7 +456,7 @@ export default new Command({
             } catch (err) {
                 console.error(err);
                 queue.delete(guild.id);
-                return {content: i18n('music.play.error', sc?.lang)};
+                throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
             }
         } else {
             serverQueue.songs = serverQueue.songs.concat(songs);

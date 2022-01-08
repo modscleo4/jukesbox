@@ -28,6 +28,7 @@ import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -86,7 +87,7 @@ export default new Command({
                 }));
 
                 if (servers.length === 0) {
-                    return {content: i18n('admin.botinfo.noServers', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('admin.botinfo.noServers', sc?.lang)});
                 }
 
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.servers', sc?.lang), content: servers});
@@ -99,7 +100,7 @@ export default new Command({
                 }));
 
                 if (voiceChannels.length === 0) {
-                    return {content: i18n('admin.botinfo.noVoiceChannels', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('admin.botinfo.noVoiceChannels', sc?.lang)});
                 }
 
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.voiceChannels', sc?.lang), content: voiceChannels});
@@ -112,7 +113,7 @@ export default new Command({
                 }));
 
                 if (envVars.length === 0) {
-                    return {content: i18n('admin.botinfo.noEnvVars', sc?.lang)};
+                    throw new CommandExecutionError({content: i18n('admin.botinfo.noEnvVars', sc?.lang)});
                 }
 
                 return await pageEmbed({client}, {title: i18n('admin.botinfo.envVars', sc?.lang), content: envVars});

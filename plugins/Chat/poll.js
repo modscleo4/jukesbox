@@ -26,6 +26,7 @@ import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
+import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
@@ -124,19 +125,19 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (args.length < 1) {
-            return {content: i18n('chat.poll.missingTitle', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('chat.poll.missingTitle', sc?.lang)});
         }
 
         if (args.length < 2) {
-            return {content: i18n('chat.poll.missingTimer', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('chat.poll.missingTimer', sc?.lang)});
         }
 
         if (isNaN(parseInt(args[1])) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
-            return {content: i18n('chat.poll.invalidTimer', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('chat.poll.invalidTimer', sc?.lang)});
         }
 
         if (args.length < 4) {
-            return {content: i18n('chat.poll.missingOptions', sc?.lang)};
+            throw new CommandExecutionError({content: i18n('chat.poll.missingOptions', sc?.lang)});
         }
 
         const title = args.splice(0, 1)[0];
