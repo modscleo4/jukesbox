@@ -122,7 +122,11 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }).on('error', async e => {
         console.error(e);
 
-        if (e.message.includes('Status code: 403') && tries > 0) {
+        if ((e.message.includes('Status code: 403') || e.message.includes('input stream: aborted')) && tries > 0) {
+            if (serverQueue.player.streamTime) {
+                serverQueue.song.seek = Math.floor(serverQueue.player.streamTime / 1000);
+            }
+
             setTimeout(async () => {
                 await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
             }, 1000);
