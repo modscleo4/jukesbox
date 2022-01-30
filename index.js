@@ -341,7 +341,6 @@ process.on('SIGTERM', async () => {
 
     console.log(`Atualizando.`);
     client.removeAllListeners();
-    client.destroy();
 
     process.removeAllListeners();
 });

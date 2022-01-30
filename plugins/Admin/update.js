@@ -53,6 +53,15 @@ export default new Command({
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
 
+        await client.user.setPresence({
+            activity: {
+                name: 'Atualizando',
+                type: 'CUSTOM_STATUS',
+            },
+
+            status: 'dnd',
+        });
+
         try {
             const gitpull = execSync('git pull --rebase').toString();
             await sendMessage({content: '```' + gitpull + '```'});

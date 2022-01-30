@@ -106,6 +106,9 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }).on('finish', async () => {
         serverQueue.playing = false;
 
+        serverQueue.player.destroy();
+        serverQueue.player.removeAllListeners();
+
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
         if (serverQueue.song?.seek === undefined) {
             if (!serverQueue.loop) {
@@ -124,8 +127,15 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
 
         if ((e.message.includes('Status code: 403') || e.message.includes('input stream: aborted')) && tries > 0) {
             if (serverQueue.player.streamTime) {
-                serverQueue.song.seek = Math.floor(serverQueue.player.streamTime / 1000);
+                if (!serverQueue.song.seek) {
+                    serverQueue.song.seek = 0;
+                }
+
+                serverQueue.song.seek += Math.floor(serverQueue.player.streamTime / 1000);
             }
+
+            serverQueue.player.destroy();
+            serverQueue.player.removeAllListeners();
 
             setTimeout(async () => {
                 await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
