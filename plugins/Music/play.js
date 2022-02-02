@@ -97,8 +97,6 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    serverQueue.startTime = serverQueue.song.seek ?? 0;
-
     serverQueue.player = serverQueue.connection.play(serverQueue.song.stream, {
         seek: serverQueue.song.seek,
         volume: serverQueue.volume / 100,
@@ -106,11 +104,8 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }).on('finish', async () => {
         serverQueue.playing = false;
 
-        serverQueue.player.destroy();
-        serverQueue.player.removeAllListeners();
-
         // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
-        if (serverQueue.song?.seek === undefined) {
+        if (!serverQueue.runSeek) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
             }
@@ -132,10 +127,8 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
                 }
 
                 serverQueue.song.seek += Math.floor(serverQueue.player.streamTime / 1000);
+                serverQueue.runSeek = true;
             }
-
-            serverQueue.player.destroy();
-            serverQueue.player.removeAllListeners();
 
             setTimeout(async () => {
                 await playSong({client, guild, channel, author, member, sendMessage}, tries - 1);
@@ -169,7 +162,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
         await playSong({client, guild, channel, author, member, sendMessage});
     }
 
-    serverQueue.song.seek = undefined;
+    serverQueue.runSeek = false;
     serverQueue.toDelete.push(await sendMessage(await nowplaying.fn({client, guild, channel, author, member, sendMessage}, [])));
 
     if (serverQueue.song?.uploader.toUpperCase().includes('JUKES') || serverQueue.song?.title.toUpperCase().includes('JUKES')) {

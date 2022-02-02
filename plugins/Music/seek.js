@@ -75,7 +75,7 @@ export default new Command({
         const s = Math.min((Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, serverQueue.song.duration);
 
         serverQueue.song.seek = s;
-        serverQueue.startTime = s;
+        serverQueue.runSeek = true;
         serverQueue.connection.dispatcher?.end();
     },
 });
