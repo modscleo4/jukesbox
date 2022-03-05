@@ -41,7 +41,7 @@ export default new Command({
         }
     ],
 
-    only: [config.adminID],
+    only: [config.options.adminID],
 
     /**
      *

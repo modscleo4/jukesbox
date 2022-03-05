@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import {serverConfig} from "../../global.js";
-import {adminID, database_url} from "../../config.js";
+import {options} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
@@ -35,7 +35,7 @@ export default new Command({
         en_US: 'Show the commands stats.',
         pt_BR: 'Mostra as estatísticas dos comandos.',
     },
-    only: [adminID],
+    only: [options.adminID],
     botPermissions: {
         text: ['EMBED_LINKS'],
     },
@@ -58,7 +58,7 @@ export default new Command({
 
         await this.checkPermissions({guild, channel, author, member});
 
-        const stats = (await loadUsageStats(database_url)).sort((a, b) => b.used - a.used);
+        const stats = (await loadUsageStats(options.database_url)).sort((a, b) => b.used - a.used);
         if (stats.length === 0) {
             throw new CommandExecutionError({content: i18n('admin.usagestats.noStats', sc?.lang)});
         }

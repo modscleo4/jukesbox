@@ -23,7 +23,7 @@
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
-import {prefix} from "../../config.js";
+import {options} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 import {MessageEmbed} from "discord.js";
@@ -69,7 +69,7 @@ export default new Command({
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
 
         const subcommands = {
             async roles() {
@@ -133,7 +133,7 @@ export default new Command({
                         inline: true
                     },
                     {name: '\u200B', value: '\u200B', inline: false},
-                    {name: i18n('server.serverinfo.prefix', sc?.lang), value: sc?.prefix ?? prefix, inline: true},
+                    {name: i18n('server.serverinfo.prefix', sc?.lang), value: sc?.prefix ?? options.prefix, inline: true},
                     {name: i18n('server.serverinfo.lang', sc?.lang), value: sc?.lang ?? 'pt_BR', inline: true},
                     {name: i18n('server.serverinfo.telemetry', sc?.lang), value: [i18n('minimal', sc?.lang), i18n('full', sc?.lang)][sc?.telemetryLevel ?? 1], inline: true},
                 ],

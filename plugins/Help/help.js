@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import {serverConfig} from "../../global.js";
-import {prefix} from "../../config.js";
+import {options} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
@@ -106,7 +106,7 @@ export default new Command({
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const sc = serverConfig.get(guild.id);
-        const serverPrefix = sc?.prefix ?? prefix;
+        const serverPrefix = sc?.prefix ?? options.prefix;
 
         await this.checkPermissions({guild, channel, author, member});
 

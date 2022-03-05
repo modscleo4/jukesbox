@@ -20,7 +20,7 @@
 
 'use strict';
 
-import {adminID} from "../../config.js";
+import {options} from "../../config.js";
 import {serverConfig} from "../../global.js";
 import {statSync, readdirSync} from 'fs';
 import Message from "../../lib/Message.js";
@@ -34,7 +34,7 @@ export default new Command({
         pt_BR: 'Envia o arquivo de log atual.',
     },
 
-    only: [adminID],
+    only: [options.adminID],
 
     /**
      *

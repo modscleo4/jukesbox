@@ -21,7 +21,7 @@
 'use strict';
 
 import {queue, serverConfig} from "../../global.js";
-import {database_url, prefix} from "../../config.js";
+import {options} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
@@ -60,7 +60,7 @@ export default new Command({
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
         const serverQueue = queue.get(guild.id);
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
 
         if (args.length === 0) {
             throw new CommandExecutionError({content: i18n('music.volume.volume', sc?.lang, {volume: sc.volume})});
@@ -77,7 +77,7 @@ export default new Command({
 
         sc.volume = volume;
         serverConfig.set(guild.id, sc);
-        await sc.save(database_url);
+        await sc.save(options.database_url);
 
         return {content: i18n('music.volume.success', sc?.lang)};
     },

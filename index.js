@@ -22,7 +22,7 @@
 
 import Client from "./lib/Client.js";
 import {serverConfig, messageAlert} from "./global.js";
-import {adminID, database_url, prefix, token, production, periodicallyClearCache} from "./config.js";
+import {options} from "./config.js";
 import {loadServerConfig} from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
@@ -34,7 +34,7 @@ import {MessageEmbed, WebhookClient} from "discord.js";
 import Command from "./lib/Command.js";
 import CommandExecutionError from "./errors/CommandExecutionError.js";
 
-for (const sc of await loadServerConfig(database_url)) {
+for (const sc of await loadServerConfig(options.database_url)) {
     serverConfig.set(sc[0], sc[1]);
 }
 
@@ -84,7 +84,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return null;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData));
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.options.token).send(msgData.content ?? msgData));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msg) {
@@ -128,7 +128,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
     switch (interaction.type) {
         case 1:
-            client.api.interactions(interaction.id, interaction.token).callback.post({
+            client.api.interactions(interaction.id, interaction.options.token).callback.post({
                 data: {
                     type: 1,
                 },
@@ -137,7 +137,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             break;
 
         case 2:
-            const response = client.api.interactions(interaction.id, interaction.token).callback.post({
+            const response = client.api.interactions(interaction.id, interaction.options.token).callback.post({
                 data: {
                     type: 5,
                 },
@@ -175,7 +175,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
                 }
 
                 console.error(e);
-                production && adminID && await (await client.users.fetch(adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
+                options.production && options.adminID && await (await client.users.fetch(options.adminID)).send(`Comando: ${interaction.data.name}\n\n\`\`\`${e.stack}\`\`\``);
                 await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => { });
             }
 
@@ -214,7 +214,7 @@ client.on('message', async message => {
     }
 
     const sc = serverConfig.get(message.guild.id);
-    const serverPrefix = sc?.prefix ?? prefix;
+    const serverPrefix = sc?.prefix ?? options.prefix;
 
     if (message.content.startsWith(serverPrefix)) {
         const args = (message.content.slice(serverPrefix.length).match(/("[^"]*"|\/[^{]+{[^}]*}|\S)+/gmi) ?? ['']).map(a => a.replace(/"/gmi, ''));
@@ -318,7 +318,7 @@ client.on('message', async message => {
             }
 
             console.error(e);
-            production && adminID && await (await client.users.fetch(adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
+            options.production && options.adminID && await (await client.users.fetch(options.adminID)).send(`Mensagem: ${message}\n\n\`\`\`${e.stack}\`\`\``);
             await sendMessage({content: i18n('unhandledException', sc?.lang)}).catch(() => { });
         }
     }
@@ -327,7 +327,7 @@ client.on('message', async message => {
 client.loadCommands(await import('./plugins/index.js'));
 console.log(`${Object.keys(client.commands).length} comando${Object.keys(client.commands).length > 1 ? 's' : ''} carregado${Object.keys(client.commands).length > 1 ? 's' : ''}.`);
 
-await client.login(token);
+await client.login(options.token);
 
 process.on('SIGTERM', async () => {
     await client.user.setPresence({
@@ -347,13 +347,13 @@ process.on('SIGTERM', async () => {
 
 process.on('unhandledRejection', async (e, promise) => {
     console.error(e);
-    production && adminID && await (await client.users.fetch(adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
+    options.production && options.adminID && await (await client.users.fetch(options.adminID)).send(`Unhandled Promise rejection!\n\n\`\`\`${e.stack}\`\`\``);
 });
 
 setInterval(async () => {
     messageAlert.clear();
 
-    if (periodicallyClearCache) {
+    if (options.periodicallyClearCache) {
         await client.clearCache();
     }
 }, 1000 * 60 * 60 * 24);

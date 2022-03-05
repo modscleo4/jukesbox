@@ -233,6 +233,29 @@
           "required": [
             "noLogs"
           ]
+        },
+        "changecfg": {
+          "$ref": "#/definitions/command",
+          "properties": {
+            "noArgs": {
+              "$ref": "#/definitions/entry"
+            },
+            "invalidCfg": {
+              "$ref": "#/definitions/entry"
+            },
+            "noVal": {
+              "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
+            }
+          },
+          "required": [
+            "noArgs",
+            "invalidCfg",
+            "noVal",
+            "success"
+          ]
         }
       },
       "required": [
@@ -244,7 +267,8 @@
         "clearcache",
         "registercommands",
         "usagestats",
-        "log"
+        "log",
+        "changecfg"
       ]
     },
     "chat": {

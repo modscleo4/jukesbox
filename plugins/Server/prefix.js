@@ -23,7 +23,7 @@
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
-import {database_url, prefix} from "../../config.js";
+import {options} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -59,7 +59,7 @@ export default new Command({
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
 
         if (args.length === 0) {
             throw new CommandExecutionError({content: i18n('server.prefix.prefix', sc?.lang, {prefix: sc.prefix})});
@@ -69,7 +69,7 @@ export default new Command({
 
         sc.prefix = args[0];
         serverConfig.set(guild.id, sc);
-        await sc.save(database_url);
+        await sc.save(options.database_url);
 
         return {content: i18n('server.prefix.success', sc?.lang, {prefix: args[0]})};
     },

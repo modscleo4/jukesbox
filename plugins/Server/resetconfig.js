@@ -23,7 +23,7 @@
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
-import {database_url, prefix} from "../../config.js";
+import {options} from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 
@@ -51,7 +51,7 @@ export default new Command({
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
 
         await this.checkPermissions({guild, channel, author, member});
 

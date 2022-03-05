@@ -20,7 +20,7 @@
 
 'use strict';
 
-import {adminID, reloadConfig} from "../../config.js";
+import {options, reloadConfig} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
@@ -32,7 +32,7 @@ export default new Command({
         pt_BR: 'Recarrega o .env do bot.',
     },
 
-    only: [adminID],
+    only: [options.adminID],
 
     /**
      *

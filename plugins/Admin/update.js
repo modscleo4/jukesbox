@@ -22,7 +22,7 @@
 
 import {execSync} from 'child_process';
 
-import {adminID} from "../../config.js";
+import {options} from "../../config.js";
 import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
@@ -35,7 +35,7 @@ export default new Command({
         pt_BR: 'Atualiza o bot.',
     },
 
-    only: [adminID],
+    only: [options.adminID],
 
     /**
      *

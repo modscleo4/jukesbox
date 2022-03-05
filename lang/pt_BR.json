@@ -58,6 +58,12 @@
     },
     "log": {
       "noLogs": "'Nada ainda vei.'"
+    },
+    "changecfg": {
+      "noArgs": "'Informe o nome da configuração e o valor.'",
+      "invalidCfg": "'Configuração inválida.'",
+      "noVal": "'Informe o valor.'",
+      "success": "'Configuração alterada.'"
     }
   },
   "chat": {

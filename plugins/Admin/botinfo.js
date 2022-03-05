@@ -23,7 +23,7 @@
 import {MessageEmbed} from "discord.js";
 
 import {startupTime, queue, serverConfig} from "../../global.js";
-import * as config from "../../config.js";
+import {options as config} from "../../config.js";
 import {pageEmbed, parseMS} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
@@ -109,7 +109,7 @@ export default new Command({
             async env() {
                 const envVars = Object.keys(config).filter(k => typeof config[k] !== 'function').map(k => ({
                     name: k,
-                    value: JSON.stringify(config[k], null, 2),
+                    value: '`' + JSON.stringify(config[k], null, 2) + '`',
                 }));
 
                 if (envVars.length === 0) {

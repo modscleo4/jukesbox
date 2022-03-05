@@ -22,7 +22,7 @@
 
 import {MessageEmbed} from "discord.js";
 
-import {ytapikeys} from "../../config.js";
+import {options} from "../../config.js";
 import {searchVideo} from "../../lib/utils.js";
 import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
@@ -110,7 +110,7 @@ export default new Command({
         }
 
         const results = await searchVideo(args.join(' '), {
-            keys: ytapikeys,
+            keys: options.ytapikeys,
             regionCode: 'us',
             type: kind,
             videoEmbeddable: kind === 'video' ? true : 'any',

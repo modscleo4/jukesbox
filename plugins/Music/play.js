@@ -26,7 +26,7 @@ import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
 
 import {queue, serverConfig} from "../../global.js";
-import {prefix, highWaterMark, dlChunkSize, scclientID, spclientID, spsecret, ytapikeys, ytcookies} from "../../config.js";
+import {options} from "../../config.js";
 import {
     getPlaylistItems,
     getSpotifyPlaylistItems,
@@ -46,8 +46,8 @@ import CommandExecutionError from "../../errors/CommandExecutionError.js";
 const scdl = _scdl.default;
 
 const spotifyAPI = new SpotifyWebAPI({
-    clientId: spclientID,
-    clientSecret: spsecret,
+    clientId: options.spclientID,
+    clientSecret: options.spsecret,
     redirectUri: 'http://jukesbox.herokuapp.com',
 });
 
@@ -177,7 +177,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
  */
 async function findOnYT(song) {
     const url = ((await searchVideo(`${song.uploader} - ${song.title} Provided to YouTube by`, {
-        keys: ytapikeys,
+        keys: options.ytapikeys,
         regionCode: 'us',
         type: 'video',
         part: ['id'],
@@ -192,7 +192,7 @@ async function findOnYT(song) {
     }
 
     const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url).groups;
-    const songInfo = (await videoInfo(VideoId, {keys: ytapikeys}).catch(e => {
+    const songInfo = (await videoInfo(VideoId, {keys: options.ytapikeys}).catch(e => {
         console.error(e);
         return [null];
     }))[0];
@@ -212,14 +212,14 @@ async function findOnYT(song) {
         fn: ytdl,
         options: {
             filter: songInfo.duration === 0 ? null : 'audioonly',
-            highWaterMark,
+            highWaterMark: options.highWaterMark,
             quality: songInfo.duration === 0 ? null : 'highestaudio',
-            dlChunkSize,
+            dlChunkSize: options.dlChunkSize,
             isHLS: songInfo.duration === 0,
             requestOptions: {
                 host: 'jukesbox.herokuapp.com',
                 headers: {
-                    cookie: ytcookies,
+                    cookie: options.ytcookies,
                 }
             },
         },
@@ -261,7 +261,7 @@ export default new Command({
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
         const serverQueue = queue.get(guild.id);
 
         await this.checkVoiceChannel({guild, member});
@@ -284,7 +284,7 @@ export default new Command({
 
         const songs = [];
         const url = isValidHttpURL(args[0]) ? args[0] : ((await searchVideo(args.join(' '), {
-            keys: ytapikeys,
+            keys: options.ytapikeys,
             regionCode: 'us',
             type: kind,
             part: ['id'],
@@ -306,7 +306,7 @@ export default new Command({
                 }
 
                 const plSongs = await getPlaylistItems(PlaylistId, {
-                    keys: ytapikeys,
+                    keys: options.ytapikeys,
                 }).catch(e => {
                     console.error(e);
                     return null;
@@ -316,7 +316,7 @@ export default new Command({
                     throw new CommandExecutionError({content: i18n('music.play.error', sc?.lang)});
                 }
 
-                const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: ytapikeys}).catch(e => {
+                const songsInfo = await videoInfo(plSongs.map(s => s.snippet.resourceId.videoId), {keys: options.ytapikeys}).catch(e => {
                     console.error(e);
                     return null;
                 });
@@ -338,14 +338,14 @@ export default new Command({
                         fn: ytdl,
                         options: {
                             filter: songInfo.duration === 0 ? null : 'audioonly',
-                            highWaterMark,
+                            highWaterMark: options.highWaterMark,
                             quality: songInfo.duration === 0 ? null : 'highestaudio',
-                            dlChunkSize,
+                            dlChunkSize: options.dlChunkSize,
                             isHLS: songInfo.duration === 0,
                             requestOptions: {
                                 host: 'jukesbox.herokuapp.com',
                                 headers: {
-                                    cookie: ytcookies,
+                                    cookie: options.ytcookies,
                                 }
                             },
                         },
@@ -353,10 +353,10 @@ export default new Command({
 
                     songs.push(song);
                 });
-            } else if (url.match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-                const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(url)?.groups ?? {};
+            } else if (url.match(/(\/watch\?v=|youtu.be\/|youtube.com\/shorts\/)/gmu)) {
+                const {VideoId} = /(\/watch\?v=|youtu.be\/|youtube.com\/shorts\/)(?<VideoId>[^?&#]+)/gmu.exec(url)?.groups ?? {};
                 const {T} = /[&?]t=(?<T>[^&#]+)/gmu.exec(url)?.groups ?? {};
-                const songInfo = (await videoInfo(VideoId, {keys: ytapikeys}).catch(e => {
+                const songInfo = (await videoInfo(VideoId, {keys: options.ytapikeys}).catch(e => {
                     console.error(e);
                     return [null];
                 }))[0];
@@ -378,14 +378,14 @@ export default new Command({
                     options: {
                         // If the song duration is 0s, it's a livestream
                         filter: songInfo.duration === 0 ? null : 'audioonly',
-                        highWaterMark,
+                        highWaterMark: options.highWaterMark,
                         quality: songInfo.duration === 0 ? null : 'highestaudio',
-                        dlChunkSize,
+                        dlChunkSize: options.dlChunkSize,
                         isHLS: songInfo.duration === 0,
                         requestOptions: {
                             host: 'jukesbox.herokuapp.com',
                             headers: {
-                                cookie: ytcookies,
+                                cookie: options.ytcookies,
                             }
                         },
                     },
@@ -412,7 +412,7 @@ export default new Command({
                 from: 'sc',
                 addedBy: author,
                 fn: async (url, options) => await scdl.download(url, options).then(stream => stream),
-                options: scclientID,
+                options: options.scclientID,
             });
 
             songs.push(song);

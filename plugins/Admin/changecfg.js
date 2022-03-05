@@ -13,33 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @file Music plugin (nowplaying command)
+ * @file Admin plugin (changecfg command)
  *
  * @author Dhiego Cassiano Fogaça Barbosa <modscleo4@outlook.com>
  */
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
-
-import {queue} from "../../global.js";
-import {getGeniusLyrics} from "../../lib/utils.js";
+import * as config from "../../config.js";
 import Message from "../../lib/Message.js";
-import Command from "../../lib/Command.js";
-import {options} from '../../config.js';
-import {serverConfig} from "../../global.js";
+import Command, {OptionType} from "../../lib/Command.js";
+import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
     description: {
-        en_US: 'Shows the current song lyrics.',
-        pt_BR: 'Mostra a letra da música que está tocando.',
+        en_US: 'Change .env config at runtime.',
+        pt_BR: 'Altera configurações do .env em runtime.',
     },
+    options: [
+        {
+            name: 'cfg',
+            description: 'Config name.',
+            type: OptionType.STRING,
+            required: true,
+            choices: configOptions,
+        },
+        {
+            name: 'val',
+            description: 'JavaScript code.',
+            type: OptionType.STRING,
+            required: true,
+        }
+    ],
 
-    botPermissions: {
-        text: ['EMBED_LINKS'],
-    },
+    only: [config.options.adminID],
 
     /**
      *
@@ -55,27 +64,25 @@ export default new Command({
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
     async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id);
-        const serverQueue = queue.get(guild.id);
+        const sc = global.serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
-
-        let q;
-        if (!args.length) {
-            if (!serverQueue) {
-                throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
-            }
-
-            q = `${serverQueue.song.uploader} - ${serverQueue.song.title}`;
-        } else {
-            q = args.join(' ');
+        if (args.length === 0) {
+            throw new CommandExecutionError({content: i18n('admin.changecfg.noArgs', sc?.lang)});
         }
 
-        const lyrics = await getGeniusLyrics(options.geniusToken, q);
-        if (!lyrics) {
-            throw new CommandExecutionError({content: i18n('music.lyrics.nothingFound', sc?.lang)});
+        const cfg = config.configOptions.find(c => c.value === args[0]);
+        if (!cfg) {
+            throw new CommandExecutionError({content: i18n('admin.changecfg.invalidCfg', sc?.lang)});
         }
 
-        return {content: lyrics};
+        if (args.length < 2) {
+            throw new CommandExecutionError({content: i18n('admin.changecfg.noVal', sc?.lang)});
+        }
+
+        process.env[cfg.envName] = args[1];
+
+        config.reloadConfig();
+
+        return {content: i18n('admin.changecfg.success', sc?.lang)};
     },
 });

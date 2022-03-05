@@ -58,6 +58,12 @@
     },
     "log": {
       "noLogs": "'No logs found.'"
+    },
+    "changecfg": {
+      "noArgs": "'Provide the config name and the value.'",
+      "invalidCfg": "'Invalid config.'",
+      "noVal": "'Provide the value.'",
+      "success": "'Config updated.'"
     }
   },
   "chat": {
