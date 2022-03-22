@@ -38,7 +38,7 @@ export default new Command({
             description: 'Config name.',
             type: OptionType.STRING,
             required: true,
-            choices: configOptions,
+            choices: config.configOptions,
         },
         {
             name: 'val',

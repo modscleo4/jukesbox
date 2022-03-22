@@ -29,3 +29,4 @@ export {default as registercommands} from "./registercommands.js";
 export {default as update} from "./update.js";
 export {default as usagestats} from "./usagestats.js";
 export {default as log} from "./log.js";
+export {default as changecfg} from "./changecfg.js";
