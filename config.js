@@ -39,6 +39,7 @@ import dotenv from "dotenv";
  * @property {Boolean} production
  * @property {Boolean} periodicallyClearCache
  * @property {Boolean} ignorePermissionsForAdmin
+ * @property {Boolean} messageIntentAlert
  */
 
 /**
@@ -142,6 +143,13 @@ export const configOptions = [
         name: 'Ignore Permissions For Admin',
         value: 'ignorePermissionsForAdmin',
         envName: 'IGNORE_PERMISSIONS_FOR_ADMIN',
+        type: 'boolean',
+        default: false,
+    },
+    {
+        name: 'Message Intent Alert',
+        value: 'messageIntentAlert',
+        envName: 'MESSAGE_INTENT_ALERT',
         type: 'boolean',
         default: false,
     },

@@ -84,7 +84,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             return null;
         }
 
-        const webhookMsg = await (new WebhookClient(client.user.id, interaction.options.token).send(msgData.content ?? msgData));
+        const webhookMsg = await (new WebhookClient(client.user.id, interaction.token).send(msgData.content ?? msgData));
         const msg = await channel.messages.fetch(webhookMsg.id);
 
         if (msg) {
@@ -128,7 +128,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
     switch (interaction.type) {
         case 1:
-            client.api.interactions(interaction.id, interaction.options.token).callback.post({
+            client.api.interactions(interaction.id, interaction.token).callback.post({
                 data: {
                     type: 1,
                 },
@@ -137,7 +137,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             break;
 
         case 2:
-            const response = client.api.interactions(interaction.id, interaction.options.token).callback.post({
+            const response = client.api.interactions(interaction.id, interaction.token).callback.post({
                 data: {
                     type: 5,
                 },
@@ -247,7 +247,7 @@ client.on('message', async message => {
             await Command.logUsage(cmd);
             const msgData = await command.fn({client, guild: message.guild, channel: message.channel, author: message.author, member: message.member, sendMessage}, args);
 
-            if (!messageAlert.has(message.guild.id)) {
+            if (options.messageIntentAlert && !messageAlert.has(message.guild.id)) {
                 await sendMessage({content: i18n('messageIntent', sc?.lang)}).catch(() => { });
 
                 messageAlert.set(message.guild.id, true);
