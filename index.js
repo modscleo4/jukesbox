@@ -235,7 +235,7 @@ client.on('message', async message => {
 
         // DM User if the bot cannot send Messages in the Text Channel
         if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-            return await sendMessage({content: i18n('permission.SEND_MESSAGES', sc?.lang)});
+            return await message.author.send({content: i18n('permission.SEND_MESSAGES', sc?.lang)});
         }
 
         // Check if the Command is restricted in the current Text Channel

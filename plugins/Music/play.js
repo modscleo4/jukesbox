@@ -51,6 +51,8 @@ const spotifyAPI = new SpotifyWebAPI({
     redirectUri: 'http://jukesbox.herokuapp.com',
 });
 
+const MAX_TRIES = 3;
+
 /**
  *
  * @param {Object} message
@@ -63,7 +65,7 @@ const spotifyAPI = new SpotifyWebAPI({
  * @param {number} [tries=3]
  * @return {Promise<*>}
  */
-async function playSong({client, guild, channel, author, member, sendMessage}, tries = 3) {
+async function playSong({client, guild, channel, author, member, sendMessage}, tries = MAX_TRIES) {
     const sc = serverConfig.get(guild.id);
     const serverQueue = queue.get(guild.id);
 
@@ -126,7 +128,13 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
                     serverQueue.song.seek = 0;
                 }
 
+                // If at least 10 seconds have passed since the song last failed
+                if (Math.abs(serverQueue.lastPlaybackTime - serverQueue.player.streamTime) > 10000) {
+                    tries = MAX_TRIES;
+                }
+
                 serverQueue.song.seek += Math.floor(serverQueue.player.streamTime / 1000);
+                serverQueue.lastPlaybackTime = serverQueue.player.streamTime;
                 serverQueue.runSeek = true;
             }
 
@@ -163,6 +171,7 @@ async function playSong({client, guild, channel, author, member, sendMessage}, t
     }
 
     serverQueue.runSeek = false;
+    serverQueue.lastPlaybackTime = 0;
     serverQueue.toDelete.push(await sendMessage(await nowplaying.fn({client, guild, channel, author, member, sendMessage}, [])));
 
     if (serverQueue.song?.uploader.toUpperCase().includes('JUKES') || serverQueue.song?.title.toUpperCase().includes('JUKES')) {
