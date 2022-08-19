@@ -41,7 +41,7 @@
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^5.0.9",
-    "ytdl-core": "^4.11.0",
+    "ytdl-core": "^4.9.1",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
