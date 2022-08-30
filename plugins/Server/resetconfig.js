@@ -55,7 +55,7 @@ export default new Command({
 
         await this.checkPermissions({guild, channel, author, member});
 
-        await sc.delete(database_url);
+        await sc.delete(options.database_url);
         serverConfig.delete(guild.id);
 
         return {content: i18n('server.resetconfig.success', sc?.lang)};
