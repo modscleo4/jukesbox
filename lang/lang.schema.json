@@ -634,6 +634,9 @@
             },
             "errorEmbedDescription": {
               "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
             }
           },
           "required": [
@@ -645,7 +648,8 @@
             "playingMany",
             "searchingYT",
             "errorEmbedTitle",
-            "errorEmbedDescription"
+            "errorEmbedDescription",
+            "success"
           ]
         },
         "nowplaying": {

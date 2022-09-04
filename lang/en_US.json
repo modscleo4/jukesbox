@@ -161,7 +161,8 @@
       "playingMany": "`${n} songs in queue.`",
       "searchingYT": "'Searching on YouTube...'",
       "errorEmbedTitle": "'An error occoured.'",
-      "errorEmbedDescription": "`Error: ${e.message}\n\nVideo: **${song.title}** (${song.url})`"
+      "errorEmbedDescription": "`Error: ${e.message}\n\nVideo: **${song.title}** (${song.url})`",
+      "success": "`**${songTitle}** added to the queue.`"
     },
     "nowplaying": {
       "embedTitle": "'Currently playing:'",

@@ -161,7 +161,8 @@
       "playingMany": "`${n} músicas na fila.`",
       "searchingYT": "'Procurando no YouTube...'",
       "errorEmbedTitle": "'Eu não consigo clicar velho.'",
-      "errorEmbedDescription": "`Erro: ${e.message}\n\nVídeo: **${song.title}** (${song.url})`"
+      "errorEmbedDescription": "`Erro: ${e.message}\n\nVídeo: **${song.title}** (${song.url})`",
+      "success": "`**${songTitle}** tá na fila.`"
     },
     "nowplaying": {
       "embedTitle": "'Que porra de música é essa que tá tocando caraio!'",
