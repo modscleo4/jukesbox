@@ -66,6 +66,8 @@ export default new Command({
             throw new CommandExecutionError({content: i18n('music.seek.noTime', sc?.lang)});
         }
 
+        args[0] = args[0].toString();
+
         if (args[0].match(/^\+\d+$/)) {
             args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
         } else if (args[0].match(/^-\d+$/)) {

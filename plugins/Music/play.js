@@ -469,7 +469,7 @@ export default new Command({
                 });
 
                 await playSong({ client, guild, channel, author, member, sendMessage });
-                return { content: i18n('music.play.success', sc?.lang, { songTitle: songs[0].title }), deleteAfter: 5 };
+                return { content: i18n('music.play.success', sc?.lang, { songTitle: songs[0].title }) };
             } catch (err) {
                 console.error(err);
                 queue.delete(guild.id);
