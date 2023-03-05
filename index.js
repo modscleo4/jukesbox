@@ -168,7 +168,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             const args = interaction.data.options?.map(o => o.value) ?? [];
 
             try {
-                await Command.logUsage(interaction.data.name);
+                //await Command.logUsage(interaction.data.name);
                 await sendMessage(await command.fn({ client, guild, channel, author, member, sendMessage: sendChannelMessage }, args));
             } catch (e) {
                 if (e instanceof InsufficientBotPermissionsError) {
