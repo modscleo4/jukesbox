@@ -1,10 +1,16 @@
-FROM node:17
+FROM node:18-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-RUN apk update
-RUN apk add ffmpeg
+COPY . .
+RUN rm -f .env
 
-RUN npm ci
+RUN apk add --no-cache ffmpeg
+
+RUN apk add --no-cache build-base python3 ; \
+  npm ci; \
+  npm run build; \
+  npm prune --production; \
+  apk del build-base python3;
 
 CMD ["npm", "run", "start"]
