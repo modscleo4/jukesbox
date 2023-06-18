@@ -33,6 +33,7 @@ import {
     getSpotifyPlaylistItems,
     isValidHttpURL,
     searchVideo,
+    sleep,
     videoInfo
 } from "../../lib/utils.js";
 import Command, { OptionType } from "../../lib/Command.js";
@@ -42,6 +43,7 @@ import ServerConfig from "../../lib/ServerConfig.js";
 import nowplaying from "./nowplaying.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
+import join from "./join.js";
 
 const scdl = _scdl.default;
 
@@ -460,7 +462,12 @@ export default new Command({
             queue.set(guild.id, q);
 
             try {
-                q.connection = client.joinVoiceChannel({channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true});
+                q.connection = client.getVoiceChannel(guild.id);
+                if (!q.connection) {
+                    q.connection = client.joinVoiceChannel({channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true});
+
+                    await sleep(1000);
+                }
 
                 q.connection.on(VoiceConnectionStatus.Disconnected, async () => {
                     try {

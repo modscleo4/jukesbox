@@ -58,7 +58,7 @@ client.on('ready', async () => {
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if ((!newState.channel || newState.channel !== oldState.channel) && oldState.channel) {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
-            oldState.channel.leave();
+            client.leaveVoiceChannel(oldState.channel.guild.id);
         }
     }
 });
