@@ -22,11 +22,11 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {queue} from "../../global.js";
-import {getGeniusLyrics} from "../../lib/utils.js";
+import { queue } from "../../global.js";
+import { getGeniusLyrics } from "../../lib/utils.js";
 import Command from "../../lib/Command.js";
-import {options} from '../../config.js';
-import {serverConfig} from "../../global.js";
+import { options } from '../../config.js';
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -53,16 +53,16 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         let q;
         if (!args.length) {
             if (!serverQueue) {
-                throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+                throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
             }
 
             q = `${serverQueue.song.uploader} - ${serverQueue.song.title}`;
@@ -72,9 +72,9 @@ export default new Command({
 
         const lyrics = await getGeniusLyrics(options.geniusToken, q);
         if (!lyrics) {
-            throw new CommandExecutionError({content: i18n('music.lyrics.nothingFound', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.lyrics.nothingFound', sc?.lang) });
         }
 
-        return {content: lyrics};
+        return { content: lyrics };
     },
 });

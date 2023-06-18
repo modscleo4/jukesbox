@@ -20,11 +20,11 @@
 
 'use strict';
 
-import {execSync} from 'child_process';
+import { execSync } from 'child_process';
 
-import {options} from "../../config.js";
+import { options } from "../../config.js";
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -49,7 +49,7 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
         await client.user.setPresence({
@@ -63,24 +63,24 @@ export default new Command({
 
         try {
             const gitpull = execSync('git pull --rebase').toString();
-            await sendMessage({content: '```' + gitpull + '```'});
+            await sendMessage({ content: '```' + gitpull + '```' });
 
             try {
                 // Only run npm install if the dependencies were updated
                 if (gitpull.includes('package.json') || gitpull.includes('package-lock.json')) {
-                    await sendMessage({content: '```' + execSync('npm ci') + '```'});
+                    await sendMessage({ content: '```' + execSync('npm ci') + '```' });
                 }
             } catch (e) {
-                throw new CommandExecutionError({content: 'Error during npm ci: \n```' + e.message + '```'});
+                throw new CommandExecutionError({ content: 'Error during npm ci: \n```' + e.message + '```' });
             }
         } catch (e) {
-            throw new CommandExecutionError({content: 'Error during git pull: \n```' + e.message + '```'});
+            throw new CommandExecutionError({ content: 'Error during git pull: \n```' + e.message + '```' });
         }
 
         setTimeout(() => {
             process.exit(1);
         }, 1000);
 
-        return {content: i18n('admin.update.updating', sc?.lang)};
+        return { content: i18n('admin.update.updating', sc?.lang) };
     },
 });

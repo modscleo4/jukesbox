@@ -20,8 +20,8 @@
 
 'use strict';
 
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -111,17 +111,17 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!args[0]?.match(/\d+/gm)) {
-            throw new CommandExecutionError({content: i18n('mod.giverole.missingUser', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('mod.giverole.missingUser', sc?.lang) });
         }
 
         if (args.length < 2) {
-            throw new CommandExecutionError({content: i18n('mod.giverole.missingRole', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('mod.giverole.missingRole', sc?.lang) });
         }
 
         const userID = /(?<User>\d+)/gmi.exec(args.shift()).groups.User;
@@ -129,18 +129,18 @@ export default new Command({
         const roles = args.map(r => guild.roles.cache.find(g => g.name === r || g.id === r));
 
         if (!guildMember) {
-            throw new CommandExecutionError({content: i18n('mod.giverole.invalidUser', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('mod.giverole.invalidUser', sc?.lang) });
         }
 
         if (roles.includes(undefined)) {
-            throw new CommandExecutionError({content: i18n('mod.giverole.invalidRole', sc?.lang, {role: args[roles.indexOf(undefined)]})});
+            throw new CommandExecutionError({ content: i18n('mod.giverole.invalidRole', sc?.lang, { role: args[roles.indexOf(undefined)] }) });
         }
 
         if (roles.find(r => r && !r.editable)) {
-            throw new CommandExecutionError({content: i18n('mod.giverole.nonEditableRole', sc?.lang, {role: roles.find(r => !r.editable).name})});
+            throw new CommandExecutionError({ content: i18n('mod.giverole.nonEditableRole', sc?.lang, { role: roles.find(r => !r.editable).name }) });
         }
 
         await guildMember.roles.add(roles);
-        return {content: i18n('mod.giverole.success', sc?.lang, {user: guildMember.user.id})};
+        return { content: i18n('mod.giverole.success', sc?.lang, { user: guildMember.user.id }) };
     },
 });

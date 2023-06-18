@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { queue } from "../../global.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -53,24 +53,24 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         if (args.length === 0) {
-            throw new CommandExecutionError({content: i18n('music.seek.noTime', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.seek.noTime', sc?.lang) });
         }
 
         args[0] = args[0].toString();
 
         if (args[0].match(/^\+\d+$/)) {
-            args[0] = (Math.floor(1 / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
+            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
         } else if (args[0].match(/^-\d+$/)) {
-            args[0] = (Math.floor(1 / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
+            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
         }
 
         const s = Math.min((Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, serverQueue.song.duration);

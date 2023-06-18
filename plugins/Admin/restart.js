@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {options} from "../../config.js";
+import { options } from "../../config.js";
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 
 export default new Command({
@@ -46,13 +46,13 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
         setTimeout(() => {
             process.exit(1);
         }, 1000);
 
-        return {content: i18n('admin.restart.restarting', sc?.lang)};
+        return { content: i18n('admin.restart.restarting', sc?.lang) };
     },
 });

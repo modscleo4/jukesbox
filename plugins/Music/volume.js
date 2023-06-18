@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {queue, serverConfig} from "../../global.js";
-import {options} from "../../config.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import { queue, serverConfig } from "../../global.js";
+import { options } from "../../config.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -57,15 +57,15 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const serverQueue = queue.get(guild.id);
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({ guild: guild.id, prefix: options.prefix });
 
         if (args.length === 0) {
-            throw new CommandExecutionError({content: i18n('music.volume.volume', sc?.lang, {volume: sc.volume})});
+            throw new CommandExecutionError({ content: i18n('music.volume.volume', sc?.lang, { volume: sc.volume }) });
         }
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         const volume = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 100);
 
@@ -78,6 +78,6 @@ export default new Command({
         serverConfig.set(guild.id, sc);
         await sc.save(options.database_url);
 
-        return {content: i18n('music.volume.success', sc?.lang)};
+        return { content: i18n('music.volume.success', sc?.lang) };
     },
 });

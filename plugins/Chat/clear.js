@@ -20,8 +20,8 @@
 
 'use strict';
 
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -66,13 +66,13 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!args[0]) {
-            throw new CommandExecutionError({content: i18n('chat.clear.noArgs', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('chat.clear.noArgs', sc?.lang) });
         }
 
         if (args[-1]) {
@@ -98,10 +98,10 @@ export default new Command({
         }
 
         for (const v of chunks) {
-            const messages = (await channel.messages.fetch({limit: v})).filter(/** @param {Message} m */ m => m.createdAt >= before_14 && (args[1] || !m.pinned)).map(m => m);
+            const messages = (await channel.messages.fetch({ limit: v })).filter(/** @param {Message} m */ m => m.createdAt >= before_14 && (args[1] || !m.pinned)).map(m => m);
             await channel.bulkDelete(messages).catch(() => { });
         }
 
-        return {content: i18n('chat.clear.deletedN', sc?.lang, {n}), deleteAfter: 1};
+        return { content: i18n('chat.clear.deletedN', sc?.lang, { n }), deleteAfter: 1 };
     }
 });

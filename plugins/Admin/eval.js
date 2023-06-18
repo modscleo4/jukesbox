@@ -21,7 +21,7 @@
 'use strict';
 
 import * as config from "../../config.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -55,17 +55,17 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = global.serverConfig.get(guild.id);
 
         if (args.length === 0) {
-            throw new CommandExecutionError({content: i18n('admin.eval.noArgs', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.eval.noArgs', sc?.lang) });
         }
 
         try {
-            return {content: `\`\`\`js\n${JSON.stringify(eval(args[0]), null, 2)}\n\`\`\``};
+            return { content: `\`\`\`js\n${JSON.stringify(eval(args[0]), null, 2)}\n\`\`\`` };
         } catch (e) {
-            throw new CommandExecutionError({content: `\`\`\`\n${e.stack}\n\`\`\``});
+            throw new CommandExecutionError({ content: `\`\`\`\n${e.stack}\n\`\`\`` });
         }
     },
 });

@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { queue } from "../../global.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -54,14 +54,14 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel({guild, member});
+        await this.checkVoiceChannel({ guild, member });
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         const skips = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length);
@@ -77,6 +77,6 @@ export default new Command({
         !serverQueue.playing && serverQueue.player?.unpause();
         serverQueue.player?.stop();
 
-        return {content: i18n('music.skip.success', sc?.lang)};
+        return { content: i18n('music.skip.success', sc?.lang) };
     },
 });

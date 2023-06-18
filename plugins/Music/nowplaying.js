@@ -22,10 +22,10 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {queue} from "../../global.js";
-import {parseMS} from "../../lib/utils.js";
+import { queue } from "../../global.js";
+import { parseMS } from "../../lib/utils.js";
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -54,29 +54,29 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         return {
             embeds: [new MessageEmbed({
                 title: i18n('music.nowplaying.embedTitle', sc?.lang),
                 url: serverQueue.song.url,
-                author: {name: serverQueue.song.addedBy.username, icon_url: serverQueue.song.addedBy.avatarURL()},
-                color: {yt: 'RED', sc: 'ORANGE', sp: 'GREEN'}[serverQueue.song.from],
+                author: { name: serverQueue.song.addedBy.username, icon_url: serverQueue.song.addedBy.avatarURL() },
+                color: { yt: 'RED', sc: 'ORANGE', sp: 'GREEN' }[serverQueue.song.from],
                 timestamp: new Date().toUTCString(),
-                thumbnail: {url: serverQueue.song.thumbnail},
+                thumbnail: { url: serverQueue.song.thumbnail },
                 description: serverQueue.song.title,
                 fields: [
-                    {name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader},
-                    {name: i18n('music.nowplaying.queuePos', sc?.lang), value: `${serverQueue.position + 1} / ${serverQueue.songs.length}`, inline: true},
-                    {name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.resource.playbackDuration + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true},
+                    { name: i18n('music.nowplaying.channel', sc?.lang), value: serverQueue.song.uploader },
+                    { name: i18n('music.nowplaying.queuePos', sc?.lang), value: `${serverQueue.position + 1} / ${serverQueue.songs.length}`, inline: true },
+                    { name: i18n('music.nowplaying.duration', sc?.lang), value: `${parseMS(serverQueue.resource.playbackDuration + serverQueue.startTime * 1000)} / ${parseMS(serverQueue.song.duration * 1000)}`, inline: true },
                 ],
             })]
         };

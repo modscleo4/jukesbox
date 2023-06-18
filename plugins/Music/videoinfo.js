@@ -22,10 +22,10 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {options} from "../../config.js";
-import {cutUntil, isValidHttpURL, parseMS, videoInfo} from "../../lib/utils.js";
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { options } from "../../config.js";
+import { cutUntil, isValidHttpURL, parseMS, videoInfo } from "../../lib/utils.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -60,16 +60,16 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!isValidHttpURL(args[0]) || !args[0].match(/(\/watch\?v=|youtu.be\/)/gmu)) {
-            throw new CommandExecutionError({content: i18n('music.videoinfo.invalidURL', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.videoinfo.invalidURL', sc?.lang) });
         }
 
-        const {VideoId} = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
+        const { VideoId } = /(\/watch\?v=|youtu.be\/)(?<VideoId>[^?&#]+)/gmu.exec(args[0]).groups;
         const songInfo = (await videoInfo(VideoId, {
             keys: options.ytapikeys,
             part: ['id', 'snippet', 'contentDetails', 'statistics'],
@@ -79,23 +79,23 @@ export default new Command({
         }))[0];
 
         if (!songInfo) {
-            throw new CommandExecutionError({content: i18n('music.videoinfo.error', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.videoinfo.error', sc?.lang) });
         }
 
         return {
             embeds: [new MessageEmbed({
                 title: i18n('music.videoinfo.embedTitle', sc?.lang),
                 url: songInfo.url,
-                author: {name: author.username, icon_url: author.avatarURL()},
+                author: { name: author.username, icon_url: author.avatarURL() },
                 timestamp: new Date().toUTCString(),
-                thumbnail: {url: songInfo.snippet.thumbnails.high.url},
+                thumbnail: { url: songInfo.snippet.thumbnails.high.url },
                 description: songInfo.snippet.title,
                 fields: [
-                    {name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true},
-                    {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000).toString(), inline: true},
-                    {name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
-                    {name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true},
-                    {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
+                    { name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true },
+                    { name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000).toString(), inline: true },
+                    { name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)' },
+                    { name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true },
+                    { name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true },
                 ],
             })]
         };

@@ -22,11 +22,11 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {options} from "../../config.js";
-import {searchVideo} from "../../lib/utils.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import { options } from "../../config.js";
+import { searchVideo } from "../../lib/utils.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import play from "./play.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -78,12 +78,12 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkVoiceChannel({guild, member});
+        await this.checkVoiceChannel({ guild, member });
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         /**
          * @type {'video'|'playlist'}
@@ -105,7 +105,7 @@ export default new Command({
         }
 
         if (!args[0]) {
-            throw new CommandExecutionError({content: i18n('music.search.noArgs', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.search.noArgs', sc?.lang) });
         }
 
         const results = await searchVideo(args.join(' '), {
@@ -116,14 +116,14 @@ export default new Command({
         });
 
         if (results.length === 0) {
-            throw new CommandExecutionError({content: i18n('music.search.nothingFound', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.search.nothingFound', sc?.lang) });
         }
 
         const reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].splice(0, results.length);
 
         const msg = new MessageEmbed({
             title: i18n('music.search.embedTitle', sc?.lang),
-            author: {name: author.username, icon_url: author.avatarURL()},
+            author: { name: author.username, icon_url: author.avatarURL() },
             timestamp: new Date().toUTCString(),
             description: results.map((r, i) => `**${i + 1}** - [${r.snippet.title}](${r.url}) | ${r.snippet.channelTitle}`).join('\n\n'),
         });
@@ -133,9 +133,9 @@ export default new Command({
             reactions,
             timer: 1,
             lockAuthor: true,
-            onReact: async ({reaction, stop}) => {
+            onReact: async ({ reaction, stop }) => {
                 stop();
-                sendMessage(await play.fn({client, guild, channel, author, member, sendMessage}, [results[reactions.indexOf(reaction.emoji.name)].url]));
+                sendMessage(await play.fn({ client, guild, channel, author, member, sendMessage }, [results[reactions.indexOf(reaction.emoji.name)].url]));
             },
             deleteOnEnd: true,
         };

@@ -22,9 +22,9 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {serverConfig} from "../../global.js";
-import {options} from "../../config.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
+import { options } from "../../config.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -103,13 +103,13 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverPrefix = sc?.prefix ?? options.prefix;
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
-        const description = i18n('help.help.longDescription', sc?.lang, {serverPrefix});
+        const description = i18n('help.help.longDescription', sc?.lang, { serverPrefix });
 
         const commands = client.commands;
         const aliases = client.aliases;
@@ -117,26 +117,26 @@ export default new Command({
         if (args.length > 0) {
             for (let i = 0; i < args.length; i++) {
                 if (!(args[i] in commands) && !(args[i] in aliases) || ((commands[args[i]] ?? commands[aliases[args[i]]]).only && !(commands[args[i]] ?? commands[aliases[args[i]]]).only.includes(author.id))) {
-                    throw new CommandExecutionError({content: i18n('help.help.commandNotFound', sc?.lang, {command: args[i]})});
+                    throw new CommandExecutionError({ content: i18n('help.help.commandNotFound', sc?.lang, { command: args[i] }) });
                 }
             }
 
-            let desc = i18n('help.help.shortDescription', sc?.lang, {serverPrefix});
+            let desc = i18n('help.help.shortDescription', sc?.lang, { serverPrefix });
             for (let i = 0; i < args.length; i++) {
                 const command = commands[args[i]] ?? commands[aliases[args[i]]];
 
-                desc += i18n('help.help.detailedHelp', sc?.lang, {serverPrefix, command, sc, cmd: args[i] in aliases ? aliases[args[i]] : args[i]});
+                desc += i18n('help.help.detailedHelp', sc?.lang, { serverPrefix, command, sc, cmd: args[i] in aliases ? aliases[args[i]] : args[i] });
 
-                command.aliases.length > 0 && (desc += i18n('help.help.alias', sc?.lang, {aliases: command.aliases.map(a => `\`${a}\``).join(', ')}));
-                command.botPermissions && (desc += i18n('help.help.botPermissions', sc?.lang, {botPermissions: [...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
-                command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, {userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ')}));
+                command.aliases.length > 0 && (desc += i18n('help.help.alias', sc?.lang, { aliases: command.aliases.map(a => `\`${a}\``).join(', ') }));
+                command.botPermissions && (desc += i18n('help.help.botPermissions', sc?.lang, { botPermissions: [...(command.botPermissions.server ?? []), ...(command.botPermissions.text ?? []), ...(command.botPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ') }));
+                command.userPermissions && (desc += i18n('help.help.userPermissions', sc?.lang, { userPermissions: [...(command.userPermissions.server ?? []), ...(command.userPermissions.text ?? []), ...(command.userPermissions.voice ?? [])].map(p => `\`${p}\``).join(', ') }));
             }
 
             return {
                 embeds: [new MessageEmbed({
                     title: i18n('help.help.embedTitle', sc?.lang),
                     description: desc,
-                    author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                    author: { name: client.user.username, icon_url: client.user.avatarURL() },
                     timestamp: new Date().toUTCString(),
                 })]
             };
@@ -147,8 +147,8 @@ export default new Command({
          */
         const cmds = [];
         Object.keys(client.categoriesCommands).forEach((cat, i, arr) => {
-            const category = {...client.categoriesCommands[cat]};
-            const c = {name: cat, value: '', inline: false};
+            const category = { ...client.categoriesCommands[cat] };
+            const c = { name: cat, value: '', inline: false };
 
             for (const cmd in category) {
                 const command = category[cmd];
@@ -157,14 +157,14 @@ export default new Command({
                     continue;
                 }
 
-                c.value += i18n('help.help.shortHelp', sc?.lang, {serverPrefix, cmd, command, sc, aliases: command.aliases.map(a => `,,,${a},,,`).join(', ')}) + '\n';
+                c.value += i18n('help.help.shortHelp', sc?.lang, { serverPrefix, cmd, command, sc, aliases: command.aliases.map(a => `,,,${a},,,`).join(', ') }) + '\n';
             }
 
             if (c.value.length > 0) {
                 cmds.push(c);
 
                 if (i < arr.length - 1) {
-                    cmds.push({name: '\u200B', value: '\u200B'});
+                    cmds.push({ name: '\u200B', value: '\u200B' });
                 }
             }
         });
@@ -173,7 +173,7 @@ export default new Command({
             embeds: [new MessageEmbed({
                 title: i18n('help.help.embedTitle', sc?.lang),
                 description,
-                author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                author: { name: client.user.username, icon_url: client.user.avatarURL() },
                 timestamp: new Date().toUTCString(),
                 fields: cmds,
             })]

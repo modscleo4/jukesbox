@@ -22,7 +22,7 @@
 
 import * as config from "../../config.js";
 import Message from "../../lib/Message.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import * as global from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -63,26 +63,26 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = global.serverConfig.get(guild.id);
 
         if (args.length === 0) {
-            throw new CommandExecutionError({content: i18n('admin.changecfg.noArgs', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.changecfg.noArgs', sc?.lang) });
         }
 
         const cfg = config.configOptions.find(c => c.value === args[0]);
         if (!cfg) {
-            throw new CommandExecutionError({content: i18n('admin.changecfg.invalidCfg', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.changecfg.invalidCfg', sc?.lang) });
         }
 
         if (args.length < 2) {
-            throw new CommandExecutionError({content: i18n('admin.changecfg.noVal', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.changecfg.noVal', sc?.lang) });
         }
 
         process.env[cfg.envName] = args[1];
 
         config.reloadConfig();
 
-        return {content: i18n('admin.changecfg.success', sc?.lang)};
+        return { content: i18n('admin.changecfg.success', sc?.lang) };
     },
 });

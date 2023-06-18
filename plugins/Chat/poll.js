@@ -22,8 +22,8 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -118,25 +118,25 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (args.length < 1) {
-            throw new CommandExecutionError({content: i18n('chat.poll.missingTitle', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('chat.poll.missingTitle', sc?.lang) });
         }
 
         if (args.length < 2) {
-            throw new CommandExecutionError({content: i18n('chat.poll.missingTimer', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('chat.poll.missingTimer', sc?.lang) });
         }
 
         if (isNaN(parseInt(args[1])) || parseInt(args[1]) < 0 || parseInt(args[1]) > 15) {
-            throw new CommandExecutionError({content: i18n('chat.poll.invalidTimer', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('chat.poll.invalidTimer', sc?.lang) });
         }
 
         if (args.length < 4) {
-            throw new CommandExecutionError({content: i18n('chat.poll.missingOptions', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('chat.poll.missingOptions', sc?.lang) });
         }
 
         const title = args.splice(0, 1)[0];
@@ -150,17 +150,17 @@ export default new Command({
         return {
             embeds: [new MessageEmbed({
                 title,
-                author: {name: client.user.username, icon_url: client.user.avatarURL()},
+                author: { name: client.user.username, icon_url: client.user.avatarURL() },
                 timestamp: new Date().toUTCString(),
                 description: args.map((r, i) => `**${i + 1}** - ${r}`).join('\n\n'),
             })],
             reactions,
             timer,
-            onReact: async ({reaction, user, message, add}) => {
+            onReact: async ({ reaction, user, message, add }) => {
                 results[reactions.indexOf(reaction.emoji.name)] += add ? 1 : -1;
             },
-            onEndReact: async ({message}) => {
-                await channel.send(i18n('chat.poll.results', sc?.lang, {results: results.map((v, i) => ({key: args[i], val: v})).sort((a, b) => b.val - a.val)}));
+            onEndReact: async ({ message }) => {
+                await channel.send(i18n('chat.poll.results', sc?.lang, { results: results.map((v, i) => ({ key: args[i], val: v })).sort((a, b) => b.val - a.val) }));
             },
         };
     },

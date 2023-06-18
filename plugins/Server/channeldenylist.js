@@ -21,8 +21,8 @@
 'use strict';
 
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
-import {options} from "../../config.js";
+import { serverConfig } from "../../global.js";
+import { options } from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
@@ -50,15 +50,15 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({ guild: guild.id, prefix: options.prefix });
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!sc.channelDenies[channel.id]?.size) {
-            throw new CommandExecutionError({content: i18n('server.channeldenylist.noBlocked', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('server.channeldenylist.noBlocked', sc?.lang) });
         }
 
-        return {content: i18n('server.channeldenylist.list', sc?.lang, {cmds: Array.from(sc.channelDenies[channel.id]).map(c => `\`${c}\``)})};
+        return { content: i18n('server.channeldenylist.list', sc?.lang, { cmds: Array.from(sc.channelDenies[channel.id]).map(c => `\`${c}\``) }) };
     },
 });

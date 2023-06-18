@@ -20,6 +20,6 @@
 
 'use strict';
 
-export {default as giverole} from "./giverole.js";
-export {default as rmrole} from "./rmrole.js";
-export {default as userinfo} from "./userinfo.js";
+export { default as giverole } from "./giverole.js";
+export { default as rmrole } from "./rmrole.js";
+export { default as userinfo } from "./userinfo.js";

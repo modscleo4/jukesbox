@@ -20,11 +20,11 @@
 
 'use strict';
 
-import {options} from "../../config.js";
-import {serverConfig} from "../../global.js";
-import {statSync, readdirSync} from 'fs';
+import { options } from "../../config.js";
+import { serverConfig } from "../../global.js";
+import { statSync, readdirSync } from 'fs';
 import Message from "../../lib/Message.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -49,14 +49,14 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
         const logs = readdirSync('./logs/');
         if (logs.length === 0 || logs.at(-1) === '.gitkeep' || !statSync('./logs/' + logs.at(-1)).isFile()) {
-            throw new CommandExecutionError({content: i18n('admin.log.noLogs', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.log.noLogs', sc?.lang) });
         }
 
-        return {files: ['./logs/' + logs.at(-1)]};
+        return { files: ['./logs/' + logs.at(-1)] };
     },
 });

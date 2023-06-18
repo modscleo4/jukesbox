@@ -159,8 +159,15 @@ export const configOptions = [
  * Loads the ENV vars
  */
 export function reloadConfig() {
-    dotenv.config({override: true});
+    dotenv.config({ override: true });
 
+    /**
+     *
+     * @param {string} type
+     * @param {*} value
+     * @param {string|undefined} arrayDelimiter
+     * @returns
+     */
     function parseType(type, value, arrayDelimiter) {
         switch (type) {
             case 'boolean':
@@ -168,7 +175,7 @@ export function reloadConfig() {
             case 'number':
                 return Number(value);
             case 'array':
-                return value.split(arrayDelimiter);
+                return value?.split(arrayDelimiter) ?? [];
         }
 
         return value;

@@ -22,11 +22,11 @@
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
 
-import {serverConfig} from "../../global.js";
-import {options} from "../../config.js";
-import Command, {OptionType} from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
+import { options } from "../../config.js";
+import Command, { OptionType } from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
-import {loadUsageStats} from "../../lib/utils.js";
+import { loadUsageStats } from "../../lib/utils.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
 export default new Command({
@@ -52,14 +52,14 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         const stats = (await loadUsageStats(options.database_url)).sort((a, b) => b.used - a.used);
         if (stats.length === 0) {
-            throw new CommandExecutionError({content: i18n('admin.usagestats.noStats', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('admin.usagestats.noStats', sc?.lang) });
         }
 
         const cmds = [
@@ -74,7 +74,7 @@ export default new Command({
             embeds: [new MessageEmbed({
                 title: i18n('admin.usagestats.embedTitle', sc?.lang),
                 description: '',
-                author: {name: client.user.username, iconURL: client.user.avatarURL()},
+                author: { name: client.user.username, iconURL: client.user.avatarURL() },
                 timestamp: new Date(),
                 fields: cmds,
             })]

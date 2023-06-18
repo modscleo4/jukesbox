@@ -20,7 +20,7 @@
 
 'use strict';
 
-import Command, {OptionType} from '../../lib/Command.js';
+import Command, { OptionType } from '../../lib/Command.js';
 import play from './play.js';
 
 export default new Command({
@@ -57,8 +57,8 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         args[-1] = 'playlist';
-        return await play.fn({client, guild, channel, author, member, sendMessage}, args);
+        return await play.fn({ client, guild, channel, author, member, sendMessage }, args);
     },
 });

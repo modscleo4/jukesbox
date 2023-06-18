@@ -20,9 +20,9 @@
 
 'use strict';
 
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
-import {options} from "../../config.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
+import { options } from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 
@@ -66,10 +66,10 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({ guild: guild.id, prefix: options.prefix });
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (args.length === 0) {
             return {
@@ -87,6 +87,6 @@ export default new Command({
         await sc.save(options.database_url);
         serverConfig.delete(guild.id);
 
-        return {content: i18n('server.telemetry.success', sc?.lang)};
+        return { content: i18n('server.telemetry.success', sc?.lang) };
     },
 });

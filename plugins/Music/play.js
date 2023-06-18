@@ -99,9 +99,9 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    serverQueue.resource = createAudioResource(serverQueue.song.stream, {inlineVolume: true});
+    serverQueue.resource = createAudioResource(serverQueue.song.stream, { inlineVolume: true });
 
-    serverQueue.player = createAudioPlayer({behaviors: {noSubscriber: NoSubscriberBehavior.Stop}});
+    serverQueue.player = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Stop } });
     voiceConnections.get(guild.id)?.subscribe(serverQueue.player);
 
     serverQueue.player.once(AudioPlayerStatus.Idle, async () => {
@@ -125,19 +125,19 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     serverQueue.player.on('error', async e => {
         console.error(e);
 
-        if ((e.message.includes('Status code: 403') || e.message.includes('input stream: aborted')) && tries > 0) {
-            if (serverQueue.player.streamTime) {
+        if ((e.message.includes('Status code: 403') || e.message === 'aborted') && tries > 0) {
+            if (serverQueue.resource.playbackDuration) {
                 if (!serverQueue.song.seek) {
                     serverQueue.song.seek = 0;
                 }
 
                 // If at least 10 seconds have passed since the song last failed
-                if (Math.abs(serverQueue.lastPlaybackTime - serverQueue.player.streamTime) > 10000) {
+                if (Math.abs(serverQueue.lastPlaybackTime - serverQueue.resource.playbackDuration) > 10000) {
                     tries = MAX_TRIES;
                 }
 
-                serverQueue.song.seek += Math.floor(serverQueue.player.streamTime / 1000);
-                serverQueue.lastPlaybackTime = serverQueue.player.streamTime;
+                serverQueue.song.seek += Math.floor(serverQueue.resource.playbackDuration / 1000);
+                serverQueue.lastPlaybackTime = serverQueue.resource.playbackDuration;
                 serverQueue.runSeek = true;
             }
 
@@ -464,9 +464,9 @@ export default new Command({
             try {
                 q.connection = client.getVoiceChannel(guild.id);
                 if (!q.connection) {
-                    q.connection = client.joinVoiceChannel({channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true});
+                    q.connection = client.joinVoiceChannel({ channelId: member.voice.channel.id, guildId: guild.id, adapterCreator: guild.voiceAdapterCreator, selfDeaf: true });
 
-                    await sleep(1000);
+                    await new Promise((resolve, reject) => q.connection.on(VoiceConnectionStatus.Ready, resolve));
                 }
 
                 q.connection.on(VoiceConnectionStatus.Disconnected, async () => {

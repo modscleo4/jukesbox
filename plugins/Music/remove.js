@@ -20,10 +20,10 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
+import { queue } from "../../global.js";
 import Command from "../../lib/Command.js";
 import skip from "./skip.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -47,22 +47,22 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         const toRemove = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) > 0) ? parseInt(args[0]) : 1, serverQueue.songs.length - 1);
 
         if (toRemove === 0) {
-            return await skip.fn({client, guild, channel, author, member, sendMessage}, args);
+            return await skip.fn({ client, guild, channel, author, member, sendMessage }, args);
         }
 
         serverQueue.songs.splice(toRemove, 1);
 
-        return {content: i18n('music.remove.success', sc?.lang)};
+        return { content: i18n('music.remove.success', sc?.lang) };
     },
 });

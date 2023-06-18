@@ -20,10 +20,10 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
-import {pageEmbed, parseMS} from "../../lib/utils.js";
+import { queue } from "../../global.js";
+import { pageEmbed, parseMS } from "../../lib/utils.js";
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -50,21 +50,21 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         const songs = serverQueue.songs.map((s, i) => {
-            return {name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader + "\n" + parseMS(1000 * s.duration)};
+            return { name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader + "\n" + parseMS(1000 * s.duration) };
         });
         const time = parseMS(1000 * serverQueue.songs.reduce((acc, v) => acc + v.duration, 0) - (serverQueue.player.streamTime + serverQueue.startTime * 1000)).toString();
 
-        return await pageEmbed({client}, {title: i18n('music.queue.embedTitle', sc?.lang), description: i18n('music.queue.description', sc?.lang, {time}), content: songs});
+        return await pageEmbed({ client }, { title: i18n('music.queue.embedTitle', sc?.lang), description: i18n('music.queue.description', sc?.lang, { time }), content: songs });
     },
 });

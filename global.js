@@ -22,7 +22,7 @@
 
 import ServerQueue from "./lib/ServerQueue.js";
 import ServerConfig from "./lib/ServerConfig.js";
-import {VoiceConnection} from "@discordjs/voice";
+import { VoiceConnection } from "@discordjs/voice";
 
 /**
  *

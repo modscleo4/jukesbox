@@ -20,9 +20,9 @@
 
 'use strict';
 
-import Command, {OptionType} from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
-import {options} from "../../config.js";
+import Command, { OptionType } from "../../lib/Command.js";
+import { serverConfig } from "../../global.js";
+import { options } from "../../config.js";
 import ServerConfig from "../../lib/ServerConfig.js";
 import i18n from "../../lang/lang.js";
 import MessageEmbed from "../../lib/MessageEmbed.js";
@@ -67,17 +67,17 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
-        const sc = serverConfig.get(guild.id) ?? new ServerConfig({guild: guild.id, prefix: options.prefix});
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
+        const sc = serverConfig.get(guild.id) ?? new ServerConfig({ guild: guild.id, prefix: options.prefix });
 
         const subcommands = {
             async roles() {
                 return {
                     embeds: [new MessageEmbed({
-                        title: i18n('server.serverinfo.roles_embedTitle', sc?.lang, {serverName: guild.name}),
-                        author: {name: author.username, icon_url: author.avatarURL()},
+                        title: i18n('server.serverinfo.roles_embedTitle', sc?.lang, { serverName: guild.name }),
+                        author: { name: author.username, icon_url: author.avatarURL() },
                         timestamp: new Date().toUTCString(),
-                        thumbnail: {url: guild.iconURL()},
+                        thumbnail: { url: guild.iconURL() },
                         description: guild.roles.cache.map(r => `\`${r.name}\``).join(' '),
                     })]
                 };
@@ -86,17 +86,17 @@ export default new Command({
             async emojis() {
                 return {
                     embeds: [new MessageEmbed({
-                        title: i18n('server.serverinfo.emojis_embedTitle', sc?.lang, {serverName: guild.name}),
-                        author: {name: author.username, icon_url: author.avatarURL()},
+                        title: i18n('server.serverinfo.emojis_embedTitle', sc?.lang, { serverName: guild.name }),
+                        author: { name: author.username, icon_url: author.avatarURL() },
                         timestamp: new Date().toUTCString(),
-                        thumbnail: {url: guild.iconURL()},
+                        thumbnail: { url: guild.iconURL() },
                         description: guild.emojis.cache.map(e => e.toString()).join(' '),
                     })]
                 };
             },
         };
 
-        await this.checkPermissions({guild, channel, author, member});
+        await this.checkPermissions({ guild, channel, author, member });
 
         if (args[0] && args[0] in subcommands) {
             return await subcommands[args[0]]();
@@ -105,19 +105,19 @@ export default new Command({
         return {
             embeds: [new MessageEmbed({
                 title: guild.name,
-                author: {name: author.username, icon_url: author.avatarURL()},
+                author: { name: author.username, icon_url: author.avatarURL() },
                 timestamp: new Date().toUTCString(),
-                thumbnail: {url: guild.iconURL()},
+                thumbnail: { url: guild.iconURL() },
                 fields: [
-                    {name: i18n('server.serverinfo.owner', sc?.lang), value: `<@!${guild.ownerId}>`, inline: true},
-                    {name: i18n('server.serverinfo.id', sc?.lang), value: guild.id, inline: true},
-                    {name: i18n('server.serverinfo.members', sc?.lang), value: guild.memberCount, inline: true},
-                    {name: '\u200B', value: '\u200B', inline: false},
-                    {name: i18n('server.serverinfo.textChannels', sc?.lang), value: guild.channels.cache.filter(k => k.type === 'GUILD_TEXT').size, inline: true},
-                    {name: i18n('server.serverinfo.voiceChannels', sc?.lang), value: guild.channels.cache.filter(k => k.type === 'GUILD_VOICE').size, inline: true},
-                    {name: i18n('server.serverinfo.afkChannel', sc?.lang), value: guild.afkChannel?.name ?? i18n('server.serverinfo.noAfkChannel', sc?.lang), inline: true},
-                    {name: i18n('server.serverinfo.roles', sc?.lang), value: guild.roles.cache.size, inline: true},
-                    {name: i18n('server.serverinfo.emojis', sc?.lang), value: guild.emojis.cache.size, inline: true},
+                    { name: i18n('server.serverinfo.owner', sc?.lang), value: `<@!${guild.ownerId}>`, inline: true },
+                    { name: i18n('server.serverinfo.id', sc?.lang), value: guild.id, inline: true },
+                    { name: i18n('server.serverinfo.members', sc?.lang), value: guild.memberCount, inline: true },
+                    { name: '\u200B', value: '\u200B', inline: false },
+                    { name: i18n('server.serverinfo.textChannels', sc?.lang), value: guild.channels.cache.filter(k => k.type === 'GUILD_TEXT').size, inline: true },
+                    { name: i18n('server.serverinfo.voiceChannels', sc?.lang), value: guild.channels.cache.filter(k => k.type === 'GUILD_VOICE').size, inline: true },
+                    { name: i18n('server.serverinfo.afkChannel', sc?.lang), value: guild.afkChannel?.name ?? i18n('server.serverinfo.noAfkChannel', sc?.lang), inline: true },
+                    { name: i18n('server.serverinfo.roles', sc?.lang), value: guild.roles.cache.size, inline: true },
+                    { name: i18n('server.serverinfo.emojis', sc?.lang), value: guild.emojis.cache.size, inline: true },
                     {
                         name: i18n('server.serverinfo.createdAt', sc?.lang),
                         value: new Intl.DateTimeFormat('pt-br', {
@@ -129,10 +129,10 @@ export default new Command({
                         }).format(guild.createdAt),
                         inline: true
                     },
-                    {name: '\u200B', value: '\u200B', inline: false},
-                    {name: i18n('server.serverinfo.prefix', sc?.lang), value: sc?.prefix ?? options.prefix, inline: true},
-                    {name: i18n('server.serverinfo.lang', sc?.lang), value: sc?.lang ?? 'pt_BR', inline: true},
-                    {name: i18n('server.serverinfo.telemetry', sc?.lang), value: [i18n('minimal', sc?.lang), i18n('full', sc?.lang)][sc?.telemetryLevel ?? 1], inline: true},
+                    { name: '\u200B', value: '\u200B', inline: false },
+                    { name: i18n('server.serverinfo.prefix', sc?.lang), value: sc?.prefix ?? options.prefix, inline: true },
+                    { name: i18n('server.serverinfo.lang', sc?.lang), value: sc?.lang ?? 'pt_BR', inline: true },
+                    { name: i18n('server.serverinfo.telemetry', sc?.lang), value: [i18n('minimal', sc?.lang), i18n('full', sc?.lang)][sc?.telemetryLevel ?? 1], inline: true },
                 ],
             })]
         };

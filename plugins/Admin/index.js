@@ -20,13 +20,13 @@
 
 'use strict';
 
-export {default as botinfo} from "./botinfo.js";
-export {default as restart} from "./restart.js";
-export {default as reload} from "./reload.js";
-export {default as eval} from "./eval.js";
-export {default as clearcache} from "./clearcache.js";
-export {default as registercommands} from "./registercommands.js";
-export {default as update} from "./update.js";
-export {default as usagestats} from "./usagestats.js";
-export {default as log} from "./log.js";
-export {default as changecfg} from "./changecfg.js";
+export { default as botinfo } from "./botinfo.js";
+export { default as restart } from "./restart.js";
+export { default as reload } from "./reload.js";
+export { default as eval } from "./eval.js";
+export { default as clearcache } from "./clearcache.js";
+export { default as registercommands } from "./registercommands.js";
+export { default as update } from "./update.js";
+export { default as usagestats } from "./usagestats.js";
+export { default as log } from "./log.js";
+export { default as changecfg } from "./changecfg.js";

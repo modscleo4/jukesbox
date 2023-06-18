@@ -20,9 +20,9 @@
 
 'use strict';
 
-import {queue} from "../../global.js";
+import { queue } from "../../global.js";
 import Command from "../../lib/Command.js";
-import {serverConfig} from "../../global.js";
+import { serverConfig } from "../../global.js";
 import i18n from "../../lang/lang.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
 
@@ -45,22 +45,22 @@ export default new Command({
      * @param {string[]} args
      * @return {Promise<import('../../lib/Command.js').CommandReturn>}
      */
-    async fn({client, guild, channel, author, member, sendMessage}, args) {
+    async fn({ client, guild, channel, author, member, sendMessage }, args) {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        await this.checkVoiceChannel({guild, member});
+        await this.checkVoiceChannel({ guild, member });
 
         if (!serverQueue) {
-            throw new CommandExecutionError({content: i18n('music.queueEmpty', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 
         if (!serverQueue.playing) {
-            throw new CommandExecutionError({content: i18n('music.pause.alreadyPaused', sc?.lang)});
+            throw new CommandExecutionError({ content: i18n('music.pause.alreadyPaused', sc?.lang) });
         }
 
         serverQueue.player?.pause();
         serverQueue.playing = false;
-        return {content: i18n('music.pause.success', sc?.lang)};
+        return { content: i18n('music.pause.success', sc?.lang) };
     },
 });
