@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command from "../../lib/Command.js";
 import skip from "./skip.js";
 import {serverConfig} from "../../global.js";

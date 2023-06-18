@@ -20,11 +20,10 @@
 
 'use strict';
 
-import {MessageEmbed} from "discord.js";
+import MessageEmbed from "../../lib/MessageEmbed.js";
 
 import {options} from "../../config.js";
 import {cutUntil, isValidHttpURL, parseMS, videoInfo} from "../../lib/utils.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -87,17 +86,16 @@ export default new Command({
             embeds: [new MessageEmbed({
                 title: i18n('music.videoinfo.embedTitle', sc?.lang),
                 url: songInfo.url,
-                author: {name: author.username, iconURL: author.avatarURL()},
-                timestamp: new Date(),
+                author: {name: author.username, icon_url: author.avatarURL()},
+                timestamp: new Date().toUTCString(),
                 thumbnail: {url: songInfo.snippet.thumbnails.high.url},
                 description: songInfo.snippet.title,
                 fields: [
                     {name: i18n('music.videoinfo.channel', sc?.lang), value: songInfo.snippet.channelTitle, inline: true},
-                    {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000), inline: true},
+                    {name: i18n('music.videoinfo.duration', sc?.lang), value: parseMS(songInfo.duration * 1000).toString(), inline: true},
                     {name: i18n('music.videoinfo.description', sc?.lang), value: cutUntil(songInfo.snippet.description, 1024) || '(Sem descrição)'},
                     {name: i18n('music.videoinfo.views', sc?.lang), value: songInfo.statistics.viewCount, inline: true},
                     {name: i18n('music.videoinfo.likes', sc?.lang), value: songInfo.statistics.likeCount, inline: true},
-                    {name: i18n('music.videoinfo.dislikes', sc?.lang), value: songInfo.statistics.dislikeCount, inline: true},
                 ],
             })]
         };

@@ -21,7 +21,6 @@
 'use strict';
 
 import {queue} from "../../global.js";
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import i18n from "../../lang/lang.js";
@@ -69,15 +68,15 @@ export default new Command({
         args[0] = args[0].toString();
 
         if (args[0].match(/^\+\d+$/)) {
-            args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
+            args[0] = (Math.floor(1 / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
         } else if (args[0].match(/^-\d+$/)) {
-            args[0] = (Math.floor(serverQueue.player.streamTime / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
+            args[0] = (Math.floor(1 / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
         }
 
         const s = Math.min((Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, serverQueue.song.duration);
 
         serverQueue.song.seek = s;
         serverQueue.runSeek = true;
-        serverQueue.connection.dispatcher?.end();
+        serverQueue.player?.stop();
     },
 });

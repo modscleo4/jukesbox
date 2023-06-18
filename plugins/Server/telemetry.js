@@ -20,7 +20,6 @@
 
 'use strict';
 
-import Message from "../../lib/Message.js";
 import Command, {OptionType} from "../../lib/Command.js";
 import {serverConfig} from "../../global.js";
 import {options} from "../../config.js";
@@ -73,11 +72,13 @@ export default new Command({
         await this.checkPermissions({guild, channel, author, member});
 
         if (args.length === 0) {
-            return {content: i18n('server.telemetry.telemetryLevel', sc?.lang, {
-                minimal: i18n('minimal', sc?.lang),
-                full: i18n('full', sc?.lang),
-                telemetryLevel: sc.telemetryLevel,
-            })};
+            return {
+                content: i18n('server.telemetry.telemetryLevel', sc?.lang, {
+                    minimal: i18n('minimal', sc?.lang),
+                    full: i18n('full', sc?.lang),
+                    telemetryLevel: sc.telemetryLevel,
+                })
+            };
         }
 
         const telemetryLevel = Math.min((args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, 1);
