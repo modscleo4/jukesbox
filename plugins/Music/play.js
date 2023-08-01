@@ -50,7 +50,7 @@ const scdl = _scdl.default;
 const spotifyAPI = new SpotifyWebAPI({
     clientId: options.spclientID,
     clientSecret: options.spsecret,
-    redirectUri: 'http://jukesbox.herokuapp.com',
+    redirectUri: 'http://www.youtube.com',
 });
 
 const MAX_TRIES = 3;
@@ -107,7 +107,6 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     serverQueue.player.once(AudioPlayerStatus.Idle, async () => {
         serverQueue.playing = false;
 
-        // Why I didn't write "!serverQueue"? Because 0 is also false, but a valid value from .seek
         if (!serverQueue.runSeek) {
             if (!serverQueue.loop) {
                 serverQueue.songs.splice(serverQueue.position, 1);
@@ -122,11 +121,11 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         await playSong({ client, guild, channel, author, member, sendMessage });
     });
 
-    serverQueue.player.on('error', async e => {
+    serverQueue.player.once('error', async e => {
         console.error(e);
 
         if ((e.message.includes('Status code: 403') || e.message === 'aborted') && tries > 0) {
-            if (serverQueue.resource.playbackDuration) {
+            if (serverQueue.resource.playbackDuration && serverQueue.song) {
                 if (!serverQueue.song.seek) {
                     serverQueue.song.seek = 0;
                 }
@@ -141,9 +140,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
                 serverQueue.runSeek = true;
             }
 
-            setTimeout(async () => {
-                await playSong({ client, guild, channel, author, member, sendMessage }, tries - 1);
-            }, 1000);
+            await playSong({ client, guild, channel, author, member, sendMessage }, tries - 1);
             return null;
         }
 
@@ -231,7 +228,7 @@ async function findOnYT(song) {
             dlChunkSize: options.dlChunkSize,
             isHLS: songInfo.duration === 0,
             requestOptions: {
-                host: 'jukesbox.herokuapp.com',
+                host: 'www.youtube.com',
                 headers: {
                     cookie: options.ytcookies,
                 }
@@ -357,7 +354,7 @@ export default new Command({
                             dlChunkSize: options.dlChunkSize,
                             isHLS: songInfo.duration === 0,
                             requestOptions: {
-                                host: 'jukesbox.herokuapp.com',
+                                host: 'www.youtube.com',
                                 headers: {
                                     cookie: options.ytcookies,
                                 }
@@ -397,7 +394,7 @@ export default new Command({
                         dlChunkSize: options.dlChunkSize,
                         isHLS: songInfo.duration === 0,
                         requestOptions: {
-                            host: 'jukesbox.herokuapp.com',
+                            host: 'www.youtube.com',
                             headers: {
                                 cookie: options.ytcookies,
                             }
