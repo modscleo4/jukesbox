@@ -21,7 +21,7 @@
 'use strict';
 
 import MessageEmbed from "../../lib/MessageEmbed.js";
-import { createAudioPlayer, VoiceConnectionStatus, entersState, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } from "@discordjs/voice";
+import { createAudioPlayer, demuxProbe, VoiceConnectionStatus, entersState, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior } from "@discordjs/voice";
 import ytdl from "ytdl-core";
 import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
@@ -54,6 +54,16 @@ const spotifyAPI = new SpotifyWebAPI({
 });
 
 const MAX_TRIES = 3;
+
+/**
+ *
+ * @param {import('node:stream').Readable} readableStream
+ * @return {Promise<import('@discordjs/voice').AudioResource>}
+ */
+async function probeAndCreateResource(readableStream) {
+    const { stream, type } = await demuxProbe(readableStream);
+    return createAudioResource(stream, { inputType: type });
+}
 
 /**
  *
@@ -99,7 +109,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
 
-    serverQueue.resource = createAudioResource(serverQueue.song.stream, { inlineVolume: true });
+    serverQueue.resource = await probeAndCreateResource(serverQueue.song.stream);
 
     serverQueue.player = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Stop } });
     voiceConnections.get(guild.id)?.subscribe(serverQueue.player);
@@ -118,12 +128,12 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
             }
         }
 
+        serverQueue.player.removeAllListeners('error');
+
         await playSong({ client, guild, channel, author, member, sendMessage });
     });
 
     serverQueue.player.once('error', async e => {
-        console.error(e);
-
         if ((e.message.includes('Status code: 403') || e.message === 'aborted') && tries > 0) {
             if (serverQueue.resource.playbackDuration && serverQueue.song) {
                 if (!serverQueue.song.seek) {
@@ -139,6 +149,8 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
                 serverQueue.lastPlaybackTime = serverQueue.resource.playbackDuration;
                 serverQueue.runSeek = true;
             }
+
+            serverQueue.player.removeAllListeners(AudioPlayerStatus.Idle);
 
             await playSong({ client, guild, channel, author, member, sendMessage }, tries - 1);
             return null;
@@ -168,6 +180,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
 
         serverQueue.songs.shift();
         await playSong({ client, guild, channel, author, member, sendMessage });
+        return null;
     }
 
     serverQueue.player.play(serverQueue.resource);
