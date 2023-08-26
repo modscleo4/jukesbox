@@ -178,7 +178,8 @@
       "success": "'Successfully resumed the player.'"
     },
     "seek": {
-      "noTime": "'Please provide the timestamp in seconds first.'"
+      "noTime": "'Please provide the timestamp in seconds first.'",
+      "success": "`Seeked to ${time}s.`"
     },
     "stop": {
       "success": "'Successfully stopped the player and cleared the queue.'"

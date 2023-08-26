@@ -32,14 +32,6 @@ export default new Command({
         en_US: 'Resumes the playback.',
         pt_BR: 'Continua a reprodução da música.',
     },
-    options: [
-        {
-            name: 'n',
-            description: 'Number of songs to remove.',
-            type: OptionType.INTEGER,
-            required: true,
-        }
-    ],
 
     /**
      *

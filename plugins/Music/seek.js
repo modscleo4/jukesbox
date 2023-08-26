@@ -37,6 +37,26 @@ export default new Command({
             description: 'Seconds timestamp.',
             type: OptionType.INTEGER,
             required: true,
+        },
+        {
+            name: 'mode',
+            description: 'Seek mode.',
+            type: OptionType.STRING,
+            required: false,
+            choices: [
+                {
+                    name: 'Absolute',
+                    value: 'absolute',
+                },
+                {
+                    name: 'Advance',
+                    value: 'advance',
+                },
+                {
+                    name: 'Rewind',
+                    value: 'rewind',
+                },
+            ],
         }
     ],
 
@@ -65,12 +85,10 @@ export default new Command({
             throw new CommandExecutionError({ content: i18n('music.seek.noTime', sc?.lang) });
         }
 
-        args[0] = args[0].toString();
-
-        if (args[0].match(/^\+\d+$/)) {
-            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) + parseInt(args[0].slice(1))).toString();
-        } else if (args[0].match(/^-\d+$/)) {
-            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) - parseInt(args[0].slice(1))).toString();
+        if (args[1] === 'advance') {
+            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) + parseInt(args[0])).toString();
+        } else if (args[1] === 'rewind') {
+            args[0] = (Math.floor(serverQueue.resource.playbackDuration / 1000 + serverQueue.startTime) - parseInt(args[0])).toString();
         }
 
         const s = Math.min((Number.isInteger(parseInt(args[0])) && parseInt(args[0]) >= 0) ? parseInt(args[0]) : 0, serverQueue.song.duration);
@@ -78,5 +96,7 @@ export default new Command({
         serverQueue.song.seek = s;
         serverQueue.runSeek = true;
         serverQueue.player?.stop();
+
+        return { content: i18n('music.seek.success', sc?.lang, { time: s }) };
     },
 });

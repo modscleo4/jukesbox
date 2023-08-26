@@ -93,9 +93,9 @@ export default new Command({
             },
 
             async voicechannels() {
-                const voiceChannels = Array.from(voiceConnections).map(([_, vc]) => ({
+                const voiceChannels = Array.from(voiceConnections).map(([guildId, vc]) => ({
                     name: client.channels.cache.get(vc.joinConfig.channelId)?.name,
-                    value: i18n('admin.botinfo.serverName', sc?.lang, { server: client.guilds.cache.get(vc.joinConfig.guildId)?.name, queue: queue.get(g.channel.guild.id) }),
+                    value: i18n('admin.botinfo.serverName', sc?.lang, { server: client.guilds.cache.get(vc.joinConfig.guildId)?.name, queue: queue.get(guildId) }),
                 }));
 
                 if (voiceChannels.length === 0) {

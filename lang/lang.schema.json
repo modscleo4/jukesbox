@@ -710,10 +710,14 @@
           "properties": {
             "noTime": {
               "$ref": "#/definitions/entry"
+            },
+            "success": {
+              "$ref": "#/definitions/entry"
             }
           },
           "required": [
-            "noTime"
+            "noTime",
+            "success"
           ]
         },
         "stop": {

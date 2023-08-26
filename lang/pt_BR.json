@@ -178,7 +178,8 @@
       "success": "'Solta o filha da puta pra eu da um tiro na cabeça dele.'"
     },
     "seek": {
-      "noTime": "'Sem meu tempo eu não consigo.'"
+      "noTime": "'Sem meu tempo eu não consigo.'",
+      "success": "`Entrei no DeLorean carai, tocando nos ${time}s`"
     },
     "stop": {
       "success": "'Caralho filha da puta morre logo.'"

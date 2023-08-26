@@ -36,6 +36,7 @@ export default new Command({
             name: 'n',
             description: 'Number of songs to skip.',
             type: OptionType.INTEGER,
+            required: false,
         }
     ],
 

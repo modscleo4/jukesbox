@@ -25,6 +25,7 @@ import { createAudioPlayer, demuxProbe, VoiceConnectionStatus, entersState, crea
 import ytdl from "ytdl-core";
 import _scdl from "soundcloud-downloader";
 import SpotifyWebAPI from "spotify-web-api-node";
+import { Converter } from "ffmpeg-stream";
 
 import { queue, serverConfig, voiceConnections } from "../../global.js";
 import { options } from "../../config.js";
@@ -100,7 +101,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
 
         if (!found) {
             serverQueue.toDelete.push(await sendMessage({ content: i18n('music.play.nothingFound', sc?.lang) }));
-            serverQueue.songs.shift();
+            serverQueue.next();
             return await playSong({ client, guild, channel, author, member, sendMessage });
         }
 
@@ -108,49 +109,80 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     }
 
     serverQueue.song.stream = await serverQueue.song.fn(serverQueue.song.url, serverQueue.song.options);
+    if (!serverQueue.song.stream) {
+        await sendMessage({
+            embeds: [new MessageEmbed({
+                title: i18n('music.play.errorEmbedTitle', sc?.lang),
+                author: { name: client.user.username, icon_url: client.user.avatarURL() },
+                timestamp: new Date().toUTCString(),
+            })]
+        });
+
+        serverQueue.next();
+        await playSong({ client, guild, channel, author, member, sendMessage });
+        return null;
+    }
+
+    if (serverQueue.runSeek || serverQueue.startTime > 0) {
+        const converter = new Converter();
+
+        serverQueue.song.stream.pipe(converter.createInputStream({
+            f: 'webm',
+            ss: serverQueue.song.seek,
+        }));
+
+        serverQueue.song.stream = converter.createOutputStream({
+            f: 'webm',
+        });
+
+        converter.run();
+    }
 
     serverQueue.resource = await probeAndCreateResource(serverQueue.song.stream);
 
     serverQueue.player = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Stop } });
     voiceConnections.get(guild.id)?.subscribe(serverQueue.player);
 
+    let tm = null;
+
     serverQueue.player.once(AudioPlayerStatus.Idle, async () => {
         serverQueue.playing = false;
 
-        if (!serverQueue.runSeek) {
-            if (!serverQueue.loop) {
-                serverQueue.songs.splice(serverQueue.position, 1);
+        tm = setTimeout(async () => {
+            if (!serverQueue.runSeek) {
+                serverQueue.next();
             }
 
-            serverQueue.position = 0;
-            if (serverQueue.shuffle) {
-                serverQueue.position = Math.floor(Math.random() * serverQueue.songs.length);
-            }
-        }
+            serverQueue.song.stream.removeAllListeners('error');
+            serverQueue.player.removeAllListeners('error');
 
-        serverQueue.player.removeAllListeners('error');
-
-        await playSong({ client, guild, channel, author, member, sendMessage });
+            await playSong({ client, guild, channel, author, member, sendMessage });
+        }, 250);
     });
 
-    serverQueue.player.once('error', async e => {
-        if ((e.message.includes('Status code: 403') || e.message === 'aborted') && tries > 0) {
+    const errorHandler = async e => {
+        if (tries > 0) {
+            if (tm) {
+                clearTimeout(tm);
+            }
+
+            serverQueue.player.removeAllListeners(AudioPlayerStatus.Idle);
+            serverQueue.player.stop();
+
             if (serverQueue.resource.playbackDuration && serverQueue.song) {
                 if (!serverQueue.song.seek) {
                     serverQueue.song.seek = 0;
                 }
 
                 // If at least 10 seconds have passed since the song last failed
-                if (Math.abs(serverQueue.lastPlaybackTime - serverQueue.resource.playbackDuration) > 10000) {
-                    tries = MAX_TRIES;
+                if ((serverQueue.resource.playbackDuration + serverQueue.startTime * 1000) - serverQueue.lastPlaybackTime > 10000) {
+                    tries = MAX_TRIES + 1;
                 }
 
                 serverQueue.song.seek += Math.floor(serverQueue.resource.playbackDuration / 1000);
-                serverQueue.lastPlaybackTime = serverQueue.resource.playbackDuration;
+                serverQueue.lastPlaybackTime = serverQueue.resource.playbackDuration + serverQueue.startTime * 1000;
                 serverQueue.runSeek = true;
             }
-
-            serverQueue.player.removeAllListeners(AudioPlayerStatus.Idle);
 
             await playSong({ client, guild, channel, author, member, sendMessage }, tries - 1);
             return null;
@@ -165,9 +197,12 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
             })]
         });
 
-        serverQueue.songs.shift();
+        serverQueue.next();
         await playSong({ client, guild, channel, author, member, sendMessage });
-    });
+    };
+
+    serverQueue.song.stream.on('error', errorHandler);
+    serverQueue.player.on('error', errorHandler);
 
     if (!serverQueue.player) {
         await sendMessage({
@@ -178,7 +213,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
             })]
         });
 
-        serverQueue.songs.shift();
+        serverQueue.next();
         await playSong({ client, guild, channel, author, member, sendMessage });
         return null;
     }

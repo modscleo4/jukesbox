@@ -63,7 +63,7 @@ export default new Command({
         const songs = serverQueue.songs.map((s, i) => {
             return { name: `${i + 1}: [${s.title}](${s.url})`, value: s.uploader + "\n" + parseMS(1000 * s.duration) };
         });
-        const time = parseMS(1000 * serverQueue.songs.reduce((acc, v) => acc + v.duration, 0) - (serverQueue.player.streamTime + serverQueue.startTime * 1000)).toString();
+        const time = parseMS(1000 * serverQueue.songs.reduce((acc, v) => acc + v.duration, 0) - (serverQueue.resource.playbackDuration + serverQueue.startTime * 1000)).toString();
 
         return await pageEmbed({ client }, { title: i18n('music.queue.embedTitle', sc?.lang), description: i18n('music.queue.description', sc?.lang, { time }), content: songs });
     },
