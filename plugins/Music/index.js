@@ -38,3 +38,4 @@ export { default as remove } from "./remove.js";
 export { default as volume } from "./volume.js";
 export { default as queue } from "./queue.js";
 export { default as lyrics } from "./lyrics.js";
+export { default as euquero } from "./euquero.js";

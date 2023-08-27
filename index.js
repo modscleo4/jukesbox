@@ -21,7 +21,7 @@
 'use strict';
 
 import Client from "./lib/Client.js";
-import { serverConfig, messageAlert } from "./global.js";
+import { queue, serverConfig, messageAlert } from "./global.js";
 import { options } from "./config.js";
 import { loadServerConfig } from "./lib/utils.js";
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
@@ -53,11 +53,21 @@ client.on('ready', async () => {
     });
 
     console.log(`Stream do Jukera on.`);
+
+    client.commands.registercommands.fn({ client, guild: await client.guilds.fetch('727047750062964777'), channel: await (await client.guilds.fetch('727047750062964777')).channels.fetch('777791405988642816'), author: await client.users.fetch('334736345094160387'), member: await client.guilds.cache.get('727047750062964777')?.members.fetch(await client.users.fetch('334736345094160387')), sendMessage: null }, []);
 });
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if ((!newState.channel || newState.channel !== oldState.channel) && oldState.channel) {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user.id)) {
+            const serverQueue = queue.get(oldState.channel.guild.id);
+
+            if (serverQueue) {
+                serverQueue.songs = [];
+                serverQueue.connection?.destroy();
+                serverQueue.playing = false;
+            }
+
             client.leaveVoiceChannel(oldState.channel.guild.id);
         }
     }
@@ -160,6 +170,11 @@ client.on('interactionCreate', async interaction => {
 
             const command = client.commands[interaction.commandName];
             const args = interaction.options?.data.map(o => o.value) ?? [];
+
+            if (command.only && !command.only.includes(author.id)) {
+                await sendMessage({ content: i18n('only', sc?.lang) });
+                return;
+            }
 
             try {
                 Command.logUsage(interaction.commandName);

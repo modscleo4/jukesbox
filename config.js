@@ -24,22 +24,23 @@ import dotenv from "dotenv";
 
 /**
  * @typedef {Object} Options
- * @property {String} database_url
- * @property {String} prefix
+ * @property {string} database_url
+ * @property {string} prefix
  * @property {Number} highWaterMark
  * @property {Number} dlChunkSize
- * @property {String} token
- * @property {String[]} ytapikeys
- * @property {String} ytcookies
- * @property {String} scclientID
- * @property {String} spclientID
- * @property {String} spsecret
- * @property {String} geniusToken
- * @property {String} adminID
+ * @property {string} token
+ * @property {string[]} ytapikeys
+ * @property {string} ytcookies
+ * @property {string} scclientID
+ * @property {string} spclientID
+ * @property {string} spsecret
+ * @property {string} geniusToken
+ * @property {string} adminID
  * @property {Boolean} production
  * @property {Boolean} periodicallyClearCache
  * @property {Boolean} ignorePermissionsForAdmin
  * @property {Boolean} messageIntentAlert
+ * @property {string} bthURL
  */
 
 /**
@@ -152,6 +153,13 @@ export const configOptions = [
         envName: 'MESSAGE_INTENT_ALERT',
         type: 'boolean',
         default: false,
+    },
+    {
+        name: 'Bostil Top Hits URL',
+        value: 'bthURL',
+        envName: 'BTH_URL',
+        type: 'string',
+        default: '',
     },
 ];
 

@@ -60,6 +60,9 @@
     "full": {
       "$ref": "#/definitions/entry"
     },
+    "only": {
+      "$ref": "#/definitions/entry"
+    },
     "admin": {
       "$ref": "#/definitions/category",
       "properties": {
@@ -102,9 +105,6 @@
             "uuid": {
               "$ref": "#/definitions/entry"
             },
-            "server": {
-              "$ref": "#/definitions/entry"
-            },
             "ping": {
               "$ref": "#/definitions/entry"
             },
@@ -134,7 +134,6 @@
             "noEnvVars",
             "uptime",
             "uuid",
-            "server",
             "ping",
             "playingIn",
             "ram",
@@ -864,9 +863,6 @@
             "id": {
               "$ref": "#/definitions/entry"
             },
-            "region": {
-              "$ref": "#/definitions/entry"
-            },
             "members": {
               "$ref": "#/definitions/entry"
             },
@@ -909,7 +905,6 @@
             "emojis_embedTitle",
             "owner",
             "id",
-            "region",
             "members",
             "onlineMembers",
             "textChannels",
@@ -1068,6 +1063,7 @@
     "commandRestricted",
     "minimal",
     "full",
+    "only",
     "admin",
     "chat",
     "help",

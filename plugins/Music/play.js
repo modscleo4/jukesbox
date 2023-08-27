@@ -146,28 +146,39 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     let tm = null;
 
     serverQueue.player.once(AudioPlayerStatus.Idle, async () => {
-        serverQueue.playing = false;
-
         tm = setTimeout(async () => {
+            if (!tm) {
+                return;
+            }
+
+            serverQueue.playing = false;
+
+            serverQueue.song?.stream?.removeAllListeners('error');
+            serverQueue.player.removeAllListeners('error');
+
             if (!serverQueue.runSeek) {
                 serverQueue.next();
             }
-
-            serverQueue.song.stream.removeAllListeners('error');
-            serverQueue.player.removeAllListeners('error');
 
             await playSong({ client, guild, channel, author, member, sendMessage });
         }, 250);
     });
 
+    let handlingError = false;
     const errorHandler = async e => {
-        if (tries > 0) {
-            if (tm) {
-                clearTimeout(tm);
-            }
+        if (serverQueue.player.listenerCount('error') === 0 || handlingError) {
+            console.error(e);
+            return null;
+        }
 
+        handlingError = true;
+
+        if (tm) {
+            clearTimeout(tm);
+        }
+
+        if (tries > 0) {
             serverQueue.player.removeAllListeners(AudioPlayerStatus.Idle);
-            serverQueue.player.stop();
 
             if (serverQueue.resource.playbackDuration && serverQueue.song) {
                 if (!serverQueue.song.seek) {
@@ -175,7 +186,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
                 }
 
                 // If at least 10 seconds have passed since the song last failed
-                if ((serverQueue.resource.playbackDuration + serverQueue.startTime * 1000) - serverQueue.lastPlaybackTime > 10000) {
+                if (serverQueue.resource.playbackDuration > 10000) {
                     tries = MAX_TRIES + 1;
                 }
 
@@ -201,8 +212,8 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
         await playSong({ client, guild, channel, author, member, sendMessage });
     };
 
-    serverQueue.song.stream.on('error', errorHandler);
-    serverQueue.player.on('error', errorHandler);
+    serverQueue.song.stream.once('error', errorHandler);
+    serverQueue.player.once('error', errorHandler);
 
     if (!serverQueue.player) {
         await sendMessage({
@@ -219,6 +230,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage },
     }
 
     serverQueue.player.play(serverQueue.resource);
+    serverQueue.playing = true;
 
     serverQueue.runSeek = false;
     serverQueue.lastPlaybackTime = 0;

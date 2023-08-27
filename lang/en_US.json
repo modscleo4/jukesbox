@@ -13,6 +13,7 @@
   "commandRestricted": "':no_entry_sign: command blocked on this Text Channel.'",
   "minimal": "'Minimal'",
   "full": "'Full'",
+  "only": "'Restricted command.'",
   "admin": {
     "botinfo": {
       "embedTitle": "'Admin'",

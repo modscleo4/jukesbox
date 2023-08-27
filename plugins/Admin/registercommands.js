@@ -50,7 +50,7 @@ export default new Command({
         const sc = serverConfig.get(guild.id);
 
         Object.keys(client.categoriesCommands).filter(c => c !== 'Admin').map(c => client.categoriesCommands[c]).forEach(cmds => {
-            Object.keys(cmds).forEach(async cmdName => {
+            Object.keys(cmds).filter(cmdName => cmdName !== 'euquero').forEach(async cmdName => {
                 const cmd = cmds[cmdName];
                 await client.api.applications(client.user.id).commands.post({
                     data: {
