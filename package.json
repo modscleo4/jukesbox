@@ -42,7 +42,7 @@
     "soundcloud-downloader": "^1.0.0",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^6.0.3",
-    "ytdl-core": "^4.11.5",
+    "ytdl-core": "npm:@distube/ytdl-core@^4.13.0",
     "zlib-sync": "^0.1.8"
   },
   "devDependencies": {
