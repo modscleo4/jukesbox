@@ -6,9 +6,12 @@
     "type": "git",
     "url": "https://github.com/modscleo4/jukesbox"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node --trace-warnings --experimental-json-modules --expose-gc ."
+    "build": "tsc",
+    "dev": "tsc -w",
+    "start": "node --trace-warnings --experimental-json-modules --expose-gc .",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "discord",
@@ -26,28 +29,30 @@
   "type": "module",
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
+    "@distube/ytdl-core": "^4.13.0",
     "bufferutil": "^4.0.7",
-    "css-select": "^4.3.0",
-    "discord.js": "^13.6.0",
+    "css-select": "^5.1.0",
+    "discord.js": "^14.13.0",
     "domhandler": "^5.0.3",
-    "domutils": "2.8.0",
-    "dotenv": "^16.0.3",
+    "domutils": "3.1.0",
+    "dotenv": "^16.3.1",
     "ffmpeg-stream": "^0.7.0",
-    "googleapis": "^114.0.0",
-    "htmlparser2": "^7.2.0",
-    "libsodium-wrappers": "^0.7.11",
+    "googleapis": "^126.0.0",
+    "htmlparser2": "^9.0.0",
+    "libsodium-wrappers": "^0.7.13",
     "node-fetch": "^3.3.1",
     "opusscript": "^0.1.0",
-    "pg": "^8.10.0",
-    "soundcloud-downloader": "^1.0.0",
+    "pg": "^8.11.3",
+    "soundcloud.ts": "^0.5.2",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^6.0.3",
-    "ytdl-core": "npm:@distube/ytdl-core@^4.13.0",
+    "ytdl-core": "^4.11.5",
     "zlib-sync": "^0.1.8"
   },
   "devDependencies": {
-    "@types/pg": "^8.6.6",
-    "@types/spotify-web-api-node": "^5.0.7"
+    "@types/pg": "^8.10.2",
+    "@types/spotify-web-api-node": "^5.0.7",
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16",
