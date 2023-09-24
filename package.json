@@ -29,7 +29,8 @@
   "type": "module",
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
-    "@distube/ytdl-core": "^4.13.0",
+    "@distube/ytdl-core": "^4.13.2",
+    "@prisma/client": "^5.3.1",
     "bufferutil": "^4.0.7",
     "css-select": "^5.1.0",
     "discord.js": "^14.13.0",
@@ -43,6 +44,7 @@
     "node-fetch": "^3.3.1",
     "opusscript": "^0.1.0",
     "pg": "^8.11.3",
+    "prisma": "^5.3.1",
     "soundcloud.ts": "^0.5.2",
     "spotify-web-api-node": "^5.0.2",
     "utf-8-validate": "^6.0.3",
@@ -50,7 +52,7 @@
     "zlib-sync": "^0.1.8"
   },
   "devDependencies": {
-    "@types/pg": "^8.10.2",
+    "@types/pg": "^8.10.3",
     "@types/spotify-web-api-node": "^5.0.7",
     "typescript": "^5.2.2"
   },

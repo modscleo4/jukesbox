@@ -39,15 +39,8 @@ class Leave extends Command {
 
     async fn({ client, guild, channel, author, member, sendMessage }: CommandContext, args: any[]): Promise<CommandReturn> {
         const sc = serverConfig.get(guild.id);
-        const serverQueue = queue.get(guild.id);
 
         await this.checkVoiceChannel({ guild, member });
-
-        if (serverQueue) {
-            serverQueue.songs = [];
-            serverQueue.connection?.destroy();
-            serverQueue.playing = false;
-        }
 
         client.leaveVoiceChannel(guild.id);
 

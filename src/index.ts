@@ -23,19 +23,38 @@
 import Client from "./lib/Client.js";
 import { queue, serverConfig, messageAlert } from "./global.js";
 import { options } from "./config.js";
-import { loadServerConfig } from "./lib/utils.js";
+import { prisma } from './lib/prisma.js';
 import InsufficientBotPermissionsError from "./errors/InsufficientBotPermissionsError.js";
 import InsufficientUserPermissionsError from "./errors/InsufficientUserPermissionsError.js";
 import NoVoiceChannelError from "./errors/NoVoiceChannelError.js";
 import SameVoiceChannelError from "./errors/SameVoiceChannelError.js";
 import FullVoiceChannelError from "./errors/FullVoiceChannelError.js";
-import i18n from "./lang/lang.js";
+import i18n, { langs } from "./lang/lang.js";
 import { ActivityType, InteractionType, Message, TextChannel, WebhookClient } from "discord.js";
 import Command, { CommandReturn, SendMessageFn } from "./lib/Command.js";
 import CommandExecutionError from "./errors/CommandExecutionError.js";
+import ServerConfig from "./lib/ServerConfig.js";
 
-for (const sc of await loadServerConfig(options.database_url)) {
-    serverConfig.set(sc[0], sc[1]);
+await prisma.$connect();
+
+const serverConfigs = await prisma.serverConfig.findMany({
+    include: {
+        channelDenies: true,
+    },
+});
+
+for (const sc of serverConfigs) {
+    serverConfig.set(
+        sc.guild, new ServerConfig(
+            {
+                 ...sc,
+                 prefix: sc.prefix ?? undefined,
+                 volume: sc.volume ?? undefined,
+                 lang: sc.lang as keyof typeof langs ?? undefined,
+                 channelDenies: sc.channelDenies.reduce((acc, v) => acc, {} as { [s: string]: Set<string>; })
+            }
+        )
+    );
 }
 
 console.log(`${serverConfig.size} configuraç${serverConfig.size > 1 ? 'ões' : 'ão'} carregada${serverConfig.size > 1 ? 's' : ''}.`);
@@ -58,14 +77,6 @@ client.on('ready', async () => {
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if ((!newState.channel || newState.channel !== oldState.channel) && oldState.channel) {
         if (oldState.channel.members.size === 1 && oldState.channel.members.find(m => m.id === client.user!.id)) {
-            const serverQueue = queue.get(oldState.channel.guild.id);
-
-            if (serverQueue) {
-                serverQueue.songs = [];
-                serverQueue.connection?.destroy();
-                serverQueue.playing = false;
-            }
-
             client.leaveVoiceChannel(oldState.channel.guild.id);
         }
     }

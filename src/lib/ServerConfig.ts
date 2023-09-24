@@ -20,12 +20,11 @@
 
 'use strict';
 
-import { TextChannel } from "discord.js";
 import { langs } from "../lang/lang.js";
-import DB from "./DB.js";
+import { prisma } from "./prisma.js";
 
 export default class ServerConfig {
-    #id: number;
+    #id: bigint;
     #guild: string;
     #prefix: string;
     #volume: number;
@@ -35,7 +34,7 @@ export default class ServerConfig {
     #dirty: boolean;
     #channelDeniesDirty: boolean;
 
-    constructor({ id = -1, guild, prefix = '.', volume = 100, lang = 'pt_BR', telemetry_level = 1, channelDenies = {} }: { id?: number; guild: string; prefix?: string; volume?: number; lang?: keyof typeof langs; telemetry_level?: number; channelDenies?: { [s: string]: Set<string>; }; }) {
+    constructor({ id = -1n, guild, prefix = '.', volume = 100, lang = 'pt_BR', telemetry_level = 1, channelDenies = {} }: { id?: bigint; guild: string; prefix?: string; volume?: number; lang?: keyof typeof langs; telemetry_level?: number; channelDenies?: { [s: string]: Set<string>; }; }) {
         this.#id = id;
         this.#guild = guild;
         this.#prefix = prefix;
@@ -54,33 +53,59 @@ export default class ServerConfig {
      * @return {Promise<void>}
      */
     async save(database_url: string): Promise<void> {
-        const db = new DB(database_url);
-
         if (this.#id) {
             if (this.#dirty) {
-                await db.query('UPDATE server_configs SET prefix = $2, volume = $3, lang = $4, telemetry_level = $5 WHERE id = $1', [this.#id, this.#prefix, this.#volume, this.#lang, this.#telemetryLevel]);
+                await prisma.serverConfig.update({
+                    where: {
+                        id: this.#id,
+                    },
+                    data: {
+                        prefix: this.#prefix,
+                        volume: this.#volume,
+                        lang: this.#lang,
+                        telemetryLevel: this.#telemetryLevel,
+                    }
+                });
             }
 
             if (this.#channelDeniesDirty) {
                 for (const channel in this.#channelDenies) {
-                    await db.query('DELETE FROM channel_denies WHERE server_config_id = $1;', [this.#id]);
+                    await prisma.channelDeny.deleteMany({
+                        where: {
+                            serverConfigId: this.#id,
+                        }
+                    });
 
-                    for (const command of this.#channelDenies[channel]) {
-                        await db.query('INSERT INTO channel_denies (server_config_id, channel, command) VALUES ($1, $2, $3)', [this.#id, channel, command]);
-                    }
+                    await prisma.channelDeny.createMany({
+                        data: Array.from(this.#channelDenies[channel]).map(command => ({
+                            serverConfigId: this.#id,
+                            channel,
+                            command,
+                        })),
+                    });
                 }
             }
         } else {
-            this.#id = (await db.query('INSERT INTO server_configs (guild, prefix, volume, lang, telemetry_level) VALUES ($1, $2, $3, $4, $5) RETURNING id', [this.#guild, this.#prefix, this.#volume, this.#lang, this.#telemetryLevel])).rows[0].id;
+            this.#id = (await prisma.serverConfig.create({
+                data: {
+                    guild: this.#guild,
+                    prefix: this.#prefix,
+                    volume: this.#volume,
+                    lang: this.#lang,
+                    telemetryLevel: this.#telemetryLevel,
+                }
+            })).id;
 
             for (const channel in this.#channelDenies) {
-                for (const command of this.#channelDenies[channel]) {
-                    await db.query('INSERT INTO channel_denies (server_config_id, channel, command) VALUES ($1, $2, $3)', [this.#id, channel, command]);
-                }
+                await prisma.channelDeny.createMany({
+                    data: Array.from(this.#channelDenies[channel]).map(command => ({
+                        serverConfigId: this.#id,
+                        channel,
+                        command,
+                    })),
+                });
             }
         }
-
-        await db.close();
 
         this.#dirty = false;
         this.#channelDeniesDirty = false;
@@ -92,16 +117,21 @@ export default class ServerConfig {
      * @return {Promise<void>}
      */
     async delete(database_url: string): Promise<void> {
-        const db = new DB(database_url);
-
         if (!this.#id) {
             return;
         }
 
-        await db.query('DELETE FROM channel_denies WHERE server_config_id = $1', [this.#id]);
-        await db.query('DELETE FROM server_configs WHERE id = $1', [this.#id]);
+        await prisma.channelDeny.deleteMany({
+            where: {
+                serverConfigId: this.#id,
+            }
+        });
 
-        await db.close();
+        await prisma.serverConfig.delete({
+            where: {
+                id: this.#id,
+            }
+        });
     }
 
     get id() {

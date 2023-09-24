@@ -24,7 +24,7 @@ import { CreateVoiceConnectionOptions, joinVoiceChannel as JoinVoiceChannel, Joi
 import { Client as BaseClient, ClientOptions } from "discord.js";
 
 import { options } from '../config.js';
-import { voiceConnections } from "../global.js";
+import { queue, voiceConnections } from "../global.js";
 import Command from "./Command.js";
 
 export default class Client extends BaseClient {
@@ -63,6 +63,14 @@ export default class Client extends BaseClient {
     }
 
     leaveVoiceChannel(guildId: string) {
+        const serverQueue = queue.get(guildId);
+
+        if (serverQueue) {
+            serverQueue.songs = [];
+            serverQueue.connection?.destroy();
+            serverQueue.playing = false;
+        }
+
         if (voiceConnections.has(guildId)) {
             const voiceConnection = voiceConnections.get(guildId)!;
             if (![VoiceConnectionStatus.Disconnected, VoiceConnectionStatus.Destroyed].includes(voiceConnection.state.status)) {

@@ -29,38 +29,10 @@ import { parseDocument } from "htmlparser2";
 import { innerText } from "domutils";
 import { selectOne } from "css-select";
 
-import DB from "./DB.js";
 import ServerConfig from "./ServerConfig.js";
 import { Client, Message, MessageReaction } from "discord.js";
 
 const youtube_api = google.youtube('v3');
-
-export async function loadServerConfig(database_url: string): Promise<Map<string, ServerConfig>> {
-    const db = new DB(database_url);
-
-    const ret = new Map();
-    const result = (await db.query('SELECT * FROM server_configs;')).rows;
-
-    for (const r of result) {
-        const result2 = (await db.query('SELECT channel, command FROM channel_denies WHERE server_config_id = $1;', [r.id])).rows;
-        const sc = new ServerConfig({ ...r, channelDenies: result2.reduce((a, r2) => ({ ...a, [r2.channel]: (a[r2.channel] ?? new Set()).add(r2.command) }), {}) });
-        ret.set(r.guild, sc);
-    }
-
-    await db.close();
-
-    return ret;
-}
-
-export async function loadUsageStats(database_url: string): Promise<{ command: string; used: number; }[]> {
-    const db = new DB(database_url);
-
-    const result = (await db.query('SELECT * FROM command_stats;')).rows;
-
-    await db.close();
-
-    return result;
-}
 
 export function isValidHttpURL(string: string): boolean {
     try {

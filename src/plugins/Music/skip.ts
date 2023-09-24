@@ -67,7 +67,7 @@ class Skip extends Command {
         }
 
         !serverQueue.playing && serverQueue.player?.unpause();
-        serverQueue.player?.stop();
+        serverQueue.player?.stop(true);
 
         return { content: i18n('music.skip.success', sc?.lang) };
     }

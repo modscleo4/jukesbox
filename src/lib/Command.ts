@@ -26,10 +26,10 @@ import NoVoiceChannelError from "../errors/NoVoiceChannelError.js";
 import SameVoiceChannelError from "../errors/SameVoiceChannelError.js";
 import FullVoiceChannelError from "../errors/FullVoiceChannelError.js";
 import { options } from "../config.js";
-import DB from "./DB.js";
 import { Guild, GuildMember, Message, EmbedData, BaseMessageOptions, MessageReaction, PermissionsString, TextChannel, User, APIEmbed } from "discord.js";
 import Client from "./Client.js";
 import { langs } from "src/lang/lang.js";
+import { prisma } from "./prisma.js";
 
 
 export type Permissions = {
@@ -199,11 +199,19 @@ export default abstract class Command {
     }
 
     static async logUsage(command: string) {
-        const db = new DB(options.database_url);
-
-        await db.query('UPDATE command_stats SET used = used + 1 WHERE command = $1', [command]);
-        await db.query('INSERT INTO command_stats (command, used) SELECT $1, 1 WHERE NOT EXISTS (SELECT 1 FROM command_stats WHERE command = $2)', [command, command]);
-
-        await db.close();
+        await prisma.commandStat.upsert({
+            where: {
+                command: command,
+            },
+            update: {
+                used: {
+                    increment: 1,
+                },
+            },
+            create: {
+                command: command,
+                used: 1,
+            },
+        })
     }
 }

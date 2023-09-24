@@ -26,8 +26,8 @@ import { serverConfig } from "../../global.js";
 import { options } from "../../config.js";
 import Command, { CommandContext, CommandReturn, OptionType } from "../../lib/Command.js";
 import i18n from "../../lang/lang.js";
-import { loadUsageStats } from "../../lib/utils.js";
 import CommandExecutionError from "../../errors/CommandExecutionError.js";
+import { prisma } from "../../lib/prisma.js";
 
 class UsageStats extends Command {
     constructor() {
@@ -50,7 +50,7 @@ class UsageStats extends Command {
 
         await this.checkPermissions({ guild, channel, author, member });
 
-        const stats = (await loadUsageStats(options.database_url)).sort((a, b) => b.used - a.used);
+        const stats = await prisma.commandStat.findMany({ orderBy: { used: 'desc' } });
         if (stats.length === 0) {
             throw new CommandExecutionError({ content: i18n('admin.usagestats.noStats', sc?.lang) });
         }
