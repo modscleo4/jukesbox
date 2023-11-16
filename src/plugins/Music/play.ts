@@ -481,7 +481,11 @@ class Play extends Command {
             throw new CommandExecutionError({ content: i18n('music.play.error', sc?.lang) });
         }
 
-        if (!serverQueue) {
+        if (!serverQueue || serverQueue.songs.length === 0) {
+            if (serverQueue) {
+                queue.delete(guild.id);
+            }
+
             const q = new ServerQueue({ songs, volume: sc.volume });
 
             queue.set(guild.id, q);

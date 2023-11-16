@@ -69,6 +69,8 @@ export default class Client extends BaseClient {
             serverQueue.songs = [];
             serverQueue.connection?.destroy();
             serverQueue.playing = false;
+
+            queue.delete(guildId);
         }
 
         if (voiceConnections.has(guildId)) {

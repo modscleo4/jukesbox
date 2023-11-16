@@ -49,6 +49,9 @@ class Stop extends Command {
         serverQueue.songs = [];
         serverQueue.player?.stop(true);
         serverQueue.playing = false;
+
+        queue.delete(guild.id);
+
         return { content: i18n('music.stop.success', sc?.lang) };
     }
 }

@@ -23,7 +23,6 @@
 import MessageEmbed from "../lib/MessageEmbed.js";
 import { google, youtube_v3 } from "googleapis";
 import { URL } from "url";
-import fetch from 'node-fetch';
 import SpotifyWebAPI from "spotify-web-api-node";
 import { parseDocument } from "htmlparser2";
 import { innerText } from "domutils";
