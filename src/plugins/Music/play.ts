@@ -80,7 +80,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage }:
         return null;
     }
 
-    if (serverQueue.song.findOnYT) {
+    if (serverQueue.song?.findOnYT) {
         const msg = (await sendMessage({ content: i18n('music.play.searchingYT', sc?.lang) }))!;
         const found = await findOnYT(serverQueue.song);
         await msg.delete().catch(() => { });
@@ -94,6 +94,11 @@ async function playSong({ client, guild, channel, author, member, sendMessage }:
         serverQueue.song = found;
     }
 
+    if (!serverQueue.song) {
+        serverQueue.next();
+        return await playSong({ client, guild, channel, author, member, sendMessage });
+    }
+
     serverQueue.song.stream = await serverQueue.song.fn!(serverQueue.song.url, serverQueue.song.options);
     if (!serverQueue.song.stream) {
         await sendMessage({
@@ -105,8 +110,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage }:
         });
 
         serverQueue.next();
-        await playSong({ client, guild, channel, author, member, sendMessage });
-        return null;
+        return await playSong({ client, guild, channel, author, member, sendMessage });
     }
 
     if (serverQueue.runSeek || serverQueue.startTime > 0) {
@@ -222,7 +226,7 @@ async function playSong({ client, guild, channel, author, member, sendMessage }:
     serverQueue.lastPlaybackTime = 0;
     serverQueue.toDelete.push((await sendMessage(await nowplaying.fn({ client, guild, channel, author, member, sendMessage }, [])))!);
 
-    if (serverQueue.song?.uploader.toUpperCase().includes('JUKES') || serverQueue.song?.title.toUpperCase().includes('JUKES')) {
+    if (serverQueue.song.uploader.toUpperCase().includes('JUKES') || serverQueue.song.title.toUpperCase().includes('JUKES')) {
         serverQueue.toDelete.push((await sendMessage({ content: 'Mec.' }))!);
     }
 }

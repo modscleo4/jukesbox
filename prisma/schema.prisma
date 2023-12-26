@@ -35,7 +35,7 @@ model ChannelDeny {
   serverConfigId BigInt       @map("server_config_id")
   channel        String       @db.VarChar
   command        String       @db.VarChar
-  serverConfig   ServerConfig @relation(fields: [serverConfigId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  serverConfig   ServerConfig @relation(fields: [serverConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([serverConfigId, channel, command])
   @@map("channel_denies")

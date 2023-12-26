@@ -68,7 +68,7 @@ class Seek extends Command {
         const sc = serverConfig.get(guild.id);
         const serverQueue = queue.get(guild.id);
 
-        if (!serverQueue || !serverQueue.resource) {
+        if (!serverQueue || !serverQueue.resource || !serverQueue.song) {
             throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 

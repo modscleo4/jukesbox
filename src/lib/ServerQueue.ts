@@ -135,14 +135,14 @@ export default class ServerQueue {
         return this.song?.seek ?? 0;
     }
 
-    get song() {
+    get song(): Song | null {
+        if (this.#songs.length === 0 || this.#position >= this.#songs.length) {
+            return null;
+        }
+
         return this.#songs[this.#position];
     }
 
-    /**
-     *
-     * @param {Song} song
-     */
     set song(song: Song) {
         this.#songs[this.#position] = song;
     }

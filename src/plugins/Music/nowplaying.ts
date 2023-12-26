@@ -52,7 +52,7 @@ class NowPlaying extends Command {
 
         await this.checkPermissions({ guild, channel, author, member });
 
-        if (!serverQueue || !serverQueue.resource) {
+        if (!serverQueue || !serverQueue.resource || !serverQueue.song) {
             throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
         }
 

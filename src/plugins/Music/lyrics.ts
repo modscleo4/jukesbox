@@ -60,7 +60,7 @@ class Lyrics extends Command {
 
         let q;
         if (!args.length) {
-            if (!serverQueue) {
+            if (!serverQueue || !serverQueue.song) {
                 throw new CommandExecutionError({ content: i18n('music.queueEmpty', sc?.lang) });
             }
 

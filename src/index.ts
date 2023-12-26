@@ -47,11 +47,11 @@ for (const sc of serverConfigs) {
     serverConfig.set(
         sc.guild, new ServerConfig(
             {
-                 ...sc,
-                 prefix: sc.prefix ?? undefined,
-                 volume: sc.volume ?? undefined,
-                 lang: sc.lang as keyof typeof langs ?? undefined,
-                 channelDenies: sc.channelDenies.reduce((acc, v) => acc, {} as { [s: string]: Set<string>; })
+                ...sc,
+                prefix: sc.prefix ?? undefined,
+                volume: sc.volume ?? undefined,
+                lang: sc.lang as keyof typeof langs ?? undefined,
+                channelDenies: sc.channelDenies.reduce((acc, v) => acc, {} as { [s: string]: Set<string>; })
             }
         )
     );
